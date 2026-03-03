@@ -1,0 +1,237 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "Apache ECharts",
+  "projectDescription": "A powerful, interactive charting and data visualization library for browsers",
+  "theme": "sequoia",
+  "primaryColor": "#5470c6",
+  "lightColor": "#91cc75",
+  "darkColor": "#3ba272",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/options",
+              "concepts/dataset",
+              "concepts/coordinate-systems",
+              "concepts/rendering",
+              "concepts/event-handling"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/customization",
+              "guides/responsive-design",
+              "guides/performance",
+              "guides/accessibility",
+              "guides/server-side-rendering"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Charts",
+        "groups": [
+          {
+            "group": "Basic Charts",
+            "pages": [
+              "charts/line",
+              "charts/bar",
+              "charts/pie",
+              "charts/scatter",
+              "charts/candlestick"
+            ]
+          },
+          {
+            "group": "Advanced Charts",
+            "pages": [
+              "charts/graph",
+              "charts/tree",
+              "charts/treemap",
+              "charts/sunburst",
+              "charts/sankey"
+            ]
+          },
+          {
+            "group": "Statistical Charts",
+            "pages": [
+              "charts/boxplot",
+              "charts/heatmap",
+              "charts/parallel",
+              "charts/radar"
+            ]
+          },
+          {
+            "group": "Special Charts",
+            "pages": [
+              "charts/funnel",
+              "charts/gauge",
+              "charts/map",
+              "charts/custom"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Coordinate Systems",
+            "pages": [
+              "components/grid",
+              "components/polar",
+              "components/geo",
+              "components/parallel-coordinates",
+              "components/calendar"
+            ]
+          },
+          {
+            "group": "Axes",
+            "pages": [
+              "components/x-axis",
+              "components/y-axis",
+              "components/angle-axis",
+              "components/radius-axis"
+            ]
+          },
+          {
+            "group": "Interactive Components",
+            "pages": [
+              "components/legend",
+              "components/tooltip",
+              "components/toolbox",
+              "components/data-zoom",
+              "components/brush"
+            ]
+          },
+          {
+            "group": "Visual Components",
+            "pages": [
+              "components/title",
+              "components/visual-map",
+              "components/timeline",
+              "components/mark-point",
+              "components/mark-line",
+              "components/mark-area"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core API",
+            "pages": [
+              "api/echarts-instance",
+              "api/init",
+              "api/connect",
+              "api/dispose",
+              "api/use"
+            ]
+          },
+          {
+            "group": "Chart Instance",
+            "pages": [
+              "api/set-option",
+              "api/get-option",
+              "api/resize",
+              "api/dispatch-action",
+              "api/on-off"
+            ]
+          },
+          {
+            "group": "Options",
+            "pages": [
+              "api/options/series",
+              "api/options/global",
+              "api/options/types"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Resources",
+        "groups": [
+          {
+            "group": "Examples",
+            "pages": [
+              "examples/getting-started",
+              "examples/real-time-data",
+              "examples/large-datasets",
+              "examples/mobile"
+            ]
+          },
+          {
+            "group": "Themes & Styling",
+            "pages": [
+              "themes/overview",
+              "themes/built-in-themes",
+              "themes/custom-themes"
+            ]
+          },
+          {
+            "group": "Extensions",
+            "pages": [
+              "extensions/echarts-gl",
+              "extensions/wordcloud",
+              "extensions/liquidfill",
+              "extensions/bmap"
+            ]
+          },
+          {
+            "group": "Migration & Support",
+            "pages": [
+              "migration/v5-to-v6",
+              "migration/v4-to-v5",
+              "contributing",
+              "changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "20+ chart types including line, bar, pie, scatter, and advanced visualizations",
+    "Rich interactive components with zoom, brush, tooltip, and legend",
+    "Canvas and SVG rendering with high performance for large datasets",
+    "Flexible data visualization with customizable themes and styling",
+    "Responsive design support for mobile and desktop",
+    "Server-side rendering (SSR) capability",
+    "Extensive configuration through declarative options API",
+    "Built-in animations and transitions"
+  ],
+  "publicApiSurface": [
+    "echarts.init()",
+    "echartsInstance.setOption()",
+    "echartsInstance.getOption()",
+    "echartsInstance.resize()",
+    "echartsInstance.dispatchAction()",
+    "echartsInstance.on()",
+    "echartsInstance.off()",
+    "echarts.connect()",
+    "echarts.disconnect()",
+    "echarts.dispose()",
+    "echarts.use()",
+    "echarts.registerTheme()",
+    "echarts.registerMap()",
+    "Series Options (LineSeriesOption, BarSeriesOption, PieSeriesOption, etc.)",
+    "Component Options (GridComponentOption, LegendComponentOption, TooltipComponentOption, etc.)",
+    "Chart Types: bar, line, pie, scatter, effectScatter, radar, tree, treemap, sunburst, boxplot, candlestick, heatmap, map, parallel, sankey, funnel, gauge, pictorialBar, themeRiver, graph, custom",
+    "Components: grid, polar, geo, calendar, legend, tooltip, toolbox, dataZoom, visualMap, timeline, axisPointer, brush, title, markPoint, markLine, markArea",
+    "Renderers: CanvasRenderer, SVGRenderer"
+  ]
+}
