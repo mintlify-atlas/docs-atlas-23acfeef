@@ -1,0 +1,478 @@
+---
+title: Theme River Chart
+description: Visualize temporal topic trends and stream data in Apache ECharts
+---
+
+## Overview
+
+Theme river charts (also known as stream graphs) visualize the changes of multiple themes or topics over time using flowing, organic shapes. Each theme is represented as a colored stream that varies in width to show changes in value, creating a river-like visualization that reveals patterns, trends, and relationships in temporal data.
+
+## When to Use
+
+Use theme river charts when you need to:
+
+- Track multiple topics or themes over time
+- Visualize temporal trends in social media mentions, news coverage, or discussions
+- Show the evolution of market segments or product categories
+- Display changing popularity of music genres, movie themes, or cultural trends
+- Analyze time-series data with multiple categories
+- Create visually engaging temporal visualizations for storytelling
+
+## Basic Configuration
+
+The theme river chart is configured through the `ThemeRiverSeriesOption` interface, using a single axis coordinate system.
+
+```typescript
+interface ThemeRiverSeriesOption {
+  type: 'themeRiver'
+  coordinateSystem?: 'singleAxis'
+  data?: [date, value, name][]
+  boundaryGap?: (string | number)[]
+  label?: ThemeRiverSeriesLabelOption
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Technology Trend Analysis'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'line',
+      lineStyle: {
+        color: 'rgba(0,0,0,0.2)',
+        width: 1,
+        type: 'solid'
+      }
+    }
+  },
+  legend: {
+    data: ['AI', 'Cloud', 'Mobile', 'Web']
+  },
+  singleAxis: {
+    top: 50,
+    bottom: 50,
+    type: 'time',
+    axisLabel: {
+      formatter: '{yyyy}-{MM}'
+    }
+  },
+  series: [
+    {
+      name: 'Technology Trends',
+      type: 'themeRiver',
+      data: [
+        ['2023-01-01', 100, 'AI'],
+        ['2023-01-01', 80, 'Cloud'],
+        ['2023-01-01', 60, 'Mobile'],
+        ['2023-01-01', 40, 'Web'],
+        
+        ['2023-02-01', 120, 'AI'],
+        ['2023-02-01', 85, 'Cloud'],
+        ['2023-02-01', 55, 'Mobile'],
+        ['2023-02-01', 45, 'Web'],
+        
+        ['2023-03-01', 150, 'AI'],
+        ['2023-03-01', 90, 'Cloud'],
+        ['2023-03-01', 50, 'Mobile'],
+        ['2023-03-01', 50, 'Web']
+      ],
+      label: {
+        show: true,
+        position: 'left',
+        fontSize: 11
+      },
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 20,
+          shadowColor: 'rgba(0, 0, 0, 0.8)'
+        }
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="data" type="[date, value, name][]" required>
+  Array of data items in the format `[date, value, name]` where:
+  - `date`: Time value (Date object, timestamp, or date string)
+  - `value`: Numeric value representing the theme's magnitude at this time
+  - `name`: String identifier for the theme/category
+  
+  ```javascript
+  data: [
+    ['2023-01-01', 100, 'Theme A'],
+    ['2023-01-01', 80, 'Theme B'],
+    ['2023-02-01', 120, 'Theme A'],
+    ['2023-02-01', 75, 'Theme B']
+  ]
+  
+  // Can also use timestamps or Date objects
+  data: [
+    [1672531200000, 100, 'Theme A'],
+    [new Date('2023-01-01'), 80, 'Theme B']
+  ]
+  ```
+</ParamField>
+
+<ParamField path="coordinateSystem" type="'singleAxis'" default="'singleAxis'">
+  Theme river charts use a single axis coordinate system for the time dimension.
+  
+  ```javascript
+  coordinateSystem: 'singleAxis'
+  ```
+</ParamField>
+
+<ParamField path="boundaryGap" type="(string | number)[]" default="['10%', '10%']">
+  Gap at the top and bottom of the chart as `[top, bottom]`. Can be specified as percentages or absolute pixel values.
+  
+  ```javascript
+  boundaryGap: ['5%', '5%']   // Less padding
+  boundaryGap: [20, 20]        // 20 pixels on each side
+  ```
+</ParamField>
+
+<ParamField path="label" type="ThemeRiverSeriesLabelOption">
+  Label configuration for theme names.
+  
+  ```javascript
+  label: {
+    show: true,
+    position: 'left',  // 'left', 'right', 'top', 'bottom', 'inside'
+    fontSize: 11,
+    margin: 4,         // Distance from the stream edge
+    color: '#fff'
+  }
+  ```
+</ParamField>
+
+<ParamField path="label.margin" type="number" default="4">
+  Distance between the label and the stream edge in pixels.
+  
+  ```javascript
+  label: {
+    margin: 8  // More spacing
+  }
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="ItemStyleOption">
+  Visual style of the theme streams.
+  
+  ```javascript
+  itemStyle: {
+    opacity: 0.8,
+    borderWidth: 1,
+    borderColor: '#fff',
+    shadowBlur: 10,
+    shadowColor: 'rgba(0, 0, 0, 0.3)'
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis when hovering over a theme stream.
+  
+  ```javascript
+  emphasis: {
+    label: {
+      show: true,
+      fontSize: 14
+    },
+    itemStyle: {
+      shadowBlur: 20,
+      shadowColor: 'rgba(0, 0, 0, 0.8)'
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="singleAxisIndex" type="number" default="0">
+  Index of the single axis to use when multiple single axes are configured.
+  
+  ```javascript
+  singleAxisIndex: 0
+  ```
+</ParamField>
+
+## Data Format
+
+Theme river data must follow a specific three-element array format:
+
+```javascript
+// Required format: [date, value, themeName]
+data: [
+  ['2023-01-01', 100, 'AI'],
+  ['2023-01-01', 80, 'Cloud'],
+  ['2023-01-01', 60, 'Mobile'],
+  
+  ['2023-02-01', 120, 'AI'],
+  ['2023-02-01', 85, 'Cloud'],
+  ['2023-02-01', 55, 'Mobile']
+]
+
+// Important: Each time point should have a value for every theme
+// Missing values are automatically filled with 0
+```
+
+**Key Requirements:**
+1. Each data item is a three-element array: `[date, value, name]`
+2. The `name` (third element) cannot be undefined
+3. Data is automatically grouped by theme name
+4. Missing time points are filled with zero values
+5. Themes are stacked in the order they appear
+
+## Advanced Features
+
+### Social Media Topic Trends
+
+```javascript
+const topics = ['Politics', 'Sports', 'Entertainment', 'Technology', 'Health'];
+const data = [];
+
+// Generate data for each month
+for (let month = 0; month < 12; month++) {
+  const date = new Date(2023, month, 1);
+  topics.forEach(topic => {
+    const value = Math.random() * 100 + 50;
+    data.push([date, value, topic]);
+  });
+}
+
+const option = {
+  singleAxis: {
+    type: 'time',
+    axisLabel: {
+      formatter: '{MMM}'
+    }
+  },
+  series: [{
+    type: 'themeRiver',
+    data: data,
+    label: {
+      show: true,
+      position: 'left'
+    }
+  }]
+};
+```
+
+### Music Genre Evolution
+
+```javascript
+const genres = ['Rock', 'Pop', 'Hip Hop', 'Electronic', 'Jazz'];
+const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+
+const data = [
+  ['2018', 100, 'Rock'],
+  ['2018', 80, 'Pop'],
+  ['2018', 60, 'Hip Hop'],
+  ['2018', 40, 'Electronic'],
+  ['2018', 30, 'Jazz'],
+  
+  ['2019', 90, 'Rock'],
+  ['2019', 95, 'Pop'],
+  ['2019', 75, 'Hip Hop'],
+  ['2019', 55, 'Electronic'],
+  ['2019', 25, 'Jazz'],
+  
+  // ... more data
+];
+
+const option = {
+  title: { text: 'Music Genre Popularity Over Time' },
+  singleAxis: {
+    type: 'category',
+    data: years,
+    top: 50,
+    bottom: 50
+  },
+  series: [{
+    type: 'themeRiver',
+    data: data,
+    label: {
+      show: true,
+      fontSize: 12,
+      color: '#fff',
+      fontWeight: 'bold'
+    },
+    emphasis: {
+      itemStyle: {
+        shadowBlur: 30,
+        shadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    }
+  }]
+};
+```
+
+### Custom Color Palette
+
+```javascript
+const option = {
+  color: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8'],
+  singleAxis: {
+    type: 'time'
+  },
+  series: [{
+    type: 'themeRiver',
+    data: data,
+    itemStyle: {
+      opacity: 0.7,
+      borderWidth: 0
+    }
+  }]
+};
+```
+
+### Interactive Theme River
+
+```javascript
+const option = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'line'
+    },
+    formatter: function(params) {
+      let result = params[0].axisValueLabel + '<br/>';
+      params.forEach(param => {
+        result += param.marker + ' ' + 
+                  param.data[2] + ': ' + 
+                  param.data[1] + '<br/>';
+      });
+      return result;
+    }
+  },
+  legend: {
+    data: ['Theme A', 'Theme B', 'Theme C'],
+    selected: {
+      'Theme A': true,
+      'Theme B': true,
+      'Theme C': false  // Initially hidden
+    }
+  },
+  singleAxis: {
+    type: 'time',
+    axisPointer: {
+      show: true,
+      label: {
+        show: true
+      }
+    }
+  },
+  series: [{
+    type: 'themeRiver',
+    data: data,
+    emphasis: {
+      focus: 'series',  // Highlight entire theme on hover
+      itemStyle: {
+        borderColor: '#333',
+        borderWidth: 2
+      }
+    }
+  }]
+};
+```
+
+### Time Range with Zoom
+
+```javascript
+const option = {
+  singleAxis: {
+    type: 'time',
+    min: '2020-01-01',
+    max: '2023-12-31'
+  },
+  dataZoom: [
+    {
+      type: 'slider',
+      singleAxisIndex: 0,
+      start: 0,
+      end: 50,  // Show first half initially
+      bottom: 10
+    },
+    {
+      type: 'inside',
+      singleAxisIndex: 0
+    }
+  ],
+  series: [{
+    type: 'themeRiver',
+    data: largeDataset
+  }]
+};
+```
+
+## Best Practices
+
+1. **Consistent Time Intervals**: Use regular time intervals for smoother, more readable visualizations.
+
+2. **Limit Theme Count**: Keep the number of themes between 3-8 for optimal readability.
+
+3. **Complete Data**: Ensure each time point has values for all themes to avoid gaps:
+   ```javascript
+   // Good: All themes at each time point
+   data: [
+     ['2023-01', 100, 'A'], ['2023-01', 80, 'B'],
+     ['2023-02', 110, 'A'], ['2023-02', 75, 'B']
+   ]
+   ```
+
+4. **Label Positioning**: Use `position: 'left'` or `'right'` for horizontal single axes.
+
+5. **Color Selection**: Choose distinct, harmonious colors for better theme differentiation.
+
+## Common Patterns
+
+### News Topic Tracking
+```javascript
+// Track how different news topics trend over time
+data: coverage data from news API or analytics
+themes: ['Politics', 'Economy', 'Health', 'Sports']
+```
+
+### Product Category Sales
+```javascript
+// Visualize changing market share of product categories
+data: monthly sales data by category
+themes: product category names
+```
+
+### Cultural Trends
+```javascript
+// Show evolution of cultural interests or search trends
+data: search volume or social media mentions
+themes: cultural topics or hashtags
+```
+
+## Troubleshooting
+
+**Problem**: Gaps or missing sections in the stream
+**Solution**: Ensure every time point has data for all themes. Missing data should be explicitly set to 0.
+
+**Problem**: Labels overlapping or not visible
+**Solution**: Adjust `label.margin`, reduce `fontSize`, or use `label.position: 'inside'`.
+
+**Problem**: Streams appear too thin or too thick
+**Solution**: Adjust `boundaryGap` to control vertical spacing.
+
+## Source Reference
+
+The theme river chart implementation can be found in:
+- Series model: `src/chart/themeRiver/ThemeRiverSeries.ts:81-327`
+- Type definitions: `src/chart/themeRiver/ThemeRiverSeries.ts:47-79`
+- Default options: `src/chart/themeRiver/ThemeRiverSeries.ts:297-326`
+- Data format: `src/chart/themeRiver/ThemeRiverSeries.ts:51,78,112-155`

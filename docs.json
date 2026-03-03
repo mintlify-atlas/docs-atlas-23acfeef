@@ -63,6 +63,7 @@
               "charts/bar",
               "charts/pie",
               "charts/scatter",
+              "charts/effect-scatter",
               "charts/candlestick"
             ]
           },
@@ -73,7 +74,8 @@
               "charts/tree",
               "charts/treemap",
               "charts/sunburst",
-              "charts/sankey"
+              "charts/sankey",
+              "charts/chord"
             ]
           },
           {
@@ -82,14 +84,17 @@
               "charts/boxplot",
               "charts/heatmap",
               "charts/parallel",
-              "charts/radar"
+              "charts/radar",
+              "charts/theme-river"
             ]
           },
           {
             "group": "Special Charts",
             "pages": [
+              "charts/lines",
               "charts/funnel",
               "charts/gauge",
+              "charts/pictorial-bar",
               "charts/map",
               "charts/custom"
             ]

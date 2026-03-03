@@ -1,0 +1,414 @@
+---
+title: Effect Scatter Chart
+description: Visualize data points with animated ripple effects in Apache ECharts
+---
+
+## Overview
+
+Effect scatter charts are an enhanced version of scatter charts that add dynamic visual effects, such as ripple animations, to emphasize important data points. These animated effects are particularly useful for drawing attention to specific data points or creating dynamic, eye-catching visualizations.
+
+## When to Use
+
+Use effect scatter charts when you need to:
+
+- Highlight important or special data points with animation
+- Draw user attention to specific events or outliers
+- Create dynamic visualizations that emphasize temporal or important data
+- Visualize events on maps (earthquakes, weather events, etc.)
+- Show real-time data updates with visual emphasis
+- Add visual interest to scatter plots for presentations
+
+## Basic Configuration
+
+The effect scatter chart is configured through the `EffectScatterSeriesOption` interface, supporting the same coordinate systems as regular scatter charts.
+
+```typescript
+interface EffectScatterSeriesOption {
+  type: 'effectScatter'
+  coordinateSystem?: string
+  showEffectOn?: 'render' | 'emphasis'
+  rippleEffect?: {
+    period?: number
+    scale?: number
+    brushType?: 'fill' | 'stroke'
+    number?: number
+  }
+  data?: (EffectScatterDataItemOption | OptionDataValue)[]
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Major Earthquake Locations'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b}<br/>Magnitude: {c}'
+  },
+  xAxis: {
+    type: 'value',
+    name: 'Longitude',
+    min: -180,
+    max: 180
+  },
+  yAxis: {
+    type: 'value',
+    name: 'Latitude',
+    min: -90,
+    max: 90
+  },
+  series: [
+    {
+      name: 'Earthquakes',
+      type: 'effectScatter',
+      coordinateSystem: 'cartesian2d',
+      data: [
+        { name: 'Location A', value: [120.5, 35.2, 7.5] },
+        { name: 'Location B', value: [-118.3, 34.0, 6.8] },
+        { name: 'Location C', value: [139.7, 35.7, 7.2] }
+      ],
+      symbolSize: function(val) {
+        return val[2] * 4; // Size based on magnitude
+      },
+      showEffectOn: 'render',
+      rippleEffect: {
+        period: 4,
+        scale: 3,
+        brushType: 'stroke',
+        number: 2
+      },
+      itemStyle: {
+        color: '#f00',
+        shadowBlur: 10,
+        shadowColor: 'rgba(255, 0, 0, 0.5)'
+      },
+      emphasis: {
+        scale: true
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="showEffectOn" type="'render' | 'emphasis'" default="'render'">
+  Controls when the ripple effect is displayed:
+  - `'render'`: Show effect continuously from initial render
+  - `'emphasis'`: Show effect only when hovering over the data point
+  
+  ```javascript
+  showEffectOn: 'render'  // Continuous animation
+  showEffectOn: 'emphasis'  // Animation on hover only
+  ```
+</ParamField>
+
+<ParamField path="rippleEffect" type="object">
+  Configuration for the ripple animation effect.
+  
+  ```javascript
+  rippleEffect: {
+    period: 4,        // Duration of one ripple cycle in seconds
+    scale: 2.5,       // Maximum scale of the ripple (2.5 = 250%)
+    brushType: 'fill', // 'fill' or 'stroke'
+    number: 3         // Number of ripples to display
+  }
+  ```
+</ParamField>
+
+<ParamField path="rippleEffect.period" type="number" default="4">
+  Duration of a single ripple animation cycle in seconds.
+  
+  ```javascript
+  rippleEffect: {
+    period: 2  // Faster animation (2 seconds per cycle)
+  }
+  ```
+</ParamField>
+
+<ParamField path="rippleEffect.scale" type="number" default="2.5">
+  Maximum scale of the ripple relative to the symbol size. A value of 2.5 means the ripple grows to 250% of the original symbol size.
+  
+  ```javascript
+  rippleEffect: {
+    scale: 4  // Larger ripple effect
+  }
+  ```
+</ParamField>
+
+<ParamField path="rippleEffect.brushType" type="'fill' | 'stroke'" default="'fill'">
+  Rendering style of the ripple:
+  - `'fill'`: Filled ripple circles
+  - `'stroke'`: Outlined ripple circles
+  
+  ```javascript
+  rippleEffect: {
+    brushType: 'stroke'  // Outlined ripples
+  }
+  ```
+</ParamField>
+
+<ParamField path="rippleEffect.number" type="number" default="3">
+  Number of ripple waves to display simultaneously.
+  
+  ```javascript
+  rippleEffect: {
+    number: 2  // Show 2 ripples at a time
+  }
+  ```
+</ParamField>
+
+<ParamField path="coordinateSystem" type="string" default="'cartesian2d'">
+  The coordinate system to use. Effect scatter charts support:
+  - `'cartesian2d'`: 2D rectangular coordinate system (default)
+  - `'polar'`: Polar coordinate system
+  - `'geo'`: Geographic coordinate system
+  - `'calendar'`: Calendar coordinate system
+  - `'singleAxis'`: Single axis
+  
+  ```javascript
+  coordinateSystem: 'geo'  // For map visualizations
+  ```
+</ParamField>
+
+<ParamField path="symbolSize" type="number | Function" default="10">
+  Size of the base symbol. Can be a number or a function for dynamic sizing.
+  
+  ```javascript
+  symbolSize: 20
+  
+  // Dynamic sizing based on data value
+  symbolSize: function(data) {
+    return data[2] * 5;  // Size based on third value
+  }
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="ItemStyleOption">
+  Visual style of the scatter points.
+  
+  ```javascript
+  itemStyle: {
+    color: '#f4e925',
+    shadowBlur: 10,
+    shadowColor: 'rgba(244, 233, 37, 0.5)'
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis configuration for hover states.
+  
+  ```javascript
+  emphasis: {
+    focus: 'self',
+    scale: true  // Scale up on hover
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Effect scatter chart data supports the same formats as regular scatter charts:
+
+```javascript
+// Array of coordinate pairs [x, y]
+data: [
+  [10, 20],
+  [15, 25],
+  [20, 30]
+]
+
+// Array with additional values for sizing [x, y, size]
+data: [
+  [10, 20, 5],
+  [15, 25, 8],
+  [20, 30, 3]
+]
+
+// Array of data item objects
+data: [
+  {
+    value: [10, 20],
+    name: 'Point A',
+    symbolSize: 15,
+    rippleEffect: {
+      scale: 4,
+      period: 3
+    }
+  },
+  {
+    value: [15, 25],
+    name: 'Point B'
+  }
+]
+```
+
+## Advanced Features
+
+### Effect on Hover Only
+
+```javascript
+series: [{
+  type: 'effectScatter',
+  showEffectOn: 'emphasis',  // Only show ripple on hover
+  data: [[10, 20], [15, 25], [20, 30]],
+  rippleEffect: {
+    scale: 3,
+    brushType: 'stroke'
+  }
+}]
+```
+
+### Earthquake Visualization on Map
+
+```javascript
+const option = {
+  geo: {
+    map: 'world',
+    roam: true
+  },
+  series: [{
+    type: 'effectScatter',
+    coordinateSystem: 'geo',
+    data: [
+      { name: 'Tokyo', value: [139.6917, 35.6895, 7.2] },
+      { name: 'San Francisco', value: [-122.4194, 37.7749, 6.8] }
+    ],
+    symbolSize: function(val) {
+      return Math.pow(2, val[2]) * 0.5;  // Exponential sizing by magnitude
+    },
+    showEffectOn: 'render',
+    rippleEffect: {
+      period: 5,
+      scale: 4,
+      brushType: 'fill',
+      number: 3
+    },
+    itemStyle: {
+      color: function(params) {
+        const magnitude = params.value[2];
+        return magnitude > 7 ? '#d00' : '#f80';
+      },
+      shadowBlur: 15
+    }
+  }]
+};
+```
+
+### Per-Item Ripple Configuration
+
+```javascript
+series: [{
+  type: 'effectScatter',
+  data: [
+    {
+      value: [10, 20],
+      rippleEffect: {
+        period: 2,
+        scale: 5,
+        brushType: 'stroke'
+      }
+    },
+    {
+      value: [15, 25],
+      rippleEffect: {
+        period: 6,
+        scale: 3,
+        brushType: 'fill'
+      }
+    }
+  ]
+}]
+```
+
+### Real-Time Event Monitoring
+
+```javascript
+let chart = echarts.init(document.getElementById('main'));
+let data = [];
+
+function addEvent(x, y, importance) {
+  data.push([x, y, importance]);
+  if (data.length > 50) data.shift();  // Keep last 50 events
+  
+  chart.setOption({
+    series: [{
+      type: 'effectScatter',
+      data: data,
+      symbolSize: function(val) { return val[2] * 10; },
+      rippleEffect: {
+        period: 4,
+        scale: 3
+      }
+    }]
+  });
+}
+
+// Simulate real-time events
+setInterval(() => {
+  addEvent(
+    Math.random() * 100,
+    Math.random() * 100,
+    Math.random() * 5
+  );
+}, 2000);
+```
+
+### Combining with Regular Scatter
+
+```javascript
+series: [
+  {
+    name: 'Normal Points',
+    type: 'scatter',
+    data: [[10, 20], [15, 25], [20, 30]],
+    itemStyle: { color: '#999' }
+  },
+  {
+    name: 'Important Points',
+    type: 'effectScatter',
+    data: [[12, 35], [18, 22]],
+    rippleEffect: {
+      scale: 4,
+      brushType: 'stroke'
+    },
+    itemStyle: { color: '#f00' }
+  }
+]
+```
+
+## Performance Considerations
+
+1. **Limit ripple effects**: Too many animated points can impact performance. Consider using `showEffectOn: 'emphasis'` for datasets with many points.
+
+2. **Reduce ripple complexity**: Use fewer ripples and shorter periods for better performance:
+   ```javascript
+   rippleEffect: {
+     number: 2,  // Fewer ripples
+     period: 3   // Shorter animation
+   }
+   ```
+
+3. **Filter important points**: For large datasets, use effect scatter only for the most important points:
+   ```javascript
+   const importantPoints = allData.filter(d => d[2] > threshold);
+   ```
+
+## Source Reference
+
+The effect scatter chart implementation can be found in:
+- Series model: `src/chart/effectScatter/EffectScatterSeries.ts:94-156`
+- Type definitions: `src/chart/effectScatter/EffectScatterSeries.ts:46-93`
+- Default options: `src/chart/effectScatter/EffectScatterSeries.ts:110-155`
+- Ripple effect options: `src/chart/effectScatter/EffectScatterSeries.ts:64,90,125-133`

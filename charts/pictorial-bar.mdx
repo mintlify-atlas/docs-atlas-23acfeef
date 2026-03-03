@@ -1,0 +1,462 @@
+---
+title: Pictorial Bar Chart
+description: Create symbol-based bar charts with custom shapes in Apache ECharts
+---
+
+## Overview
+
+Pictorial bar charts use symbols or icons instead of traditional rectangular bars to represent data values. This chart type is highly customizable, allowing you to use circles, custom SVG paths, or any shape to create visually engaging and thematic data visualizations. Symbols can be repeated, clipped, or positioned in various ways to represent quantities.
+
+## When to Use
+
+Use pictorial bar charts when you need to:
+
+- Create visually distinctive and thematic charts that match your content
+- Design infographic-style visualizations with custom icons
+- Represent data with symbols that have semantic meaning (water drops for rainfall, bottles for beverages, etc.)
+- Build progress indicators or rating displays with custom shapes
+- Make data more accessible through visual metaphors
+- Create engaging presentations where visual appeal is important
+
+## Basic Configuration
+
+The pictorial bar chart is configured through the `PictorialBarSeriesOption` interface, working on cartesian coordinate systems.
+
+```typescript
+interface PictorialBarSeriesOption {
+  type: 'pictorialBar'
+  symbol?: string
+  symbolSize?: (number | string)[] | number | string
+  symbolRepeat?: boolean | number | 'fixed'
+  symbolPosition?: 'start' | 'end' | 'center'
+  symbolClip?: boolean
+  data?: (PictorialBarDataItemOption | OptionDataValue)[]
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Water Consumption by Region'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'none' }
+  },
+  xAxis: {
+    type: 'category',
+    data: ['North', 'South', 'East', 'West']
+  },
+  yAxis: {
+    type: 'value',
+    max: 100,
+    axisLabel: {
+      formatter: '{value} L'
+    }
+  },
+  series: [
+    {
+      name: 'Consumption',
+      type: 'pictorialBar',
+      symbol: 'path://M15,5 Q2.5,5 2.5,17.5 Q2.5,30 15,40 Q27.5,30 27.5,17.5 Q27.5,5 15,5z',  // Water drop
+      symbolSize: ['80%', '80%'],
+      symbolOffset: [0, 0],
+      data: [65, 85, 72, 90],
+      itemStyle: {
+        color: '#5470c6',
+        opacity: 0.8
+      },
+      emphasis: {
+        itemStyle: {
+          opacity: 1
+        }
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="symbol" type="string" default="'circle'">
+  The symbol type to use for bars. Can be built-in symbols (`'circle'`, `'rect'`, `'roundRect'`, `'triangle'`, `'diamond'`, `'pin'`, `'arrow'`) or a custom SVG path string prefixed with `'path://'`.
+  
+  ```javascript
+  symbol: 'circle'  // Built-in symbol
+  
+  // Custom SVG path (star shape)
+  symbol: 'path://M10,0 L12,7 L20,7 L14,12 L16,20 L10,15 L4,20 L6,12 L0,7 L8,7 Z'
+  ```
+</ParamField>
+
+<ParamField path="symbolSize" type="(number | string)[] | number | string" default="null">
+  Size of the symbol. Can be:
+  - A number: absolute size in pixels
+  - A percentage string: relative to category width (e.g., `'80%'`)
+  - An array `[width, height]`: separate dimensions
+  - `null`: auto-calculated based on data
+  
+  ```javascript
+  symbolSize: 50           // 50px square
+  symbolSize: '80%'        // 80% of category width
+  symbolSize: ['100%', 60] // Full width, 60px height
+  symbolSize: ['50%', '50%'] // 50% of width and height
+  ```
+</ParamField>
+
+<ParamField path="symbolRepeat" type="boolean | number | 'fixed'" default="false">
+  Controls symbol repetition to represent quantity:
+  - `false`: Single symbol (default)
+  - `true`: Auto-calculate repeats and clip by data value
+  - A number: Fixed number of repetitions
+  - `'fixed'`: Auto-calculate repeats but don't clip
+  
+  ```javascript
+  symbolRepeat: true      // Repeat based on value
+  symbolRepeat: 5         // Always show 5 symbols
+  symbolRepeat: 'fixed'   // Fill space, don't clip
+  ```
+</ParamField>
+
+<ParamField path="symbolClip" type="boolean" default="false">
+  Whether to clip the symbol by the actual data value. Useful for creating partially filled indicators.
+  
+  ```javascript
+  symbolClip: true  // Clip symbol to show partial fill
+  ```
+</ParamField>
+
+<ParamField path="symbolPosition" type="'start' | 'end' | 'center'" default="null (auto)">
+  Position of the symbol along the bar axis:
+  - `'start'`: At the axis baseline
+  - `'end'`: At the value end
+  - `'center'`: Centered on the value
+  - `null`: Auto-determined
+  
+  ```javascript
+  symbolPosition: 'start'  // Grow from baseline
+  symbolPosition: 'end'    // Align to end
+  ```
+</ParamField>
+
+<ParamField path="symbolOffset" type="(number | string)[] | number | string" default="null">
+  Offset the symbol position. Can be numbers (pixels) or percentages relative to symbol size.
+  
+  ```javascript
+  symbolOffset: [0, 0]      // No offset
+  symbolOffset: [10, -5]    // 10px right, 5px up
+  symbolOffset: ['50%', 0]  // Offset by half symbol width
+  ```
+</ParamField>
+
+<ParamField path="symbolMargin" type="(number | string)[] | number | string" default="null (auto)">
+  Margin between repeated symbols, as `[startMargin, endMargin]` or a single value. Can be pixels or percentages.
+  
+  ```javascript
+  symbolMargin: 4           // 4px between symbols
+  symbolMargin: '10%'       // 10% of symbol size
+  symbolMargin: [2, 4]      // 2px start, 4px end
+  ```
+</ParamField>
+
+<ParamField path="symbolRotate" type="number">
+  Rotation angle of the symbol in degrees.
+  
+  ```javascript
+  symbolRotate: 45  // Rotate 45 degrees
+  ```
+</ParamField>
+
+<ParamField path="symbolRepeatDirection" type="'start' | 'end'" default="'end'">
+  Direction of symbol repetition:
+  - `'end'`: From start to end (default)
+  - `'start'`: From end to start (reversed)
+  
+  ```javascript
+  symbolRepeatDirection: 'start'  // Repeat from end to start
+  ```
+</ParamField>
+
+<ParamField path="symbolBoundingData" type="number | number[]">
+  Defines the size reference for symbols. Useful for consistent sizing across categories.
+  
+  ```javascript
+  symbolBoundingData: 100     // Size relative to 100
+  symbolBoundingData: [0, 100] // Size range
+  ```
+</ParamField>
+
+<ParamField path="barGap" type="string" default="'-100%'">
+  Gap between bars. Pictorial bars default to `-100%` (overlapping) to allow layering.
+  
+  ```javascript
+  barGap: '-100%'  // Overlap (default)
+  barGap: '30%'    // Normal spacing
+  ```
+</ParamField>
+
+## Data Format
+
+Pictorial bar data supports standard bar chart formats with per-item customization:
+
+```javascript
+// Simple array of values
+data: [65, 85, 72, 90]
+
+// Array of data objects with custom symbols per item
+data: [
+  {
+    value: 65,
+    symbol: 'circle',
+    symbolSize: 50,
+    itemStyle: { color: '#5470c6' }
+  },
+  {
+    value: 85,
+    symbol: 'rect',
+    symbolSize: 60,
+    itemStyle: { color: '#91cc75' }
+  }
+]
+
+// Category-value pairs
+data: [
+  { name: 'Category A', value: 100 },
+  { name: 'Category B', value: 80 }
+]
+```
+
+## Advanced Features
+
+### Rating Stars Display
+
+```javascript
+series: [{
+  type: 'pictorialBar',
+  symbol: 'path://M10,0 L12,7 L20,7 L14,12 L16,20 L10,15 L4,20 L6,12 L0,7 L8,7 Z',
+  symbolRepeat: true,
+  symbolSize: [20, 20],
+  symbolMargin: 2,
+  data: [
+    { value: 5, name: 'Product A' },
+    { value: 4, name: 'Product B' },
+    { value: 3.5, name: 'Product C' }
+  ],
+  symbolClip: true,
+  itemStyle: {
+    color: '#ffd700'
+  }
+}]
+```
+
+### Progress Indicators
+
+```javascript
+const maxValue = 100;
+
+series: [
+  {
+    name: 'Background',
+    type: 'pictorialBar',
+    symbol: 'roundRect',
+    symbolSize: ['100%', 20],
+    data: [maxValue, maxValue, maxValue],
+    itemStyle: {
+      color: '#e0e0e0'
+    },
+    z: 1,
+    animation: false
+  },
+  {
+    name: 'Progress',
+    type: 'pictorialBar',
+    symbol: 'roundRect',
+    symbolSize: ['100%', 20],
+    data: [65, 85, 42],
+    itemStyle: {
+      color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+        { offset: 0, color: '#5470c6' },
+        { offset: 1, color: '#91cc75' }
+      ])
+    },
+    z: 2
+  }
+]
+```
+
+### Beverage Bottles Chart
+
+```javascript
+const bottlePath = 'M8,0 L8,15 L6,20 L6,35 L14,35 L14,20 L12,15 L12,0 Z';
+
+series: [{
+  name: 'Sales',
+  type: 'pictorialBar',
+  symbol: `path://${bottlePath}`,
+  symbolSize: [30, 80],
+  symbolClip: true,
+  data: [
+    { value: 75, name: 'Cola', itemStyle: { color: '#c23531' } },
+    { value: 60, name: 'Juice', itemStyle: { color: '#f39c12' } },
+    { value: 90, name: 'Water', itemStyle: { color: '#3498db' } }
+  ],
+  emphasis: {
+    itemStyle: {
+      opacity: 1,
+      shadowBlur: 10,
+      shadowColor: 'rgba(0,0,0,0.5)'
+    }
+  }
+}]
+```
+
+### Weather Icons Chart
+
+```javascript
+const weatherIcons = {
+  sunny: 'path://M50,15 L50,5 M50,95 L50,85 M15,50 L5,50 M95,50 L85,50 M25,25 L18,18 M75,25 L82,18 M25,75 L18,82 M75,75 L82,82 M50,35 A15,15 0 1,1 50,65 A15,15 0 1,1 50,35',
+  rainy: 'path://M30,20 Q10,20 10,40 Q10,60 30,60 M25,65 L20,80 M35,65 L30,80 M45,65 L40,80',
+  cloudy: 'path://M20,40 Q10,40 10,50 Q10,60 20,60 L60,60 Q70,60 70,50 Q70,40 60,40 Q60,30 50,30 Q40,30 40,40 Q30,40 20,40'
+};
+
+series: [{
+  type: 'pictorialBar',
+  data: [
+    { value: 10, symbol: weatherIcons.sunny, name: 'Mon' },
+    { value: 7, symbol: weatherIcons.rainy, name: 'Tue' },
+    { value: 5, symbol: weatherIcons.cloudy, name: 'Wed' }
+  ],
+  symbolSize: [50, 50],
+  symbolRepeat: true,
+  symbolMargin: 5,
+  itemStyle: {
+    color: function(params) {
+      const colors = { 0: '#f39c12', 1: '#3498db', 2: '#95a5a6' };
+      return colors[params.dataIndex];
+    }
+  }
+}]
+```
+
+### Thermometer Chart
+
+```javascript
+series: [
+  {
+    type: 'pictorialBar',
+    symbol: 'circle',
+    symbolSize: [30, 30],
+    symbolPosition: 'start',
+    data: [0, 0, 0],  // Base circle
+    itemStyle: { color: '#c23531' },
+    z: 2
+  },
+  {
+    type: 'pictorialBar',
+    symbol: 'rect',
+    symbolSize: [10, '100%'],
+    symbolOffset: [0, -15],
+    data: [25, 60, 85],
+    symbolClip: true,
+    itemStyle: { color: '#c23531' },
+    z: 1
+  }
+]
+```
+
+### Stacked Icon Comparison
+
+```javascript
+series: [
+  {
+    name: '2022',
+    type: 'pictorialBar',
+    symbol: 'rect',
+    symbolRepeat: true,
+    symbolSize: ['60%', 10],
+    symbolMargin: 2,
+    data: [50, 60, 70],
+    itemStyle: { color: '#5470c6' },
+    stack: 'total'
+  },
+  {
+    name: '2023',
+    type: 'pictorialBar',
+    symbol: 'rect',
+    symbolRepeat: true,
+    symbolSize: ['60%', 10],
+    symbolMargin: 2,
+    data: [30, 40, 50],
+    itemStyle: { color: '#91cc75' },
+    stack: 'total'
+  }
+]
+```
+
+## Design Tips
+
+1. **Choose Meaningful Symbols**: Use icons that relate to your data (drops for water, coins for money, etc.)
+
+2. **Maintain Proportions**: When using custom SVG paths, ensure symbols scale proportionally:
+   ```javascript
+   symbolSize: ['50%', '50%']  // Maintain aspect ratio
+   ```
+
+3. **Use symbolClip for Precision**: Show exact values with partial fills:
+   ```javascript
+   symbolClip: true,
+   symbolBoundingData: 100
+   ```
+
+4. **Layer for Depth**: Combine multiple series with different z-index values for rich visuals.
+
+5. **Optimize Symbol Complexity**: Simpler SVG paths render faster and look cleaner at small sizes.
+
+## Performance Considerations
+
+1. **Limit Symbol Complexity**: Complex SVG paths can impact rendering performance.
+
+2. **Use symbolRepeat Wisely**: High repeat counts can slow rendering:
+   ```javascript
+   symbolRepeat: 'fixed',  // Better than very high numbers
+   symbolBoundingData: reasonableMax
+   ```
+
+3. **Disable Animation for Many Items**: For charts with many symbols:
+   ```javascript
+   animation: false
+   ```
+
+## Common Use Cases
+
+### Infographics
+- Use thematic icons (people, buildings, vehicles)
+- Set `symbolRepeat: true` to show quantities
+- Apply custom colors per category
+
+### Progress/Ratings
+- Use stars, hearts, or checkmarks
+- Enable `symbolClip` for partial fills
+- Layer background and foreground series
+
+### Dashboard Indicators
+- Create gauge-like visualizations
+- Use simple geometric symbols
+- Apply gradients for modern look
+
+## Source Reference
+
+The pictorial bar chart implementation can be found in:
+- Series model: `src/chart/bar/PictorialBarSeries.ts:128-184`
+- Type definitions: `src/chart/bar/PictorialBarSeries.ts:37-126`
+- Default options: `src/chart/bar/PictorialBarSeries.ts:139-177`
+- Symbol options: `src/chart/bar/PictorialBarSeries.ts:42-93`

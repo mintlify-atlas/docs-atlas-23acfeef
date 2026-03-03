@@ -1,0 +1,531 @@
+---
+title: Lines Chart
+description: Visualize connections, flows, and routes between points in Apache ECharts
+---
+
+## Overview
+
+The lines chart displays connections between two or more points, making it ideal for visualizing flows, migrations, routes, and relationships in geographic or abstract coordinate systems. Lines can be straight or curved, animated or static, and support various visual effects.
+
+## When to Use
+
+Use lines charts when you need to:
+
+- Visualize migration flows or movements between locations
+- Show network connections and routes
+- Display trade relationships between regions
+- Represent flight paths or shipping routes
+- Illustrate data flow in systems or processes
+- Create Sankey-like flow diagrams on maps
+- Show relationships between abstract points
+
+## Basic Configuration
+
+The lines chart is configured through the `LinesSeriesOption` interface, supporting multiple coordinate systems.
+
+```typescript
+interface LinesSeriesOption {
+  type: 'lines'
+  coordinateSystem?: string
+  data?: LinesDataItemOption[]
+  polyline?: boolean
+  lineStyle?: {
+    curveness?: number
+    // ... other line style options
+  }
+  effect?: {
+    show?: boolean
+    period?: number
+    symbol?: string
+    // ... other effect options
+  }
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Migration Flow Between Cities'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      return params.data.fromName + ' → ' + params.data.toName;
+    }
+  },
+  geo: {
+    map: 'USA',
+    roam: true,
+    itemStyle: {
+      areaColor: '#f3f3f3',
+      borderColor: '#999'
+    }
+  },
+  series: [
+    {
+      name: 'Migration',
+      type: 'lines',
+      coordinateSystem: 'geo',
+      data: [
+        {
+          fromName: 'New York',
+          toName: 'Los Angeles',
+          coords: [
+            [-74.006, 40.7128],  // NYC [longitude, latitude]
+            [-118.2437, 34.0522]  // LA
+          ]
+        },
+        {
+          fromName: 'Chicago',
+          toName: 'Houston',
+          coords: [
+            [-87.6298, 41.8781],
+            [-95.3698, 29.7604]
+          ]
+        }
+      ],
+      lineStyle: {
+        color: '#5470c6',
+        width: 2,
+        curveness: 0.2,  // Curved lines
+        opacity: 0.6
+      },
+      effect: {
+        show: true,
+        period: 4,
+        symbol: 'arrow',
+        symbolSize: 8,
+        trailLength: 0.1
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="coords" type="number[][]" required>
+  Array of coordinate pairs defining the line path. For basic lines, use two points `[[x1,y1], [x2,y2]]`. For polylines, use multiple points.
+  
+  ```javascript
+  // Simple line from point A to point B
+  coords: [
+    [116.4074, 39.9042],  // Beijing
+    [-74.006, 40.7128]     // New York
+  ]
+  
+  // Polyline with multiple waypoints (requires polyline: true)
+  coords: [
+    [116.4074, 39.9042],
+    [121.4737, 31.2304],
+    [139.6917, 35.6895]
+  ]
+  ```
+</ParamField>
+
+<ParamField path="lineStyle.curveness" type="number" default="0">
+  Curvature of the line. Value ranges from 0 (straight) to 1 (highly curved). Positive values curve one direction, negative values curve the opposite direction.
+  
+  ```javascript
+  lineStyle: {
+    curveness: 0.2   // Slight curve
+  }
+  
+  lineStyle: {
+    curveness: -0.3  // Curve in opposite direction
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect" type="object">
+  Animated visual effect that moves along the line, useful for showing direction and flow.
+  
+  ```javascript
+  effect: {
+    show: true,
+    period: 4,          // Duration of one cycle in seconds
+    constantSpeed: 0,   // Or use constant speed (px/sec)
+    symbol: 'arrow',    // Symbol to animate
+    symbolSize: 6,
+    loop: true,         // Whether to loop the animation
+    trailLength: 0.2    // Length of trail (0-1)
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect.show" type="boolean" default="false">
+  Whether to show the animated effect along the line.
+  
+  ```javascript
+  effect: {
+    show: true
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect.period" type="number" default="4">
+  Duration of one animation cycle in seconds. Ignored if `constantSpeed` is set.
+  
+  ```javascript
+  effect: {
+    period: 6  // Slower animation
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect.constantSpeed" type="number" default="0">
+  Constant speed in pixels per second. When set to a value greater than 0, this overrides the `period` setting.
+  
+  ```javascript
+  effect: {
+    constantSpeed: 100  // Move at 100 pixels per second
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect.symbol" type="string" default="'circle'">
+  Symbol type for the moving effect. Options include: `'circle'`, `'rect'`, `'roundRect'`, `'triangle'`, `'diamond'`, `'pin'`, `'arrow'`, or a custom SVG path.
+  
+  ```javascript
+  effect: {
+    symbol: 'arrow'  // Directional arrow
+  }
+  ```
+</ParamField>
+
+<ParamField path="effect.trailLength" type="number" default="0.2">
+  Length of the trail effect, ranging from 0 to 1. A value of 0.2 means the trail covers 20% of the line length.
+  
+  ```javascript
+  effect: {
+    trailLength: 0.4  // Longer trail
+  }
+  ```
+</ParamField>
+
+<ParamField path="polyline" type="boolean" default="false">
+  Whether lines are polylines with multiple segments. When true, the `coords` array can contain more than 2 points. Note: polylines do not support curveness, labels, or some animations.
+  
+  ```javascript
+  polyline: true,
+  data: [{
+    coords: [
+      [116.4, 39.9],
+      [121.5, 31.2],
+      [139.7, 35.7],
+      [151.2, -33.9]
+    ]
+  }]
+  ```
+</ParamField>
+
+<ParamField path="coordinateSystem" type="string" default="'geo'">
+  The coordinate system to use for the lines:
+  - `'geo'`: Geographic coordinate system (default)
+  - `'cartesian2d'`: 2D rectangular coordinate system
+  - `'polar'`: Polar coordinate system
+  - `'calendar'`: Calendar coordinate system
+  
+  ```javascript
+  coordinateSystem: 'geo'
+  ```
+</ParamField>
+
+<ParamField path="symbol" type="string[] | string">
+  Symbol at the start and end of lines. Can be a single value or array `[startSymbol, endSymbol]`.
+  
+  ```javascript
+  symbol: ['none', 'arrow']  // Arrow at end only
+  symbolSize: [0, 10]         // Size for each symbol
+  ```
+</ParamField>
+
+<ParamField path="lineStyle" type="LineStyleOption">
+  Visual style of the lines.
+  
+  ```javascript
+  lineStyle: {
+    color: '#5470c6',
+    width: 2,
+    opacity: 0.6,
+    type: 'solid',  // 'solid', 'dashed', 'dotted'
+    curveness: 0.2
+  }
+  ```
+</ParamField>
+
+<ParamField path="large" type="boolean" default="false">
+  Enable optimization for large-scale line data. Useful when rendering thousands of lines.
+  
+  ```javascript
+  large: true,
+  largeThreshold: 2000
+  ```
+</ParamField>
+
+## Data Format
+
+Lines chart data follows a specific structure:
+
+```javascript
+// Basic format with coords
+data: [
+  {
+    coords: [[116.4, 39.9], [121.5, 31.2]],  // Required
+    fromName: 'Beijing',  // Optional
+    toName: 'Shanghai',   // Optional
+    value: 100            // Optional, for tooltip/visual mapping
+  },
+  {
+    coords: [[139.7, 35.7], [-74.0, 40.7]]
+  }
+]
+
+// With per-line styling
+data: [
+  {
+    coords: [[0, 0], [100, 100]],
+    lineStyle: {
+      color: '#f00',
+      width: 3,
+      curveness: 0.3
+    },
+    effect: {
+      period: 2,
+      symbolSize: 10
+    }
+  }
+]
+
+// Flat array format for large datasets
+data: [
+  2, 116.4, 39.9, 121.5, 31.2,  // Points count (2), then x1,y1,x2,y2
+  3, 139.7, 35.7, 151.2, -33.9, -118.2, 34.0  // 3 points
+]
+```
+
+## Advanced Features
+
+### Migration Flow with Varying Width
+
+```javascript
+series: [{
+  type: 'lines',
+  coordinateSystem: 'geo',
+  data: [
+    {
+      coords: [[-74.006, 40.7128], [-118.2437, 34.0522]],
+      value: 1000,  // Number of migrants
+      lineStyle: {
+        width: 3,
+        color: '#5470c6'
+      }
+    },
+    {
+      coords: [[-87.6298, 41.8781], [-95.3698, 29.7604]],
+      value: 500,
+      lineStyle: {
+        width: 1.5,
+        color: '#5470c6'
+      }
+    }
+  ],
+  lineStyle: {
+    curveness: 0.2,
+    opacity: 0.6
+  },
+  effect: {
+    show: true,
+    symbol: 'arrow',
+    symbolSize: 8,
+    trailLength: 0.2
+  }
+}]
+```
+
+### Flight Routes Network
+
+```javascript
+const routes = [
+  { from: [116.4, 39.9], to: [139.7, 35.7], flights: 50 },
+  { from: [121.5, 31.2], to: [-74.0, 40.7], flights: 30 },
+  { from: [139.7, 35.7], to: [151.2, -33.9], flights: 45 }
+];
+
+const option = {
+  geo: { map: 'world' },
+  series: [{
+    type: 'lines',
+    coordinateSystem: 'geo',
+    data: routes.map(route => ({
+      coords: [route.from, route.to],
+      value: route.flights,
+      lineStyle: {
+        width: route.flights / 20,  // Width based on frequency
+        color: '#91cc75',
+        curveness: 0.2
+      }
+    })),
+    effect: {
+      show: true,
+      period: 6,
+      trailLength: 0.1,
+      symbol: 'circle',
+      symbolSize: 4
+    }
+  }]
+};
+```
+
+### Polyline Route with Waypoints
+
+```javascript
+series: [{
+  type: 'lines',
+  coordinateSystem: 'geo',
+  polyline: true,  // Enable multi-segment lines
+  data: [
+    {
+      coords: [
+        [-74.006, 40.7128],   // New York
+        [-87.6298, 41.8781],  // Chicago (waypoint)
+        [-118.2437, 34.0522]  // Los Angeles
+      ],
+      lineStyle: {
+        color: '#ee6666',
+        width: 2
+      }
+    }
+  ],
+  effect: {
+    show: true,
+    constantSpeed: 50
+  }
+}]
+```
+
+### Network Connections on Cartesian
+
+```javascript
+const option = {
+  xAxis: { type: 'value', min: 0, max: 100 },
+  yAxis: { type: 'value', min: 0, max: 100 },
+  series: [
+    {
+      type: 'lines',
+      coordinateSystem: 'cartesian2d',
+      data: [
+        { coords: [[10, 10], [50, 80]] },
+        { coords: [[20, 30], [70, 40]] },
+        { coords: [[50, 80], [90, 20]] }
+      ],
+      lineStyle: {
+        curveness: 0.3,
+        color: '#5470c6',
+        width: 2
+      },
+      effect: {
+        show: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        period: 3
+      }
+    }
+  ]
+};
+```
+
+### Bidirectional Flow
+
+```javascript
+series: [
+  {
+    name: 'Outbound',
+    type: 'lines',
+    coordinateSystem: 'geo',
+    data: outboundData,
+    lineStyle: {
+      color: '#5470c6',
+      curveness: 0.2
+    },
+    effect: {
+      show: true,
+      symbol: 'arrow',
+      symbolSize: 6
+    }
+  },
+  {
+    name: 'Inbound',
+    type: 'lines',
+    coordinateSystem: 'geo',
+    data: inboundData,
+    lineStyle: {
+      color: '#91cc75',
+      curveness: -0.2  // Curve in opposite direction
+    },
+    effect: {
+      show: true,
+      symbol: 'arrow',
+      symbolSize: 6
+    }
+  }
+]
+```
+
+## Performance Tips
+
+1. **Use large mode** for datasets with thousands of lines:
+   ```javascript
+   large: true,
+   largeThreshold: 2000
+   ```
+
+2. **Disable effects** for many lines to improve performance:
+   ```javascript
+   effect: { show: false }
+   ```
+
+3. **Use flat array format** for very large datasets:
+   ```javascript
+   data: [2, x1, y1, x2, y2, 2, x3, y3, x4, y4, ...]
+   ```
+
+4. **Progressive rendering** for massive datasets:
+   ```javascript
+   progressive: 500,
+   progressiveThreshold: 1000
+   ```
+
+## Common Use Cases
+
+### Migration Map
+- Set `curveness` between 0.2-0.4 for natural flow
+- Use `effect.symbol: 'arrow'` to show direction
+- Vary line width based on migration volume
+
+### Flight Routes
+- Use polylines for multi-stop routes
+- Set `effect.constantSpeed` for realistic movement
+- Apply different colors for different airlines
+
+### Network Topology
+- Use `coordinateSystem: 'cartesian2d'` for abstract networks
+- Set `curveness` to avoid line overlap
+- Combine with scatter series for nodes
+
+## Source Reference
+
+The lines chart implementation can be found in:
+- Series model: `src/chart/lines/LinesSeries.ts:147-429`
+- Type definitions: `src/chart/lines/LinesSeries.ts:75-145`
+- Default options: `src/chart/lines/LinesSeries.ts:385-428`
+- Coords format: `src/chart/lines/LinesSeries.ts:75,107,210-223`
+- Effect options: `src/chart/lines/LinesSeries.ts:126,400-408`

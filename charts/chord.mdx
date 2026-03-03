@@ -1,0 +1,536 @@
+---
+title: Chord Diagram
+description: Visualize relationships and flows between interconnected entities in Apache ECharts
+---
+
+## Overview
+
+Chord diagrams display relationships and flows between interconnected entities arranged in a circular layout. Each entity is represented as an arc segment along the circle's perimeter, with ribbons connecting related entities. The width of ribbons and arcs represents the magnitude of relationships or flows, making chord diagrams ideal for visualizing complex network data and multi-directional flows.
+
+## When to Use
+
+Use chord diagrams when you need to:
+
+- Visualize migration or trade flows between regions or countries
+- Show relationships in social networks or organizational structures
+- Display communication patterns between groups or individuals
+- Analyze financial flows between accounts, sectors, or markets
+- Represent gene interactions or biological pathways
+- Illustrate data transfer between systems or components
+- Compare bilateral relationships with directional or bidirectional flows
+
+## Basic Configuration
+
+The chord diagram is configured through the `ChordSeriesOption` interface, using a standalone coordinate system.
+
+```typescript
+interface ChordSeriesOption {
+  type: 'chord'
+  data?: (ChordNodeItemOption | ChordDataValue)[]
+  edges?: ChordEdgeItemOption[]  // or 'links'
+  radius?: (string | number)[] | string | number
+  startAngle?: number
+  clockwise?: boolean
+  padAngle?: number
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Regional Trade Flows'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      if (params.dataType === 'edge') {
+        return params.data.source + ' → ' + params.data.target + 
+               '<br/>Value: ' + params.data.value;
+      }
+      return params.name + '<br/>Value: ' + params.value;
+    }
+  },
+  series: [
+    {
+      type: 'chord',
+      radius: ['70%', '80%'],
+      center: ['50%', '50%'],
+      startAngle: 90,
+      padAngle: 2,
+      data: [
+        { id: 'NA', name: 'North America', value: 1500 },
+        { id: 'EU', name: 'Europe', value: 1800 },
+        { id: 'AS', name: 'Asia', value: 2200 },
+        { id: 'AF', name: 'Africa', value: 800 },
+        { id: 'SA', name: 'South America', value: 600 }
+      ],
+      edges: [
+        { source: 'NA', target: 'EU', value: 300 },
+        { source: 'NA', target: 'AS', value: 450 },
+        { source: 'EU', target: 'AS', value: 520 },
+        { source: 'EU', target: 'AF', value: 180 },
+        { source: 'AS', target: 'AF', value: 150 },
+        { source: 'SA', target: 'NA', value: 120 },
+        { source: 'SA', target: 'EU', value: 100 }
+      ],
+      lineStyle: {
+        color: 'source',
+        opacity: 0.2,
+        curveness: 0
+      },
+      itemStyle: {
+        borderRadius: [5, 5, 0, 0],
+        borderColor: '#fff',
+        borderWidth: 1
+      },
+      label: {
+        show: true,
+        position: 'outside',
+        distance: 5,
+        fontSize: 12
+      },
+      emphasis: {
+        focus: 'adjacency',
+        lineStyle: {
+          opacity: 0.5
+        }
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="data" type="(ChordNodeItemOption | ChordDataValue)[]" required>
+  Array of nodes (entities) in the chord diagram. Each node represents an arc segment.
+  
+  ```javascript
+  data: [
+    { id: 'A', name: 'Node A', value: 100 },
+    { id: 'B', name: 'Node B', value: 150 },
+    { id: 'C', name: 'Node C', value: 200 }
+  ]
+  
+  // Simple value array
+  data: [100, 150, 200]
+  ```
+</ParamField>
+
+<ParamField path="edges" type="ChordEdgeItemOption[]" required>
+  Array of edges (connections) between nodes. Also accepts `links` as an alias.
+  
+  ```javascript
+  edges: [
+    { source: 'A', target: 'B', value: 50 },
+    { source: 'B', target: 'C', value: 75 },
+    { source: 'A', target: 'C', value: 30 }
+  ]
+  
+  // Or using numeric indices
+  edges: [
+    { source: 0, target: 1, value: 50 },
+    { source: 1, target: 2, value: 75 }
+  ]
+  ```
+</ParamField>
+
+<ParamField path="radius" type="(string | number)[] | string | number" default="['70%', '80%']">
+  Inner and outer radius of the chord ring as `[innerRadius, outerRadius]`. Can be percentages or absolute pixel values.
+  
+  ```javascript
+  radius: ['60%', '75%']  // Thinner ring
+  radius: [100, 150]      // 100-150 pixels
+  radius: '80%'           // Just outer radius (inner = 0)
+  ```
+</ParamField>
+
+<ParamField path="center" type="(string | number)[]" default="['50%', '50%']">
+  Center position of the chord diagram as `[x, y]`.
+  
+  ```javascript
+  center: ['50%', '50%']  // Centered
+  center: [400, 300]      // Absolute position
+  ```
+</ParamField>
+
+<ParamField path="startAngle" type="number" default="90">
+  Starting angle in degrees, where 0° is at 3 o'clock position, rotating clockwise.
+  
+  ```javascript
+  startAngle: 90   // Start at 12 o'clock (default)
+  startAngle: 0    // Start at 3 o'clock
+  startAngle: 180  // Start at 6 o'clock
+  ```
+</ParamField>
+
+<ParamField path="endAngle" type="number | 'auto'" default="'auto'">
+  Ending angle in degrees. When set to `'auto'`, completes a full circle based on data.
+  
+  ```javascript
+  endAngle: 'auto'     // Full circle (default)
+  endAngle: 270        // Three-quarter circle
+  ```
+</ParamField>
+
+<ParamField path="clockwise" type="boolean" default="true">
+  Whether to layout nodes in clockwise direction.
+  
+  ```javascript
+  clockwise: true   // Clockwise (default)
+  clockwise: false  // Counter-clockwise
+  ```
+</ParamField>
+
+<ParamField path="padAngle" type="number" default="3">
+  Padding angle between node arcs in degrees. Creates visual separation between nodes.
+  
+  ```javascript
+  padAngle: 2   // Tight spacing
+  padAngle: 5   // More separation
+  ```
+</ParamField>
+
+<ParamField path="minAngle" type="number" default="0">
+  Minimum angle for a node arc in degrees. Useful to ensure small values are still visible.
+  
+  ```javascript
+  minAngle: 3  // Nodes with small values still get 3° minimum
+  ```
+</ParamField>
+
+<ParamField path="lineStyle" type="ChordEdgeLineStyleOption">
+  Visual style of the ribbons connecting nodes.
+  
+  ```javascript
+  lineStyle: {
+    color: 'source',     // 'source', 'target', or specific color
+    opacity: 0.3,
+    width: 0,            // Width of outline
+    curveness: 0         // Curvature of ribbons
+  }
+  ```
+</ParamField>
+
+<ParamField path="lineStyle.color" type="string" default="'source'">
+  Color of edge ribbons:
+  - `'source'`: Use source node color
+  - `'target'`: Use target node color
+  - Any color string: Fixed color for all edges
+  
+  ```javascript
+  lineStyle: {
+    color: 'source'  // Match source node
+  }
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="ChordItemStyleOption">
+  Visual style of node arcs.
+  
+  ```javascript
+  itemStyle: {
+    color: '#5470c6',
+    borderRadius: [5, 5, 0, 0],  // [outerStart, outerEnd, innerEnd, innerStart]
+    borderColor: '#fff',
+    borderWidth: 1,
+    opacity: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="label" type="ChordNodeLabelOption">
+  Label configuration for node names.
+  
+  ```javascript
+  label: {
+    show: true,
+    position: 'outside',  // 'outside', 'inside', or standard positions
+    distance: 5,          // Distance from arc edge
+    fontSize: 12,
+    color: '#333',
+    formatter: '{b}'      // {b} = name, {c} = value
+  }
+  ```
+</ParamField>
+
+<ParamField path="edgeLabel" type="SeriesLineLabelOption">
+  Label configuration for edges (ribbons).
+  
+  ```javascript
+  edgeLabel: {
+    show: false,
+    formatter: '{c}',  // Show edge value
+    fontSize: 10
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis when hovering over nodes or edges.
+  
+  ```javascript
+  emphasis: {
+    focus: 'adjacency',  // 'none', 'self', 'series', 'adjacency'
+    scale: false,        // Don't scale on hover
+    itemStyle: {
+      shadowBlur: 10
+    },
+    lineStyle: {
+      opacity: 0.6
+    }
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Chord diagrams require both node and edge data:
+
+```javascript
+// Nodes define the entities
+data: [
+  { id: 'A', name: 'Entity A', value: 100 },
+  { id: 'B', name: 'Entity B', value: 150 },
+  { id: 'C', name: 'Entity C', value: 200 }
+]
+
+// Edges define relationships (can use 'links' instead of 'edges')
+edges: [
+  { source: 'A', target: 'B', value: 50 },
+  { source: 'B', target: 'C', value: 75 },
+  { source: 'C', target: 'A', value: 30 }
+]
+
+// Node IDs can also be numeric indices
+data: [100, 150, 200]
+edges: [
+  { source: 0, target: 1, value: 50 },
+  { source: 1, target: 2, value: 75 }
+]
+```
+
+## Advanced Features
+
+### Migration Flow Visualization
+
+```javascript
+const cities = [
+  { id: 'NYC', name: 'New York', value: 5000 },
+  { id: 'LA', name: 'Los Angeles', value: 4500 },
+  { id: 'CHI', name: 'Chicago', value: 3800 },
+  { id: 'HOU', name: 'Houston', value: 3200 },
+  { id: 'PHX', name: 'Phoenix', value: 2800 }
+];
+
+const migrations = [
+  { source: 'NYC', target: 'LA', value: 450 },
+  { source: 'NYC', target: 'CHI', value: 320 },
+  { source: 'LA', target: 'PHX', value: 280 },
+  { source: 'CHI', target: 'HOU', value: 210 },
+  { source: 'HOU', target: 'PHX', value: 180 }
+];
+
+const option = {
+  series: [{
+    type: 'chord',
+    data: cities,
+    edges: migrations,
+    radius: ['65%', '75%'],
+    itemStyle: {
+      borderRadius: [8, 8, 0, 0]
+    },
+    lineStyle: {
+      color: 'source',
+      opacity: 0.25,
+      curveness: 0
+    },
+    emphasis: {
+      focus: 'adjacency',
+      lineStyle: {
+        width: 2,
+        opacity: 0.6
+      }
+    }
+  }]
+};
+```
+
+### Custom Color for Each Node
+
+```javascript
+const option = {
+  color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de'],
+  series: [{
+    type: 'chord',
+    data: [
+      { name: 'A', value: 100 },
+      { name: 'B', value: 150 },
+      { name: 'C', value: 200 },
+      { name: 'D', value: 120 },
+      { name: 'E', value: 180 }
+    ],
+    edges: [...],
+    lineStyle: {
+      color: 'source',
+      opacity: 0.3
+    }
+  }]
+};
+```
+
+### Financial Flow Between Sectors
+
+```javascript
+const sectors = [
+  { id: 'tech', name: 'Technology', value: 3000 },
+  { id: 'finance', name: 'Finance', value: 2500 },
+  { id: 'healthcare', name: 'Healthcare', value: 2200 },
+  { id: 'energy', name: 'Energy', value: 1800 }
+];
+
+const flows = [
+  { source: 'tech', target: 'finance', value: 500 },
+  { source: 'finance', target: 'healthcare', value: 400 },
+  { source: 'healthcare', target: 'tech', value: 350 },
+  { source: 'energy', target: 'tech', value: 300 },
+  { source: 'finance', target: 'energy', value: 250 }
+];
+
+const option = {
+  tooltip: {
+    formatter: function(params) {
+      if (params.dataType === 'edge') {
+        return `${params.name}<br/>Flow: $${params.value}M`;
+      }
+      return `${params.name}<br/>Total: $${params.value}M`;
+    }
+  },
+  series: [{
+    type: 'chord',
+    data: sectors,
+    edges: flows,
+    radius: ['60%', '70%'],
+    startAngle: 90,
+    label: {
+      fontSize: 14,
+      fontWeight: 'bold'
+    },
+    emphasis: {
+      focus: 'adjacency'
+    }
+  }]
+};
+```
+
+### Symmetric vs Asymmetric Flows
+
+```javascript
+// Bidirectional (symmetric) flows
+edges: [
+  { source: 'A', target: 'B', value: 50 },
+  { source: 'B', target: 'A', value: 30 }  // Return flow
+]
+
+// Unidirectional (asymmetric) flows
+edges: [
+  { source: 'A', target: 'B', value: 50 }  // One way only
+]
+```
+
+### Interactive Chord with Custom Tooltip
+
+```javascript
+const option = {
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      if (params.dataType === 'edge') {
+        const edge = params.data;
+        return `<strong>${edge.source} → ${edge.target}</strong><br/>` +
+               `Flow: ${edge.value}<br/>` +
+               `Percentage: ${((edge.value / totalFlow) * 100).toFixed(1)}%`;
+      } else {
+        return `<strong>${params.name}</strong><br/>` +
+               `Total Value: ${params.value}`;
+      }
+    }
+  },
+  series: [{
+    type: 'chord',
+    data: nodes,
+    edges: edges,
+    emphasis: {
+      focus: 'adjacency',
+      label: {
+        fontSize: 16
+      }
+    }
+  }]
+};
+```
+
+## Design Best Practices
+
+1. **Limit Number of Nodes**: Chord diagrams work best with 5-15 nodes. Too many nodes create visual clutter.
+
+2. **Use Meaningful Colors**: Assign colors that relate to categories or use a consistent color scheme.
+
+3. **Set Appropriate Opacity**: Use lower opacity (0.2-0.4) for ribbons to handle overlaps:
+   ```javascript
+   lineStyle: { opacity: 0.3 }
+   ```
+
+4. **Enable Focus on Adjacency**: Help users explore connections:
+   ```javascript
+   emphasis: { focus: 'adjacency' }
+   ```
+
+5. **Add Padding Between Arcs**: Improve readability with spacing:
+   ```javascript
+   padAngle: 2
+   ```
+
+## Common Patterns
+
+### Migration Analysis
+- Node values: Population of origin/destination
+- Edge values: Number of migrants
+- Color by region or direction
+
+### Trade Networks
+- Node values: Total trade volume per country
+- Edge values: Bilateral trade amounts
+- Use `lineStyle.color: 'source'` to show export origins
+
+### Communication Networks
+- Node values: Total messages sent/received
+- Edge values: Message count between entities
+- Enable `emphasis.focus: 'adjacency'` for exploration
+
+## Troubleshooting
+
+**Problem**: Ribbons are too transparent or invisible
+**Solution**: Increase `lineStyle.opacity` to 0.4-0.6
+
+**Problem**: Labels overlap or are unreadable
+**Solution**: Increase `label.distance`, reduce `fontSize`, or set `label.position: 'inside'`
+
+**Problem**: Small nodes are barely visible
+**Solution**: Set `minAngle` to ensure minimum visibility
+
+## Source Reference
+
+The chord diagram implementation can be found in:
+- Series model: `src/chart/chord/ChordSeries.ts:175-340`
+- Type definitions: `src/chart/chord/ChordSeries.ts:54-173`
+- Default options: `src/chart/chord/ChordSeries.ts:292-339`
+- Node and edge format: `src/chart/chord/ChordSeries.ts:88-115,195-202`
