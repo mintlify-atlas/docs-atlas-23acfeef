@@ -1,0 +1,465 @@
+---
+title: 'on() and off()'
+description: 'Bind and unbind event handlers to chart interactions'
+---
+
+## Method Signatures
+
+```typescript
+on(
+  eventName: string,
+  handler: Function,
+  context?: any
+): ECharts
+
+off(
+  eventName: string,
+  handler?: Function
+): ECharts
+```
+
+## Description
+
+The `on()` method binds event handlers to listen for chart events such as mouse interactions, data selections, and custom actions. The `off()` method removes previously bound event handlers.
+
+These methods enable interactive features and allow you to respond to user interactions with the chart.
+
+## Parameters
+
+### on() Parameters
+
+<ParamField path="eventName" type="string" required>
+  The name of the event to listen for. Event names are case-insensitive and automatically converted to lowercase. See [Event Types](#event-types) for available events.
+</ParamField>
+
+<ParamField path="handler" type="Function" required>
+  The callback function to execute when the event is triggered. The function receives an event parameter object with details about the event.
+</ParamField>
+
+<ParamField path="context" type="any">
+  The context (`this` value) for the handler function. If not provided, the handler will be called with `undefined` as the context.
+</ParamField>
+
+### off() Parameters
+
+<ParamField path="eventName" type="string" required>
+  The name of the event to remove handlers from.
+</ParamField>
+
+<ParamField path="handler" type="Function">
+  The specific handler function to remove. If not provided, all handlers for the event will be removed.
+</ParamField>
+
+## Return Value
+
+Both methods return the ECharts instance, allowing for method chaining.
+
+## Event Types
+
+### Mouse Events
+
+These events are triggered by mouse interactions with chart elements:
+
+- `click` - Mouse click
+- `dblclick` - Mouse double-click
+- `mousedown` - Mouse button pressed
+- `mouseup` - Mouse button released
+- `mouseover` - Mouse enters an element
+- `mouseout` - Mouse leaves an element
+- `mousemove` - Mouse moves over an element
+- `globalout` - Mouse leaves the entire chart area
+- `contextmenu` - Right-click context menu
+
+### Chart Lifecycle Events
+
+- `rendered` - Chart rendering is complete (fires after each frame)
+- `finished` - All rendering and animations are complete
+
+### Action Events
+
+These events are triggered by `dispatchAction()` calls:
+
+- `highlight` - Data item is highlighted
+- `downplay` - Data item highlight is removed
+- `select` - Data item is selected
+- `unselect` - Data item is unselected
+- `legendselectchanged` - Legend selection state changes
+- `legendselected` - Legend item is selected
+- `legendunselected` - Legend item is unselected
+- `datazoom` - Data zoom range changes
+- `datarangeselected` - Visual map range changes
+- `timelinechanged` - Timeline current index changes
+- `timelineplaychanged` - Timeline play state changes
+- `restore` - Chart is restored to initial state
+- `dataviewchanged` - Data view is modified
+- `magictypechanged` - Magic type (chart type) is changed
+- `geoselectchanged` - Map selection state changes
+- `geoselected` - Map region is selected
+- `geounselected` - Map region is unselected
+- `pieselectchanged` - Pie chart selection state changes
+- `pieselected` - Pie chart sector is selected
+- `pieunselected` - Pie chart sector is unselected
+- `mapselectchanged` - Map selection state changes
+- `mapselected` - Map region is selected
+- `mapunselected` - Map region is unselected
+- `axisareaselected` - Parallel axis area is selected
+- `brush` - Brush selection is made
+- `brushEnd` - Brush selection ends
+- `brushselected` - Brush selection changes
+- `globalcursortaken` - Global cursor is taken for brush
+- `rendered` - Rendering is complete
+- `finished` - All updates are finished
+
+## Event Object Properties
+
+When an event is triggered, the handler receives an event object with the following common properties:
+
+<ResponseField name="event.type" type="string">
+  The event type name
+</ResponseField>
+
+<ResponseField name="event.event" type="ZRenderEvent">
+  The original ZRender event object (for mouse events)
+</ResponseField>
+
+<ResponseField name="event.componentType" type="string">
+  The component type that triggered the event (e.g., 'series', 'xAxis', 'legend')
+</ResponseField>
+
+<ResponseField name="event.componentIndex" type="number">
+  The index of the component in its type
+</ResponseField>
+
+<ResponseField name="event.seriesType" type="string">
+  The series type (e.g., 'line', 'bar', 'pie') for series events
+</ResponseField>
+
+<ResponseField name="event.seriesIndex" type="number">
+  The index of the series
+</ResponseField>
+
+<ResponseField name="event.seriesName" type="string">
+  The name of the series
+</ResponseField>
+
+<ResponseField name="event.name" type="string">
+  The name of the data item
+</ResponseField>
+
+<ResponseField name="event.dataIndex" type="number">
+  The index of the data item in the series
+</ResponseField>
+
+<ResponseField name="event.data" type="any">
+  The data value of the triggered item
+</ResponseField>
+
+<ResponseField name="event.dataType" type="string">
+  The data type (e.g., 'node', 'edge' for graph)
+</ResponseField>
+
+<ResponseField name="event.value" type="any">
+  The value of the data item
+</ResponseField>
+
+<ResponseField name="event.color" type="string">
+  The color of the triggered item
+</ResponseField>
+
+## Examples
+
+### Basic Click Handler
+
+```typescript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  // ... your chart configuration
+});
+
+// Listen for click events
+chart.on('click', (params) => {
+  console.log('Clicked:', params);
+  console.log('Series:', params.seriesName);
+  console.log('Data:', params.name, params.value);
+});
+```
+
+### Mouse Hover Effects
+
+```typescript
+chart.on('mouseover', (params) => {
+  console.log('Hovering over:', params.name);
+  // Custom highlight logic
+});
+
+chart.on('mouseout', (params) => {
+  console.log('Mouse left:', params.name);
+  // Custom unhighlight logic
+});
+```
+
+### Data Selection Tracking
+
+```typescript
+const selectedItems = new Set();
+
+chart.on('click', (params) => {
+  if (params.componentType === 'series') {
+    const key = `${params.seriesIndex}-${params.dataIndex}`;
+    
+    if (selectedItems.has(key)) {
+      selectedItems.delete(key);
+      chart.dispatchAction({
+        type: 'unselect',
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex
+      });
+    } else {
+      selectedItems.add(key);
+      chart.dispatchAction({
+        type: 'select',
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex
+      });
+    }
+    
+    console.log('Selected items:', selectedItems);
+  }
+});
+```
+
+### Legend Interaction
+
+```typescript
+chart.on('legendselectchanged', (params) => {
+  console.log('Legend selection changed');
+  console.log('Selected:', params.selected);
+  console.log('Name:', params.name);
+  
+  // Update external UI based on legend state
+  Object.keys(params.selected).forEach(name => {
+    const isSelected = params.selected[name];
+    updateExternalUI(name, isSelected);
+  });
+});
+```
+
+### Data Zoom Handler
+
+```typescript
+chart.on('datazoom', (params) => {
+  console.log('Data zoom changed');
+  console.log('Start:', params.start, 'End:', params.end);
+  console.log('Start value:', params.startValue);
+  console.log('End value:', params.endValue);
+  
+  // Update URL parameters or sync with other charts
+  updateURLParams({
+    start: params.start,
+    end: params.end
+  });
+});
+```
+
+### Rendering Complete Callback
+
+```typescript
+chart.on('finished', () => {
+  console.log('Chart is fully rendered');
+  // Safe to capture screenshot or perform measurements
+  const canvas = chart.getRenderedCanvas();
+  // ... use canvas
+});
+```
+
+### Using Context
+
+```typescript
+class ChartController {
+  selectedCount = 0;
+  
+  constructor(chart) {
+    this.chart = chart;
+    // Bind handler with this context
+    chart.on('click', this.handleClick, this);
+  }
+  
+  handleClick(params) {
+    // `this` refers to the ChartController instance
+    this.selectedCount++;
+    console.log(`Total clicks: ${this.selectedCount}`);
+  }
+  
+  destroy() {
+    // Remove handler
+    this.chart.off('click', this.handleClick);
+  }
+}
+
+const controller = new ChartController(chart);
+```
+
+### Removing Event Handlers
+
+```typescript
+// Define a named handler
+function clickHandler(params) {
+  console.log('Clicked:', params);
+}
+
+// Add the handler
+chart.on('click', clickHandler);
+
+// Remove the specific handler
+chart.off('click', clickHandler);
+
+// Remove all click handlers
+chart.off('click');
+```
+
+### Conditional Event Handling
+
+```typescript
+chart.on('click', (params) => {
+  // Only handle clicks on specific series
+  if (params.seriesType === 'bar') {
+    handleBarClick(params);
+  } else if (params.seriesType === 'line') {
+    handleLineClick(params);
+  }
+  
+  // Only handle clicks on specific component types
+  if (params.componentType === 'series') {
+    handleSeriesClick(params);
+  } else if (params.componentType === 'legend') {
+    handleLegendClick(params);
+  }
+});
+```
+
+### Debounced Event Handler
+
+```typescript
+let debounceTimer;
+
+chart.on('mousemove', (params) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    console.log('Mouse settled on:', params.name);
+    // Perform expensive operation
+  }, 200);
+});
+```
+
+### Event Chaining
+
+```typescript
+chart
+  .on('click', handleClick)
+  .on('mouseover', handleMouseOver)
+  .on('mouseout', handleMouseOut);
+```
+
+### Cross-Chart Communication
+
+```typescript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+// When clicking on chart1, update chart2
+chart1.on('click', (params) => {
+  chart2.dispatchAction({
+    type: 'highlight',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+});
+
+chart1.on('mouseout', () => {
+  chart2.dispatchAction({
+    type: 'downplay'
+  });
+});
+```
+
+## Important Notes
+
+<Note>
+  Event names are automatically converted to lowercase. `chart.on('Click', handler)` is equivalent to `chart.on('click', handler)`.
+</Note>
+
+<Warning>
+  If the chart instance is disposed, attempting to bind events will show a warning. Always check if the chart is disposed before calling `on()` or `off()`.
+</Warning>
+
+<Info>
+  Mouse events are only triggered for elements that have been rendered and are visible in the chart. Events won't fire for data points outside the current zoom range or hidden by legend interactions.
+</Info>
+
+<Tip>
+  For better performance with frequently triggered events like `mousemove`, consider using debouncing or throttling techniques to limit the number of handler executions.
+</Tip>
+
+## Common Patterns
+
+### Drill-Down Navigation
+
+```typescript
+chart.on('click', (params) => {
+  if (params.componentType === 'series') {
+    // Navigate to detailed view
+    const detailUrl = `/details/${params.seriesName}/${params.name}`;
+    window.location.href = detailUrl;
+  }
+});
+```
+
+### Custom Tooltip
+
+```typescript
+const customTooltip = document.getElementById('custom-tooltip');
+
+chart.on('mouseover', (params) => {
+  if (params.componentType === 'series') {
+    customTooltip.innerHTML = `
+      <strong>${params.seriesName}</strong><br>
+      ${params.name}: ${params.value}
+    `;
+    customTooltip.style.display = 'block';
+    customTooltip.style.left = params.event.event.pageX + 'px';
+    customTooltip.style.top = params.event.event.pageY + 'px';
+  }
+});
+
+chart.on('mouseout', () => {
+  customTooltip.style.display = 'none';
+});
+```
+
+### Analytics Tracking
+
+```typescript
+chart.on('click', (params) => {
+  // Track user interactions
+  analytics.track('chart_interaction', {
+    type: 'click',
+    series: params.seriesName,
+    value: params.value,
+    timestamp: Date.now()
+  });
+});
+```
+
+## Related Methods
+
+- [dispatchAction()](/api/dispatch-action) - Trigger chart actions programmatically
+- [setOption()](/api/set-option) - Configure chart options
+
+## Source Reference
+
+Implementation: `src/core/echarts.ts:2707-2708`
+
+The `on()` and `off()` methods use the internal `createRegisterEventWithLowercaseECharts` function which wraps the base `Eventful` class methods and automatically converts event names to lowercase.

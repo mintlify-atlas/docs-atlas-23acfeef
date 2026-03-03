@@ -1,0 +1,291 @@
+---
+title: Geo
+description: Configure the geographic coordinate system for creating map-based visualizations with GeoJSON or SVG sources
+---
+
+The `geo` component provides a geographic coordinate system for displaying map-based visualizations. It supports both GeoJSON and SVG map sources, with optional projections for accurate geographic representations.
+
+## When to Use
+
+Use the geo component when you need to:
+- Display data on geographic maps (countries, regions, custom territories)
+- Create choropleth maps with colored regions
+- Visualize geographic distributions and patterns
+- Show location-based data with proper spatial relationships
+- Enable map interactions like zooming, panning, and region selection
+
+## Basic Configuration
+
+```javascript
+// Register map data first
+echarts.registerMap('world', geoJsonData);
+
+option = {
+  geo: {
+    map: 'world',
+    roam: true,
+    itemStyle: {
+      areaColor: '#eee',
+      borderColor: '#444'
+    },
+    emphasis: {
+      itemStyle: {
+        areaColor: '#ffd700'
+      }
+    }
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'geo',
+    data: [
+      { name: 'New York', value: [116.4, 39.9, 100] },
+      { name: 'London', value: [103.8, 1.3, 200] }
+    ]
+  }]
+};
+```
+
+## With Projection
+
+Use custom projections for accurate geographic representations:
+
+```javascript
+option = {
+  geo: {
+    map: 'world',
+    projection: {
+      project: function (point) {
+        // Mercator projection
+        return [point[0], Math.log(Math.tan(Math.PI / 4 + point[1] * Math.PI / 360))];
+      },
+      unproject: function (point) {
+        return [point[0], (2 * Math.atan(Math.exp(point[1])) - Math.PI / 2) * 180 / Math.PI];
+      }
+    }
+  }
+};
+```
+
+## Region Configuration
+
+Customize individual regions with specific styles:
+
+```javascript
+option = {
+  geo: {
+    map: 'china',
+    regions: [
+      {
+        name: 'Guangdong',
+        itemStyle: {
+          areaColor: '#ff6b6b'
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: '#ee5a52'
+          }
+        },
+        select: {
+          itemStyle: {
+            areaColor: '#cc0000'
+          }
+        }
+      }
+    ],
+    selectedMode: 'multiple'
+  }
+};
+```
+
+## Properties
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to show the geo component.
+  
+  Source: `GeoModel.ts:170`
+</ParamField>
+
+<ParamField path="map" type="string" default="''">
+  Map name. Must correspond to a map registered via `echarts.registerMap()`.
+  
+  Source: `GeoModel.ts:89, 190`
+</ParamField>
+
+<ParamField path="left" type="number | string" default="'center'">
+  Distance from the left side of the container.
+  
+  Source: `GeoModel.ts:172`
+</ParamField>
+
+<ParamField path="top" type="number | string" default="'center'">
+  Distance from the top of the container.
+  
+  Source: `GeoModel.ts:174`
+</ParamField>
+
+<ParamField path="center" type="number[]">
+  Center point of the map view in longitude and latitude. Default is the center of the map's bounding box.
+  
+  Source: `GeoModel.ts:197`
+</ParamField>
+
+<ParamField path="zoom" type="number" default="1">
+  Zoom level of the map. Higher values zoom in.
+  
+  Source: `GeoModel.ts:199`
+</ParamField>
+
+<ParamField path="aspectScale" type="number" default="0.75 for GeoJSON, 1 for SVG">
+  Scale factor for the aspect ratio (width/height). This parameter scales the original aspect.
+  - For GeoJSON source: defaults to 0.75
+  - For SVG source: defaults to 1
+  
+  Source: `GeoModel.ts:93, 179`
+</ParamField>
+
+<ParamField path="layoutCenter" type="(number | string)[]">
+  Center position for layout with fixed aspect ratio. For example: `['50%', '50%']`. When set, `center` and `zoom` don't work.
+  
+  Source: `GeoModel.ts:99`
+</ParamField>
+
+<ParamField path="layoutSize" type="number | string">
+  Size for layout. Can be absolute pixels or percentage string like `'50%'`.
+  
+  Source: `GeoModel.ts:101`
+</ParamField>
+
+<ParamField path="boundingCoords" type="number[][]">
+  Define left-top and right-bottom lng/lat coords to control view. For example: `[[180, 90], [-180, -90]]`. Has higher priority than `center` and `zoom`.
+  
+  Source: `GeoModel.ts:110, 194`
+</ParamField>
+
+<ParamField path="roam" type="boolean | 'scale' | 'move'" default="false">
+  Whether to enable mouse zooming and panning roaming. Can be:
+  - `false`: disable roaming
+  - `'scale'`: only enable scaling
+  - `'move'`: only enable panning
+  - `true`: enable both scaling and panning
+</ParamField>
+
+<ParamField path="projection" type="GeoProjection">
+  Custom projection for the map. Only available for GeoJSON sources. Must provide both `project` and `unproject` functions.
+  
+  Source: `GeoModel.ts:121`
+</ParamField>
+
+<ParamField path="nameMap" type="NameMap">
+  Name mapping for customizing region names. Useful for translation or aliasing.
+  
+  Source: `GeoModel.ts:112`
+</ParamField>
+
+<ParamField path="nameProperty" type="string">
+  Custom property name for region identification in the GeoJSON.
+  
+  Source: `GeoModel.ts:113`
+</ParamField>
+
+<ParamField path="selectedMode" type="'single' | 'multiple' | boolean" default="false">
+  Selection mode for regions:
+  - `false`: disable selection
+  - `'single'`: single region selection
+  - `'multiple'`: multiple region selection
+  
+  Source: `GeoModel.ts:142`
+</ParamField>
+
+<ParamField path="regions" type="RegionOption[]" default="[]">
+  Configuration for individual regions. Each region can have custom styles and behaviors.
+  
+  Source: `GeoModel.ts:138, 239`
+</ParamField>
+
+<ParamField path="itemStyle" type="GeoItemStyleOption">
+  Style for all regions:
+  - `areaColor`: Fill color of the region
+  - `borderColor`: Border color
+  - `borderWidth`: Border width
+  
+  Source: `GeoModel.ts:210-217`
+</ParamField>
+
+<ParamField path="label" type="GeoLabelOption">
+  Label configuration for regions:
+  - `show`: Whether to show labels
+  - `color`: Label text color
+  - `formatter`: Label formatter function or template
+  
+  Source: `GeoModel.ts:205-208`
+</ParamField>
+
+<ParamField path="emphasis" type="GeoStateOption">
+  Style configuration for the emphasis state (hover).
+  
+  Source: `GeoModel.ts:219-227`
+</ParamField>
+
+<ParamField path="select" type="GeoStateOption">
+  Style configuration for the selected state.
+  
+  Source: `GeoModel.ts:229-237`
+</ParamField>
+
+<ParamField path="silent" type="boolean" default="false">
+  Whether the component is silent (no interaction).
+  
+  Source: `GeoModel.ts:187`
+</ParamField>
+
+<ParamField path="z" type="number" default="0">
+  z-index of the component.
+  
+  Source: `GeoModel.ts:168`
+</ParamField>
+
+<ParamField path="scaleLimit" type="{min?: number, max?: number}">
+  Limits for zooming scale.
+  
+  Source: `GeoModel.ts:201`
+</ParamField>
+
+## Implementation Details
+
+The Geo class extends View and provides geographic coordinate functionality. Key implementation details from `Geo.ts`:
+
+### Dimensions
+
+Geo uses two dimensions: `['lng', 'lat']` for longitude and latitude (source: `Geo.ts:49, 54`).
+
+### Map Sources
+
+Supports two resource types (source: `Geo.ts:60`):
+- `'geoJSON'`: Standard GeoJSON format with default aspectScale of 0.75
+- `'geoSVG'`: SVG-based maps with default aspectScale of 1
+
+### Coordinate Conversion
+
+Provides methods for coordinate transformation:
+- `dataToPoint(data, noRoam)` - Convert lng/lat or region name to canvas point (source: `Geo.ts:206-219`)
+- `pointToData(point)` - Convert canvas point to lng/lat coordinates (source: `Geo.ts:221-230`)
+- `getGeoCoord(name)` - Get coordinates for a named region (source: `Geo.ts:200-204`)
+
+### Projection Support
+
+When a projection is specified (source: `Geo.ts:91, 121`):
+- The `project` function converts geographic coordinates to projected coordinates
+- The `unproject` function converts projected coordinates back to geographic
+- Projection is only supported for GeoJSON sources, not SVG (source: `Geo.ts:107-113`)
+
+### Region Management
+
+The geo component maintains:
+- A map of regions by name (source: `Geo.ts:64`)
+- An array of all regions (source: `Geo.ts:66, 99`)
+- Named coordinate lookup via `addGeoCoord` and `getGeoCoord` (source: `Geo.ts:193-204`)
+
+## Related Components
+
+- [Map Chart](/charts/map) - Thematic map visualization using geo component
+- [Scatter Chart](/charts/scatter) - Can use geo as coordinate system for geographic scatter plots

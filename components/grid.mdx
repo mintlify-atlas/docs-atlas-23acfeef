@@ -1,0 +1,197 @@
+---
+title: Grid
+description: Configure the Cartesian grid coordinate system for positioning and sizing charts with x and y axes
+---
+
+The `grid` component defines the drawing area for Cartesian coordinate systems in ECharts. It's used by charts with x and y axes like line, bar, scatter, and more.
+
+## When to Use
+
+Use the grid component when you need to:
+- Position and size charts with Cartesian (x/y) coordinate systems
+- Display multiple charts with aligned axes in a single canvas
+- Control spacing and layout of axis-based visualizations
+- Ensure axis labels and names fit within specific bounds
+
+## Basic Configuration
+
+```javascript
+option = {
+  grid: {
+    left: '15%',
+    right: '10%',
+    top: 65,
+    bottom: 80,
+    containLabel: false
+  },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'line',
+    data: [120, 200, 150]
+  }]
+};
+```
+
+## Multiple Grids
+
+Create multiple independent coordinate systems in one chart:
+
+```javascript
+option = {
+  grid: [
+    { left: 50, right: '52%', bottom: '52%' },
+    { right: 50, left: '52%', bottom: '52%' },
+    { left: 50, right: '52%', top: '52%' },
+    { right: 50, left: '52%', top: '52%' }
+  ],
+  xAxis: [
+    { gridIndex: 0, type: 'value' },
+    { gridIndex: 1, type: 'value' },
+    { gridIndex: 2, type: 'value' },
+    { gridIndex: 3, type: 'value' }
+  ],
+  yAxis: [
+    { gridIndex: 0, type: 'value' },
+    { gridIndex: 1, type: 'value' },
+    { gridIndex: 2, type: 'value' },
+    { gridIndex: 3, type: 'value' }
+  ],
+  series: [
+    { xAxisIndex: 0, yAxisIndex: 0, type: 'scatter', data: [[1, 2]] },
+    { xAxisIndex: 1, yAxisIndex: 1, type: 'scatter', data: [[3, 4]] },
+    { xAxisIndex: 2, yAxisIndex: 2, type: 'scatter', data: [[5, 6]] },
+    { xAxisIndex: 3, yAxisIndex: 3, type: 'scatter', data: [[7, 8]] }
+  ]
+};
+```
+
+## Properties
+
+<ParamField path="show" type="boolean" default="false">
+  Whether to show the grid background and border.
+</ParamField>
+
+<ParamField path="left" type="number | string" default="'15%'">
+  Distance from the left side of the container. Can be absolute pixels or percentage string.
+  
+  Source: `GridModel.ts:128`
+</ParamField>
+
+<ParamField path="top" type="number | string" default="65">
+  Distance from the top of the container.
+  
+  Source: `GridModel.ts:129`
+</ParamField>
+
+<ParamField path="right" type="number | string" default="'10%'">
+  Distance from the right side of the container.
+  
+  Source: `GridModel.ts:130`
+</ParamField>
+
+<ParamField path="bottom" type="number | string" default="80">
+  Distance from the bottom of the container.
+  
+  Source: `GridModel.ts:131`
+</ParamField>
+
+<ParamField path="width" type="number | string">
+  Width of the grid. Defaults to auto calculation: totalWidth - left - right.
+</ParamField>
+
+<ParamField path="height" type="number | string">
+  Height of the grid. Defaults to auto calculation: totalHeight - top - bottom.
+</ParamField>
+
+<ParamField path="containLabel" type="boolean" default="false">
+  **Deprecated**: Use `outerBounds` instead.
+  
+  Whether grid size contains axis labels. This approach estimates the size by sample labels. It works for most cases but does not strictly contain all labels in some cases.
+  
+  Source: `GridModel.ts:50`
+</ParamField>
+
+<ParamField path="outerBoundsMode" type="'auto' | 'same' | 'none'" default="'auto'">
+  Define how to constrain the layout:
+  - `'none'`: outerBounds is infinity
+  - `'same'`: outerBounds is the same as the layout rect defined by grid positioning
+  - `'auto'`/null/undefined: Default. Use `outerBounds`, or 'same' if `containLabel:true`
+  
+  Note: `grid.containLabel` is equivalent to `{outerBoundsMode: 'same', outerBoundsContain: 'axisLabel'}`.
+  
+  Source: `GridModel.ts:65`
+</ParamField>
+
+<ParamField path="outerBounds" type="BoxLayoutOptionMixin">
+  Define a outer bounds rect with {left, right, top, bottom, width, height} based on:
+  - The canvas by default
+  - Or the `dataToLayout` result if a `boxCoordinateSystem` is specified
+  
+  Source: `GridModel.ts:71`
+</ParamField>
+
+<ParamField path="outerBoundsContain" type="'all' | 'axisLabel' | 'auto'" default="'all'">
+  What to include within the outer bounds:
+  - `'all'`: Default. Contains the cartesian rect, axis labels, and axis names
+  - `'axisLabel'`: Contains the cartesian rect and axis labels (more precise than `containLabel`)
+  - `'auto'`/null/undefined: Default. Be 'axisLabel' if `containLabel:true`, otherwise 'all'
+  
+  Source: `GridModel.ts:78`
+</ParamField>
+
+<ParamField path="outerBoundsClampWidth" type="number | string" default="'25%'">
+  Available only when `outerBoundsMode` is not 'none'. Offers a constraint to not shrink the grid rect smaller than this width. A string means percent like '30%', based on the original rect size determined by grid positioning.
+  
+  Source: `GridModel.ts:86-87`
+</ParamField>
+
+<ParamField path="outerBoundsClampHeight" type="number | string" default="'25%'">
+  Available only when `outerBoundsMode` is not 'none'. Offers a constraint to not shrink the grid rect smaller than this height.
+  
+  Source: `GridModel.ts:87`
+</ParamField>
+
+<ParamField path="backgroundColor" type="Color" default="transparent">
+  Background color of the grid.
+  
+  Source: `GridModel.ts:89, 142`
+</ParamField>
+
+<ParamField path="borderWidth" type="number" default="1">
+  Border width of the grid.
+  
+  Source: `GridModel.ts:90, 143`
+</ParamField>
+
+<ParamField path="borderColor" type="Color" default="tokens.color.neutral30">
+  Border color of the grid.
+  
+  Source: `GridModel.ts:91, 144`
+</ParamField>
+
+<ParamField path="z" type="number" default="0">
+  z-index of the component.
+  
+  Source: `GridModel.ts:127`
+</ParamField>
+
+## Implementation Details
+
+The Grid class implements the `CoordinateSystemMaster` interface and manages Cartesian2D coordinate systems. Key implementation details from `Grid.ts`:
+
+- A grid is a region which contains at most 4 cartesian systems (source: `Grid.ts:21`)
+- Supports multiple x and y axes that share the same grid
+- Automatically handles axis alignment with the `alignTicks` feature
+- Provides coordinate conversion methods: `convertToPixel` and `convertFromPixel`
+- Implements advanced layout features for handling axis label overflow
+
+### Coordinate System
+
+The grid uses the `cartesian2d` coordinate system with dimensions `['x', 'y']` (source: `Grid.ts:108-109`). Each grid can contain multiple Cartesian2D instances created from combinations of x and y axes (source: `Grid.ts:437-451`).
+
+## Related Components
+
+- [xAxis](/components/x-axis) - Horizontal axis in the Cartesian coordinate system
+- [yAxis](/components/y-axis) - Vertical axis in the Cartesian coordinate system
+- Line, Bar, Scatter series - Charts that use the grid coordinate system

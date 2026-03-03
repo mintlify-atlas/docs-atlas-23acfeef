@@ -1,0 +1,600 @@
+---
+title: 'Server-Side Rendering (SSR)'
+description: 'Render Apache ECharts charts on the server using Node.js for improved performance and SEO'
+---
+
+## Overview
+
+Apache ECharts supports server-side rendering (SSR) to generate charts on the server and send them to the client as SVG. This approach provides faster initial rendering, better SEO, and reduced client-side JavaScript processing.
+
+The SSR implementation is located in `~/workspace/source/ssr/` and provides both server-side rendering capabilities and client-side hydration for interactivity.
+
+## Installation
+
+The SSR package is available as part of the ECharts distribution:
+
+```bash
+npm install echarts
+```
+
+The SSR module is located at `echarts/ssr` (CommonJS).
+
+## Server-Side Rendering
+
+### Basic Node.js Example
+
+Render a chart to SVG on the server:
+
+```javascript
+// server.js
+const echarts = require('echarts');
+
+// Create a chart instance in server-side rendering mode
+const chart = echarts.init(null, null, {
+    renderer: 'svg',    // Must use SVG renderer for SSR
+    ssr: true,          // Enable server-side rendering mode
+    width: 800,         // Chart width
+    height: 600         // Chart height
+});
+
+// Configure the chart
+const option = {
+    title: {
+        text: 'ECharts SSR Example'
+    },
+    tooltip: {},
+    xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [{
+        name: 'Sales',
+        type: 'bar',
+        data: [120, 200, 150, 80, 70, 110, 130]
+    }]
+};
+
+chart.setOption(option);
+
+// Render to SVG string
+const svgStr = chart.renderToSVGString();
+
+console.log(svgStr);
+
+// Don't forget to dispose
+chart.dispose();
+```
+
+### Express.js Integration
+
+Serve rendered charts through an Express application:
+
+```javascript
+// server.js
+const express = require('express');
+const echarts = require('echarts');
+
+const app = express();
+
+app.get('/chart', (req, res) => {
+    const chart = echarts.init(null, null, {
+        renderer: 'svg',
+        ssr: true,
+        width: 800,
+        height: 600
+    });
+
+    chart.setOption({
+        title: { text: 'Server-Side Chart' },
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: { type: 'value' },
+        series: [{
+            data: [120, 200, 150, 80, 70, 110, 130],
+            type: 'line'
+        }]
+    });
+
+    const svgStr = chart.renderToSVGString();
+    chart.dispose();
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svgStr);
+});
+
+app.get('/', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>ECharts SSR</title>
+        </head>
+        <body>
+            <h1>Server-Side Rendered Chart</h1>
+            <div id="chart-container">
+                ${renderChartSVG()}
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+function renderChartSVG() {
+    const chart = echarts.init(null, null, {
+        renderer: 'svg',
+        ssr: true,
+        width: 800,
+        height: 600
+    });
+
+    chart.setOption({
+        title: { text: 'Embedded SSR Chart' },
+        xAxis: {
+            type: 'category',
+            data: ['A', 'B', 'C', 'D', 'E']
+        },
+        yAxis: { type: 'value' },
+        series: [{
+            data: [10, 20, 30, 40, 50],
+            type: 'bar'
+        }]
+    });
+
+    const svgStr = chart.renderToSVGString();
+    chart.dispose();
+    return svgStr;
+}
+
+app.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+```
+
+## Client-Side Hydration
+
+After server-side rendering, you can add interactivity on the client using the hydration API from `ssr/client/src/index.ts`.
+
+### Hydration API
+
+The client module provides a `hydrate` function to attach event listeners to server-rendered SVG:
+
+```typescript
+export interface ECSSRClientEventParams {
+    type: ECSSREvent;
+    ssrType: 'legend' | 'chart';
+    seriesIndex?: number;
+    dataIndex?: number;
+    event: Event;
+}
+
+export interface ECSSRClientOptions {
+    on?: {
+        mouseover?: (params: ECSSRClientEventParams) => void;
+        mouseout?: (params: ECSSRClientEventParams) => void;
+        click?: (params: ECSSRClientEventParams) => void;
+    }
+}
+
+export function hydrate(dom: HTMLElement, options: ECSSRClientOptions): void;
+```
+
+### Client Hydration Example
+
+<CodeGroup>
+```html Server HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ECharts SSR with Hydration</title>
+</head>
+<body>
+    <div id="chart-container">
+        <!-- Server-rendered SVG -->
+        <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+            <!-- SVG content from server -->
+        </svg>
+    </div>
+
+    <script src="/echarts-ssr-client.js"></script>
+    <script>
+        // Hydrate the server-rendered chart
+        echartsSSRClient.hydrate(
+            document.getElementById('chart-container'),
+            {
+                on: {
+                    click: function(params) {
+                        console.log('Clicked:', params);
+                        if (params.ssrType === 'chart') {
+                            alert('Series ' + params.seriesIndex + 
+                                  ', Data ' + params.dataIndex);
+                        }
+                    },
+                    mouseover: function(params) {
+                        console.log('Mouse over:', params);
+                    },
+                    mouseout: function(params) {
+                        console.log('Mouse out:', params);
+                    }
+                }
+            }
+        );
+    </script>
+</body>
+</html>
+```
+
+```javascript Client Module
+// Using ES modules
+import { hydrate } from 'echarts/ssr/client';
+
+hydrate(
+    document.getElementById('chart-container'),
+    {
+        on: {
+            click: (params) => {
+                if (params.ssrType === 'chart') {
+                    console.log('Data clicked:', {
+                        series: params.seriesIndex,
+                        data: params.dataIndex
+                    });
+                } else if (params.ssrType === 'legend') {
+                    console.log('Legend clicked');
+                }
+            },
+            mouseover: (params) => {
+                // Show custom tooltip
+                showTooltip(params);
+            },
+            mouseout: () => {
+                hideTooltip();
+            }
+        }
+    }
+);
+```
+</CodeGroup>
+
+### Hydration Implementation Details
+
+From `ssr/client/src/index.ts:42-90`, the hydration system:
+
+1. Finds the SVG root in the container
+2. Attaches event listeners to the SVG element
+3. Reads metadata attributes from SVG elements:
+   - `ecmeta_ssr_type`: Type of element ('chart' or 'legend')
+   - `ecmeta_series_index`: Series index for data elements
+   - `ecmeta_data_index`: Data point index
+   - `ecmeta_silent`: Whether element should ignore events
+4. Fires callbacks with structured event parameters
+
+```javascript
+// Implementation from ssr/client/src/index.ts:70-87
+svgRoot.addEventListener(eventName, event => {
+    const targetEl = event.target as Element;
+    if (!targetEl || !isFunction(targetEl.getAttribute)) {
+        return;
+    }
+    const type = targetEl.getAttribute('ecmeta_ssr_type');
+    const silent = targetEl.getAttribute('ecmeta_silent') === 'true';
+    if (!type || silent) {
+        return;
+    }
+    listener({
+        type: eventName,
+        ssrType: type as SSRItemType,
+        seriesIndex: getIndex(targetEl, 'ecmeta_series_index'),
+        dataIndex: getIndex(targetEl, 'ecmeta_data_index'),
+        event
+    });
+});
+```
+
+## Complete SSR + Hydration Example
+
+### Server (Node.js/Express)
+
+```javascript
+// server.js
+const express = require('express');
+const echarts = require('echarts');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+
+// Serve client-side hydration script
+app.use('/static', express.static('public'));
+
+app.get('/', (req, res) => {
+    // Render chart on server
+    const chart = echarts.init(null, null, {
+        renderer: 'svg',
+        ssr: true,
+        width: 800,
+        height: 600
+    });
+
+    const option = {
+        title: {
+            text: 'Monthly Sales Data'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['Product A', 'Product B']
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Product A',
+                type: 'bar',
+                data: [120, 200, 150, 80, 70, 110]
+            },
+            {
+                name: 'Product B',
+                type: 'bar',
+                data: [90, 150, 120, 100, 80, 95]
+            }
+        ]
+    };
+
+    chart.setOption(option);
+    const svgStr = chart.renderToSVGString();
+    chart.dispose();
+
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>ECharts SSR Demo</title>
+            <style>
+                #chart-container { 
+                    width: 800px; 
+                    height: 600px; 
+                    margin: 20px auto;
+                }
+                #info {
+                    margin: 20px auto;
+                    width: 800px;
+                    padding: 10px;
+                    background: #f0f0f0;
+                    border-radius: 4px;
+                }
+            </style>
+        </head>
+        <body>
+            <h1 style="text-align: center;">Server-Side Rendered Chart</h1>
+            
+            <div id="info">
+                <strong>Event Log:</strong>
+                <div id="event-log"></div>
+            </div>
+            
+            <div id="chart-container">
+                ${svgStr}
+            </div>
+
+            <script src="/static/echarts-ssr-client.js"></script>
+            <script>
+                var eventLog = document.getElementById('event-log');
+                
+                function logEvent(message) {
+                    var entry = document.createElement('div');
+                    entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+                    eventLog.insertBefore(entry, eventLog.firstChild);
+                    
+                    // Keep only last 10 events
+                    while (eventLog.children.length > 10) {
+                        eventLog.removeChild(eventLog.lastChild);
+                    }
+                }
+                
+                // Hydrate the chart
+                echartsSSRClient.hydrate(
+                    document.getElementById('chart-container'),
+                    {
+                        on: {
+                            click: function(params) {
+                                if (params.ssrType === 'chart') {
+                                    logEvent('Clicked: Series ' + params.seriesIndex + 
+                                           ', Data point ' + params.dataIndex);
+                                } else if (params.ssrType === 'legend') {
+                                    logEvent('Legend clicked');
+                                }
+                            },
+                            mouseover: function(params) {
+                                if (params.ssrType === 'chart') {
+                                    logEvent('Hover: Series ' + params.seriesIndex + 
+                                           ', Data ' + params.dataIndex);
+                                }
+                            }
+                        }
+                    }
+                );
+                
+                logEvent('Chart hydrated and ready for interaction');
+            </script>
+        </body>
+        </html>
+    `);
+});
+
+app.listen(3000, () => {
+    console.log('SSR server running on http://localhost:3000');
+});
+```
+
+## Advanced SSR Patterns
+
+### Dynamic Data from Database
+
+```javascript
+const express = require('express');
+const echarts = require('echarts');
+const database = require('./database'); // Your DB module
+
+const app = express();
+
+app.get('/analytics', async (req, res) => {
+    // Fetch data from database
+    const salesData = await database.query('
+        SELECT date, product, amount 
+        FROM sales 
+        WHERE date >= CURRENT_DATE - INTERVAL 30 DAY
+    ');
+
+    // Process data for chart
+    const categories = [...new Set(salesData.map(d => d.date))];
+    const products = [...new Set(salesData.map(d => d.product))];
+    
+    const series = products.map(product => ({
+        name: product,
+        type: 'line',
+        data: categories.map(date => {
+            const record = salesData.find(d => 
+                d.date === date && d.product === product
+            );
+            return record ? record.amount : 0;
+        })
+    }));
+
+    // Render chart
+    const chart = echarts.init(null, null, {
+        renderer: 'svg',
+        ssr: true,
+        width: 1200,
+        height: 600
+    });
+
+    chart.setOption({
+        title: { text: 'Sales Analytics - Last 30 Days' },
+        tooltip: { trigger: 'axis' },
+        legend: { data: products },
+        xAxis: {
+            type: 'category',
+            data: categories
+        },
+        yAxis: { type: 'value' },
+        series: series
+    });
+
+    const svgStr = chart.renderToSVGString();
+    chart.dispose();
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svgStr);
+});
+```
+
+### Caching SSR Results
+
+```javascript
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 600 }); // 10 minute cache
+
+app.get('/chart/:id', (req, res) => {
+    const chartId = req.params.id;
+    const cacheKey = `chart_${chartId}`;
+    
+    // Check cache
+    let svgStr = cache.get(cacheKey);
+    
+    if (!svgStr) {
+        // Generate chart
+        const chart = echarts.init(null, null, {
+            renderer: 'svg',
+            ssr: true,
+            width: 800,
+            height: 600
+        });
+        
+        chart.setOption(getChartOption(chartId));
+        svgStr = chart.renderToSVGString();
+        chart.dispose();
+        
+        // Store in cache
+        cache.set(cacheKey, svgStr);
+    }
+    
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=600');
+    res.send(svgStr);
+});
+```
+
+## SSR Benefits and Limitations
+
+### Benefits
+
+<CardGroup cols={2}>
+  <Card title="Faster Initial Render" icon="bolt">
+    Charts are rendered on the server, appearing immediately without client-side processing
+  </Card>
+  <Card title="Better SEO" icon="search">
+    Search engines can index chart content as SVG markup
+  </Card>
+  <Card title="Reduced Client Load" icon="microchip">
+    Less JavaScript processing on client devices, especially beneficial for mobile
+  </Card>
+  <Card title="No Flash of Unstyled Content" icon="eye">
+    Charts appear styled from the first paint
+  </Card>
+</CardGroup>
+
+### Limitations
+
+<Warning>
+  SSR has some limitations to be aware of:
+  
+  - **Canvas Renderer**: Only SVG renderer is supported for SSR (not Canvas)
+  - **Limited Interactivity**: Without hydration, charts are static images
+  - **Animation**: Server-rendered charts don't include animations
+  - **Dynamic Updates**: Real-time data updates require client-side re-rendering
+  - **Tooltips**: Native ECharts tooltips don't work; use custom implementations with hydration
+</Warning>
+
+## Best Practices
+
+<Steps>
+  <Step title="Use SVG Renderer">
+    Always specify `renderer: 'svg'` and `ssr: true` in init options
+  </Step>
+  <Step title="Set Dimensions">
+    Explicitly set `width` and `height` - they can't be detected from container in SSR mode
+  </Step>
+  <Step title="Dispose Charts">
+    Always call `chart.dispose()` after rendering to free memory
+  </Step>
+  <Step title="Implement Caching">
+    Cache rendered SVG strings for frequently accessed charts
+  </Step>
+  <Step title="Add Hydration">
+    Use the client hydration module for interactive features
+  </Step>
+  <Step title="Graceful Degradation">
+    Ensure charts are readable even without client-side JavaScript
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Performance" icon="gauge-high" href="/guides/performance">
+    Optimize server rendering performance for large datasets
+  </Card>
+  <Card title="Accessibility" icon="universal-access" href="/guides/accessibility">
+    Ensure SSR charts are accessible with ARIA labels
+  </Card>
+</CardGroup>

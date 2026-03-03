@@ -1,0 +1,253 @@
+---
+title: 'resize()'
+description: 'Resize the chart to fit its container or specified dimensions'
+---
+
+## Method Signature
+
+```typescript
+resize(opts?: ResizeOpts): void
+```
+
+## Description
+
+The `resize()` method resizes the chart. This is commonly used when the container size changes, such as when the window is resized or when switching between different layouts. The chart will automatically recalculate layouts and re-render all components.
+
+## Parameters
+
+<ParamField path="opts" type="ResizeOpts">
+  Optional configuration object for controlling the resize behavior.
+  
+  <Expandable title="ResizeOpts Properties">
+    <ParamField path="opts.width" type="number | 'auto'">
+      The new width of the chart in pixels. Use `'auto'` or omit to use the container's width.
+    </ParamField>
+    
+    <ParamField path="opts.height" type="number | 'auto'">
+      The new height of the chart in pixels. Use `'auto'` or omit to use the container's height.
+    </ParamField>
+    
+    <ParamField path="opts.animation" type="AnimationOption">
+      Animation configuration for the resize operation.
+      
+      <Expandable title="AnimationOption Properties">
+        <ParamField path="opts.animation.duration" type="number" default="0">
+          Duration of the resize animation in milliseconds. By default, resize has no animation (duration: 0).
+        </ParamField>
+        
+        <ParamField path="opts.animation.easing" type="string">
+          Easing function for the animation. Examples: `'linear'`, `'cubicIn'`, `'cubicOut'`, `'cubicInOut'`
+        </ParamField>
+        
+        <ParamField path="opts.animation.delay" type="number">
+          Delay before the animation starts in milliseconds.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    
+    <ParamField path="opts.silent" type="boolean" default="false">
+      When `true`, events will not be triggered during the resize operation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Return Value
+
+`void` - This method does not return a value.
+
+## Examples
+
+### Basic Resize
+
+```typescript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  // ... your chart configuration
+});
+
+// Resize to fit the container
+chart.resize();
+```
+
+### Window Resize Handler
+
+```typescript
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  // ... your chart configuration
+});
+
+// Resize chart when window is resized
+window.addEventListener('resize', () => {
+  chart.resize();
+});
+```
+
+### Debounced Resize for Performance
+
+```typescript
+let resizeTimer: NodeJS.Timeout;
+
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    chart.resize();
+  }, 100);
+});
+```
+
+### Resize with Specific Dimensions
+
+```typescript
+// Resize to specific width and height
+chart.resize({
+  width: 800,
+  height: 600
+});
+```
+
+### Resize with Auto Dimensions
+
+```typescript
+// Let the chart use the container's dimensions
+chart.resize({
+  width: 'auto',
+  height: 'auto'
+});
+```
+
+### Resize with Animation
+
+```typescript
+// Animate the resize operation
+chart.resize({
+  width: 1000,
+  height: 500,
+  animation: {
+    duration: 300,
+    easing: 'cubicInOut'
+  }
+});
+```
+
+### Silent Resize
+
+```typescript
+// Resize without triggering events
+chart.resize({
+  silent: true
+});
+```
+
+### Responsive Chart Setup
+
+```typescript
+const container = document.getElementById('main');
+const chart = echarts.init(container);
+
+chart.setOption({
+  // ... your chart configuration
+});
+
+// Use ResizeObserver for more accurate container size detection
+const resizeObserver = new ResizeObserver(() => {
+  chart.resize();
+});
+
+resizeObserver.observe(container);
+```
+
+### Fullscreen Toggle Example
+
+```typescript
+let isFullscreen = false;
+const container = document.getElementById('main');
+
+function toggleFullscreen() {
+  if (!isFullscreen) {
+    // Enter fullscreen
+    container.requestFullscreen();
+    chart.resize({
+      width: window.screen.width,
+      height: window.screen.height
+    });
+  } else {
+    // Exit fullscreen
+    document.exitFullscreen();
+    chart.resize(); // Resize to container
+  }
+  isFullscreen = !isFullscreen;
+}
+
+// Listen for fullscreen changes
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    chart.resize();
+    isFullscreen = false;
+  }
+});
+```
+
+### Resize After Lazy Loading
+
+```typescript
+// After setting option with lazyUpdate
+chart.setOption(option, {
+  lazyUpdate: true
+});
+
+// Resize will process pending updates
+chart.resize();
+```
+
+## Important Notes
+
+<Warning>
+  `resize()` should not be called during the main rendering process. Attempting to do so will result in an error in development mode.
+</Warning>
+
+<Note>
+  If `setOption` was called with `lazyUpdate: true` and the update is still pending, calling `resize()` will trigger the pending update before performing the resize operation.
+</Note>
+
+<Info>
+  The resize operation automatically updates media queries if they are defined in your chart options. This allows you to create responsive charts that adapt to different screen sizes.
+</Info>
+
+<Tip>
+  For optimal performance, bind the resize function to the chart instance when setting up window resize listeners:
+  ```typescript
+  this.resize = bind(this.resize, this); // This is done internally
+  window.onresize = chart.resize; // Safe to use directly
+  ```
+</Tip>
+
+## Common Use Cases
+
+1. **Window Resize** - Adapt to browser window size changes
+2. **Container Changes** - Respond to dynamic container resizing
+3. **Orientation Changes** - Handle mobile device orientation changes
+4. **Fullscreen Mode** - Adjust when entering/exiting fullscreen
+5. **Sidebar Toggle** - Resize when sidebars or panels are shown/hidden
+6. **Tab Switching** - Refresh size when switching between tabs
+7. **Modal/Dialog** - Resize charts inside modals or dialogs
+
+## Best Practices
+
+- Use debouncing or throttling for window resize events to avoid excessive resize calls
+- Consider using `ResizeObserver` for more efficient container size detection
+- Call `resize()` after the container has finished its size transition
+- For responsive designs, combine with media query options in your chart configuration
+
+## Related Methods
+
+- [setOption()](/api/set-option) - Configure chart options
+- [ECharts Instance](/api/echarts-instance) - Instance methods including getWidth() and getHeight()
+
+## Source Reference
+
+Implementation: `src/core/echarts.ts:1354-1416`

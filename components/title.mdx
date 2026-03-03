@@ -1,0 +1,298 @@
+---
+title: 'Title Component'
+description: 'Display chart title and subtitle with customizable positioning and styling'
+icon: 'heading'
+---
+
+The Title component displays the main title and optional subtitle for your chart. It supports flexible positioning, linking, and comprehensive text styling options.
+
+## Purpose
+
+The Title component serves as the primary heading for your chart, providing context and description for the data visualization. Based on the source code at `~/workspace/source/src/component/title/install.ts`, it renders text elements with configurable layout, styling, and interactive features.
+
+## Basic Usage
+
+```javascript
+option = {
+  title: {
+    text: 'Sales Report',
+    subtext: 'Q1 2024',
+    left: 'center'
+  },
+  // ... other chart configuration
+}
+```
+
+## Configuration Options
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the title component.
+</ParamField>
+
+<ParamField path="text" type="string" default="''">
+  The main title text to display.
+  
+  ```javascript
+  title: {
+    text: 'Monthly Revenue Analysis'
+  }
+  ```
+</ParamField>
+
+<ParamField path="link" type="string">
+  URL to navigate to when the title is clicked.
+  
+  ```javascript
+  title: {
+    text: 'View Full Report',
+    link: 'https://example.com/report'
+  }
+  ```
+</ParamField>
+
+<ParamField path="target" type="'self' | 'blank'" default="'blank'">
+  Specifies where to open the linked URL:
+  - `'self'` - Opens in the same window
+  - `'blank'` - Opens in a new window/tab
+</ParamField>
+
+<ParamField path="subtext" type="string" default="''">
+  Subtitle text displayed below the main title.
+  
+  ```javascript
+  title: {
+    text: 'Sales Dashboard',
+    subtext: 'Real-time Data'
+  }
+  ```
+</ParamField>
+
+<ParamField path="sublink" type="string">
+  URL to navigate to when the subtitle is clicked.
+</ParamField>
+
+<ParamField path="subtarget" type="'self' | 'blank'" default="'blank'">
+  Specifies where to open the subtitle link.
+</ParamField>
+
+<ParamField path="textAlign" type="'left' | 'center' | 'right'">
+  Horizontal alignment of the title text. If not specified, it aligns based on the `left` or `right` positioning.
+</ParamField>
+
+<ParamField path="textVerticalAlign" type="'top' | 'middle' | 'bottom'">
+  Vertical alignment of the title text. If not specified, it aligns based on the `top` or `bottom` positioning.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]" default="5">
+  Padding between text and border. Can be:
+  - A single number: `5` (applies to all sides)
+  - An array: `[5, 10]` (vertical, horizontal) or `[5, 10, 5, 10]` (top, right, bottom, left)
+</ParamField>
+
+<ParamField path="itemGap" type="number" default="10">
+  Gap between the main title and subtitle, in pixels.
+</ParamField>
+
+<ParamField path="backgroundColor" type="string">
+  Background color of the title component. Supports color strings, hex values, and rgba.
+  
+  ```javascript
+  title: {
+    text: 'Chart Title',
+    backgroundColor: '#f0f0f0'
+  }
+  ```
+</ParamField>
+
+<ParamField path="borderColor" type="string">
+  Border color of the title component.
+</ParamField>
+
+<ParamField path="borderWidth" type="number" default="0">
+  Width of the title border in pixels.
+</ParamField>
+
+<ParamField path="borderRadius" type="number | number[]">
+  Radius of the background border corners. Can be a single number or an array for different corners.
+</ParamField>
+
+<ParamField path="triggerEvent" type="boolean">
+  Whether to trigger mouse or touch events on the title component.
+</ParamField>
+
+### Position
+
+<ParamField path="left" type="number | string" default="'center'">
+  Horizontal position. Can be:
+  - `'left'`, `'center'`, `'right'`
+  - Absolute pixel value: `20`
+  - Percentage: `'20%'`
+</ParamField>
+
+<ParamField path="top" type="number | string">
+  Vertical position. Can be:
+  - `'top'`, `'middle'`, `'bottom'`
+  - Absolute pixel value: `20`
+  - Percentage: `'20%'`
+</ParamField>
+
+<ParamField path="right" type="number | string">
+  Distance from the right side of the container.
+</ParamField>
+
+<ParamField path="bottom" type="number | string">
+  Distance from the bottom of the container.
+</ParamField>
+
+### Text Style
+
+<ParamField path="textStyle" type="object">
+  Style configuration for the main title text.
+  
+  <Expandable title="Text Style Properties">
+    <ParamField path="textStyle.color" type="string">
+      Text color of the main title.
+    </ParamField>
+    
+    <ParamField path="textStyle.fontStyle" type="'normal' | 'italic' | 'oblique'">
+      Font style of the title.
+    </ParamField>
+    
+    <ParamField path="textStyle.fontWeight" type="'normal' | 'bold' | 'bolder' | 'lighter' | number" default="'bold'">
+      Font weight of the title text.
+    </ParamField>
+    
+    <ParamField path="textStyle.fontSize" type="number" default="18">
+      Font size of the title in pixels.
+    </ParamField>
+    
+    <ParamField path="textStyle.lineHeight" type="number">
+      Line height of the title text.
+    </ParamField>
+    
+    <ParamField path="textStyle.width" type="number">
+      Width of the title text block.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="subtextStyle" type="object">
+  Style configuration for the subtitle text.
+  
+  <Expandable title="Subtext Style Properties">
+    <ParamField path="subtextStyle.color" type="string">
+      Text color of the subtitle.
+    </ParamField>
+    
+    <ParamField path="subtextStyle.fontStyle" type="'normal' | 'italic' | 'oblique'">
+      Font style of the subtitle.
+    </ParamField>
+    
+    <ParamField path="subtextStyle.fontWeight" type="'normal' | 'bold' | 'bolder' | 'lighter' | number">
+      Font weight of the subtitle text.
+    </ParamField>
+    
+    <ParamField path="subtextStyle.fontSize" type="number" default="12">
+      Font size of the subtitle in pixels.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Examples
+
+### Centered Title with Subtitle
+
+```javascript
+option = {
+  title: {
+    text: 'Monthly Sales Analysis',
+    subtext: 'Data from January to December 2024',
+    left: 'center',
+    top: '5%',
+    textStyle: {
+      fontSize: 24,
+      fontWeight: 'bold'
+    },
+    subtextStyle: {
+      fontSize: 14,
+      color: '#666'
+    }
+  },
+  // ... rest of chart configuration
+}
+```
+
+### Title with Link
+
+```javascript
+option = {
+  title: {
+    text: 'Click to View Full Report',
+    link: 'https://example.com/detailed-report',
+    target: 'blank',
+    left: 'left',
+    top: 10,
+    textStyle: {
+      color: '#0066cc',
+      fontSize: 18
+    }
+  }
+}
+```
+
+### Styled Title with Background
+
+```javascript
+option = {
+  title: {
+    text: 'Revenue Dashboard',
+    subtext: 'Q1 2024',
+    left: 'center',
+    backgroundColor: '#f5f5f5',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: [10, 20],
+    textStyle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#333'
+    },
+    subtextStyle: {
+      fontSize: 12,
+      color: '#999'
+    },
+    itemGap: 8
+  }
+}
+```
+
+### Multiple Titles
+
+```javascript
+option = {
+  title: [
+    {
+      text: 'Main Chart Title',
+      left: 'center',
+      top: '0%'
+    },
+    {
+      text: 'Secondary Title',
+      left: 'center',
+      top: '50%'
+    }
+  ]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/title/install.ts:100-139`, the Title component includes:
+
+- **Layout Mode**: Box layout with size ignored
+- **Z-index**: Defaults to 6, ensuring title appears above most chart elements
+- **Text Rendering**: Uses ZRender Text elements with full styling support
+- **Click Events**: Supports link navigation with configurable target windows
+- **Auto-alignment**: Automatically determines text alignment based on position if not explicitly set
+- **Background**: Optional background rectangle with border and border radius support

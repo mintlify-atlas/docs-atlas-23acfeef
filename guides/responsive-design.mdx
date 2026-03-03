@@ -1,0 +1,524 @@
+---
+title: 'Responsive Design'
+description: 'Build responsive charts that adapt to different screen sizes and orientations'
+---
+
+## Overview
+
+Apache ECharts provides built-in support for responsive design through the resize API, media queries, and adaptive configurations. This guide covers techniques for creating charts that work seamlessly across desktop and mobile devices.
+
+## Resize API
+
+The `resize()` method is the primary API for handling container size changes. It's located in `src/core/echarts.ts:1354`.
+
+### Basic Resize
+
+```javascript
+var myChart = echarts.init(document.getElementById('main'));
+
+// Set initial option
+myChart.setOption(option);
+
+// Resize chart when window resizes
+window.addEventListener('resize', function() {
+    myChart.resize();
+});
+```
+
+### Resize with Options
+
+The resize method accepts optional parameters:
+
+```javascript
+myChart.resize({
+    width: 800,
+    height: 600,
+    silent: false  // Whether to suppress events
+});
+```
+
+<Note>
+  The `resize()` method automatically binds to the chart instance in the constructor (see `src/core/echarts.ts:518`), so you can safely use it as a callback: `window.onresize = myChart.resize`
+</Note>
+
+### Resize Implementation Details
+
+From `src/core/echarts.ts:1354-1400`, the resize process:
+
+1. Resizes the underlying ZRender canvas
+2. Resizes any loading effects
+3. Resets media query options if needed
+4. Triggers a chart update with resize animation
+5. Dispatches a 'resize' event
+
+```javascript
+resize(opts?: ResizeOpts): void {
+    if (this[IN_MAIN_PROCESS_KEY]) {
+        if (__DEV__) {
+            error('`resize` should not be called during main process.');
+        }
+        return;
+    }
+
+    if (this._disposed) {
+        disposedWarning(this.id);
+        return;
+    }
+
+    this._zr.resize(opts);
+
+    const ecModel = this._model;
+
+    // Resize loading effect
+    this._loadingFX && this._loadingFX.resize();
+
+    if (!ecModel) {
+        return;
+    }
+
+    let needPrepare = ecModel.resetOption('media');
+
+    let silent = opts && opts.silent;
+
+    // Handle pending updates
+    if (this[PENDING_UPDATE]) {
+        if (silent == null) {
+            silent = (this[PENDING_UPDATE] as any).silent;
+        }
+        needPrepare = true;
+        this[PENDING_UPDATE] = null;
+    }
+
+    this[IN_MAIN_PROCESS_KEY] = true;
+    updateMainProcessVersion(this);
+
+    try {
+        needPrepare && prepare(this);
+        updateMethods.update.call(this, {
+            type: 'resize',
+            animation: extend({
+                // ...
+            })
+        });
+    }
+    // ...
+}
+```
+
+## Media Queries
+
+ECharts supports media query-based responsive configurations, allowing different options based on container size.
+
+### Basic Media Query Setup
+
+```javascript
+option = {
+    baseOption: {
+        title: {
+            text: 'Responsive Chart'
+        },
+        series: [{
+            type: 'bar',
+            data: [5, 20, 36, 10, 10, 20]
+        }]
+    },
+    media: [
+        {
+            query: {
+                maxWidth: 500
+            },
+            option: {
+                legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                },
+                series: [{
+                    radius: '40%'
+                }]
+            }
+        },
+        {
+            query: {
+                minWidth: 500,
+                maxWidth: 1000
+            },
+            option: {
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 0
+                },
+                series: [{
+                    radius: '50%'
+                }]
+            }
+        },
+        {
+            query: {
+                minWidth: 1000
+            },
+            option: {
+                legend: {
+                    orient: 'horizontal',
+                    right: 'right'
+                },
+                series: [{
+                    radius: '60%'
+                }]
+            }
+        }
+    ]
+};
+
+myChart.setOption(option);
+```
+
+### Query Properties
+
+Media query objects support the following properties:
+
+- `minWidth`: Minimum container width
+- `maxWidth`: Maximum container width  
+- `minHeight`: Minimum container height
+- `maxHeight`: Maximum container height
+- `minAspectRatio`: Minimum aspect ratio (width/height)
+- `maxAspectRatio`: Maximum aspect ratio (width/height)
+
+### Media Query Implementation
+
+From `src/model/OptionManager.ts:209-234`, media queries are evaluated on resize:
+
+```javascript
+for (let i = 0, len = mediaList.length; i < len; i++) {
+    if (applyMediaQuery(mediaList[i].query, ecWidth, ecHeight)) {
+        indices.push(i);
+    }
+}
+
+// Apply matching media options
+if (indices.length && !indicesEquals(indices, this._currentMediaIndices)) {
+    result = map(indices, function (index) {
+        return clone(
+            index === -1 ? mediaDefault.option : mediaList[index].option
+        );
+    });
+}
+```
+
+## Mobile vs Desktop Configurations
+
+### Responsive Layout Example
+
+<CodeGroup>
+```javascript Mobile Configuration
+option = {
+    baseOption: {
+        title: {
+            text: 'Sales Data'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            name: 'Sales',
+            type: 'line',
+            data: [120, 132, 101, 134, 90, 230, 210]
+        }]
+    },
+    media: [
+        {
+            // Mobile: portrait
+            query: { maxWidth: 500 },
+            option: {
+                title: {
+                    textStyle: {
+                        fontSize: 14
+                    }
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 0,
+                    textStyle: {
+                        fontSize: 10
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '15%',
+                    top: '15%'
+                },
+                xAxis: {
+                    axisLabel: {
+                        fontSize: 10,
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    axisLabel: {
+                        fontSize: 10
+                    }
+                },
+                series: [{
+                    lineStyle: {
+                        width: 2
+                    },
+                    symbolSize: 6
+                }]
+            }
+        },
+        {
+            // Tablet
+            query: { minWidth: 500, maxWidth: 1000 },
+            option: {
+                title: {
+                    textStyle: {
+                        fontSize: 16
+                    }
+                },
+                legend: {
+                    orient: 'horizontal',
+                    top: 'bottom'
+                },
+                grid: {
+                    left: '8%',
+                    right: '8%'
+                },
+                series: [{
+                    lineStyle: {
+                        width: 3
+                    },
+                    symbolSize: 8
+                }]
+            }
+        },
+        {
+            // Desktop
+            query: { minWidth: 1000 },
+            option: {
+                title: {
+                    textStyle: {
+                        fontSize: 18
+                    }
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                grid: {
+                    left: '10%',
+                    right: '15%'
+                },
+                series: [{
+                    lineStyle: {
+                        width: 4
+                    },
+                    symbolSize: 10
+                }]
+            }
+        }
+    ]
+};
+```
+
+```javascript Desktop Configuration
+// Alternative: Separate configurations
+function getOption() {
+    const isMobile = window.innerWidth < 768;
+    
+    return {
+        title: {
+            text: 'Sales Data',
+            textStyle: {
+                fontSize: isMobile ? 14 : 18
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            confine: isMobile  // Keep tooltip within chart on mobile
+        },
+        legend: {
+            orient: isMobile ? 'horizontal' : 'vertical',
+            left: isMobile ? 'center' : 'right',
+            top: isMobile ? 'bottom' : 'center'
+        },
+        grid: {
+            left: isMobile ? '5%' : '10%',
+            right: isMobile ? '5%' : '15%',
+            bottom: isMobile ? '15%' : '10%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            axisLabel: {
+                fontSize: isMobile ? 10 : 12,
+                rotate: isMobile ? 45 : 0
+            }
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: {
+                fontSize: isMobile ? 10 : 12
+            }
+        },
+        series: [{
+            name: 'Sales',
+            type: 'line',
+            data: [120, 132, 101, 134, 90, 230, 210],
+            lineStyle: {
+                width: isMobile ? 2 : 4
+            },
+            symbolSize: isMobile ? 6 : 10
+        }]
+    };
+}
+
+myChart.setOption(getOption());
+
+window.addEventListener('resize', function() {
+    myChart.resize();
+    // Optionally update option on resize
+    // myChart.setOption(getOption());
+});
+```
+</CodeGroup>
+
+## Auto-Resize with ResizeObserver
+
+For more precise resize detection, use the ResizeObserver API:
+
+```javascript
+var myChart = echarts.init(document.getElementById('main'));
+myChart.setOption(option);
+
+// Modern approach using ResizeObserver
+if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            myChart.resize();
+        }
+    });
+    
+    resizeObserver.observe(document.getElementById('main'));
+} else {
+    // Fallback to window resize
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+}
+```
+
+## Container-Based Sizing
+
+### Percentage-Based Containers
+
+```html
+<div id="chart-container" style="width: 100%; height: 400px;">
+    <div id="main" style="width: 100%; height: 100%;"></div>
+</div>
+
+<script>
+var myChart = echarts.init(document.getElementById('main'));
+myChart.setOption(option);
+
+window.addEventListener('resize', function() {
+    myChart.resize();
+});
+</script>
+```
+
+### Viewport Units
+
+```html
+<style>
+    #main {
+        width: 90vw;  /* 90% of viewport width */
+        height: 60vh; /* 60% of viewport height */
+        margin: 0 auto;
+    }
+</style>
+
+<div id="main"></div>
+```
+
+## Debounced Resize
+
+For better performance, debounce the resize handler:
+
+```javascript
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            func.apply(context, args);
+        }, wait);
+    };
+}
+
+var myChart = echarts.init(document.getElementById('main'));
+myChart.setOption(option);
+
+// Debounce resize to 250ms
+window.addEventListener('resize', debounce(function() {
+    myChart.resize();
+}, 250));
+```
+
+## Coordinate System Resize
+
+Different coordinate systems handle resize automatically (from source code):
+
+- **Grid** (`src/coord/cartesian/Grid.ts:207`): Resizes during coordinate system update
+- **Polar** (`src/coord/polar/polarCreator.ts:48`): Has dedicated `resizePolar` function
+- **Geo** (`src/coord/geo/geoCreator.ts:44`): Implements `resizeGeo` method
+- **Single Axis** (`src/coord/single/Single.ts:113`): Supports resize
+- **Parallel** (`src/coord/parallel/Parallel.ts:201`): Handles resize
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Debounce Resize" icon="timer">
+    Always debounce resize events to avoid performance issues during window resizing
+  </Card>
+  <Card title="Use Media Queries" icon="display">
+    Prefer media queries for distinct breakpoints rather than continuous resize updates
+  </Card>
+  <Card title="Mobile-First" icon="mobile">
+    Design for mobile first, then enhance for larger screens
+  </Card>
+  <Card title="Test Devices" icon="mobile-screen">
+    Test on actual devices, not just browser resize
+  </Card>
+</CardGroup>
+
+<Warning>
+  Do not call `resize()` during the main process. The method includes a check (line 1355-1359) and will throw an error in development mode if called during rendering.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Performance" icon="gauge-high" href="/guides/performance">
+    Optimize charts for large datasets and smooth interactions
+  </Card>
+  <Card title="Customization" icon="palette" href="/guides/customization">
+    Customize themes and styling options
+  </Card>
+</CardGroup>

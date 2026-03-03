@@ -1,0 +1,300 @@
+---
+title: Changelog
+description: Apache ECharts version history and release notes
+---
+
+# Changelog
+
+Apache ECharts follows semantic versioning and releases new versions regularly. This page highlights major releases and directs you to detailed release notes.
+
+## Current Version
+
+The latest stable version is **6.0.0**.
+
+```bash
+npm install echarts@latest
+```
+
+## Release Channels
+
+### Stable Releases
+
+Production-ready releases available on npm:
+
+```bash
+npm install echarts
+```
+
+### Release Candidates
+
+Pre-release versions for testing upcoming features:
+
+```bash
+npm install echarts@next
+```
+
+### Beta Releases
+
+Early preview versions for major releases:
+
+```bash
+npm install echarts@beta
+```
+
+## Major Versions
+
+### Version 6.x (Current)
+
+**Latest**: 6.0.0 (Released 2024)
+
+Major focus on TypeScript and ESM modernization:
+
+- ✨ Improved TypeScript support with modern ESM compatibility
+- ✨ Removed export assignments for better TypeScript ESM usage
+- ✨ Package.json `"type": "module"` for proper ESM support
+- ✨ Refactored type definitions to eliminate duplications
+- 🐛 Fixed view coordinate system center implementation
+- 🐛 Restored candlestick non-normal states support
+- 📦 Updated to ZRender 6.0.0
+
+**Release Candidates:**
+- [6.0.0-rc.1](https://github.com/apache/echarts/releases/tag/6.0.0-rc.1) - First release candidate
+- [6.0.0-beta.1](https://github.com/apache/echarts/releases) - Beta release
+
+**Migration Guide**: [Migrating from v5 to v6](/migration/v5-to-v6)
+
+### Version 5.x
+
+**Latest**: 5.0.0 (Released 2021)
+
+Major improvements in rendering, performance, and features:
+
+- ✨ Enhanced animation system with series and item-level delay callbacks
+- ✨ Improved axis formatting (direct value instead of object)
+- ✨ Axis break support with TypeScript types
+- ✨ Label system updates (color inheritance, layout properties)
+- ✨ Line chart event enhancements (selfType property)
+- ✨ Time axis improvements (custom values with formatter)
+- ✨ Better tooltip dynamic updates
+- ✨ Parallel series extent calculation improvements
+- 🐛 Fixed candlestick state management
+- 🐛 Resolved time axis custom values TypeError
+
+**Release Candidates:**
+- [5.0.0](https://github.com/apache/echarts/releases?q=5.0.0&expanded=true) - Final release
+- [5.0.0-rc.3](https://github.com/apache/echarts/releases) - Release candidate 3
+- [5.0.0-beta.2](https://github.com/apache/echarts/releases) - Beta release 2
+
+**Migration Guide**: [Migrating from v4 to v5](/migration/v4-to-v5)
+
+### Version 4.x (Legacy)
+
+**Latest**: 4.9.x
+
+Stable legacy version, widely used in production:
+
+- Full feature set for most visualization needs
+- Extensive browser compatibility
+- Large ecosystem of extensions and examples
+
+**Last Tag**: [v4.2.1-rc1](https://github.com/apache/echarts/releases?q=v4&expanded=true)
+
+<Warning>
+  Version 4.x is in maintenance mode. New projects should use version 5 or 6.
+</Warning>
+
+## Release Notes
+
+Detailed release notes for all versions are available on GitHub:
+
+<Card title="GitHub Releases" icon="github" href="https://github.com/apache/echarts/releases">
+  View complete changelog with detailed release notes, breaking changes, and migration guides for all versions.
+</Card>
+
+## Release Schedule
+
+Apache ECharts follows a regular release cycle:
+
+### Monthly Minor Releases
+
+Minor versions are released at the end of each month:
+
+1. **Beginning of month** - Milestone discussion for release two versions ahead
+2. **Mid-month** - Development kickoff for next release
+3. **~22nd** - Feature freeze and testing begins
+4. **End of month** - Release vote and publication
+
+### Major Releases
+
+Major versions are released when:
+
+- Significant breaking changes are needed
+- Major new features are introduced
+- Substantial architectural improvements are made
+
+### Patch Releases
+
+Patch releases for critical bugs are published as needed between regular releases.
+
+## Versioning Policy
+
+Apache ECharts follows [Semantic Versioning](https://semver.org/):
+
+- **Major** (X.0.0) - Breaking changes
+- **Minor** (x.X.0) - New features, backward compatible
+- **Patch** (x.x.X) - Bug fixes, backward compatible
+
+## Staying Updated
+
+### Subscribe to Releases
+
+Get notified of new releases:
+
+1. **GitHub**: Watch the [apache/echarts](https://github.com/apache/echarts) repository
+2. **Mailing List**: Subscribe to [dev@echarts.apache.org](https://echarts.apache.org/maillist.html)
+3. **npm**: Follow [@echarts](https://www.npmjs.com/package/echarts) on npm
+
+### Release Discussions
+
+Participate in release planning:
+
+- Join the [mailing list](https://echarts.apache.org/en/maillist.html)
+- Review [GitHub milestones](https://github.com/apache/echarts/milestones)
+- Comment on [feature requests](https://github.com/apache/echarts/labels/enhancement)
+
+## Recent Releases
+
+Latest releases and updates:
+
+<CodeGroup>
+
+```bash npm
+npm install echarts@latest
+```
+
+```bash yarn
+yarn add echarts@latest
+```
+
+```bash pnpm
+pnpm add echarts@latest
+```
+
+</CodeGroup>
+
+## Dependencies
+
+### Current Dependencies (v6.0.0)
+
+```json
+{
+  "dependencies": {
+    "tslib": "2.3.0",
+    "zrender": "6.0.0"
+  }
+}
+```
+
+### ZRender Versions
+
+- **ECharts 6.x**: Requires ZRender 6.0.0
+- **ECharts 5.x**: Requires ZRender 5.x
+- **ECharts 4.x**: Requires ZRender 4.x
+
+## Deprecation Policy
+
+When features are deprecated:
+
+1. **Announcement** - Noted in release notes
+2. **Deprecation period** - Feature marked deprecated but still works
+3. **Migration guide** - Provided for alternatives
+4. **Removal** - In next major version
+
+## Upgrade Guides
+
+Detailed guides for major version upgrades:
+
+<CardGroup cols={2}>
+  <Card title="v5 to v6" icon="arrow-up" href="/migration/v5-to-v6">
+    TypeScript and ESM modernization
+  </Card>
+  <Card title="v4 to v5" icon="arrow-up" href="/migration/v4-to-v5">
+    Performance and API improvements
+  </Card>
+</CardGroup>
+
+## GitHub Activity
+
+Recent development activity:
+
+- **Commits**: Active daily development
+- **Pull Requests**: Community contributions welcomed
+- **Issues**: Bug reports and feature requests
+- **Releases**: Monthly release cycle
+
+View activity: [GitHub Repository](https://github.com/apache/echarts)
+
+## Security Updates
+
+Security vulnerabilities are addressed promptly:
+
+- Report security issues to [security@apache.org](mailto:security@apache.org)
+- Security patches released as soon as possible
+- Announcements on mailing list and GitHub
+
+## Downloading Releases
+
+Multiple ways to get ECharts:
+
+### npm/yarn
+
+```bash
+npm install echarts
+# or
+yarn add echarts
+# or
+pnpm add echarts
+```
+
+### CDN
+
+```html
+<!-- jsDelivr -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+
+<!-- unpkg -->
+<script src="https://unpkg.com/echarts@latest/dist/echarts.min.js"></script>
+```
+
+### Official Website
+
+Download from [echarts.apache.org/download.html](https://echarts.apache.org/download.html):
+
+- Full version
+- Simple version
+- Common version
+- Custom build
+
+## Contributing to Releases
+
+Help shape future releases:
+
+1. **Submit bug reports** - Help identify issues
+2. **Request features** - Propose new capabilities
+3. **Contribute code** - Fix bugs and implement features
+4. **Test betas** - Try pre-release versions
+5. **Provide feedback** - Share your experience
+
+See [Contributing Guide](/contributing) for details.
+
+## Release Archives
+
+All releases are archived and available:
+
+- **GitHub Releases**: [Complete archive](https://github.com/apache/echarts/releases)
+- **npm Registry**: [Version history](https://www.npmjs.com/package/echarts?activeTab=versions)
+- **Apache Archives**: [Official Apache releases](https://archive.apache.org/dist/echarts/)
+
+<Note>
+  For production use, always use official releases from npm, CDN, or the Apache website. Do not use unreleased commits from the master branch.
+</Note>

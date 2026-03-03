@@ -1,0 +1,383 @@
+---
+title: "X-Axis"
+description: "Configure the X-axis for Cartesian coordinate charts in Apache ECharts"
+---
+
+The X-axis is a horizontal axis in Cartesian coordinate charts. It works with the grid component to position and render data along the horizontal dimension.
+
+## Basic Configuration
+
+The X-axis supports four axis types: `value`, `category`, `time`, and `log`. The type determines how data is scaled and displayed.
+
+```javascript
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    data: [120, 200, 150, 80, 70, 110, 130],
+    type: 'bar'
+  }]
+}
+```
+
+## Axis Types
+
+### Value Axis
+
+Numerical axis suitable for continuous data. Automatically calculates min, max, and interval values.
+
+```javascript
+xAxis: {
+  type: 'value',
+  min: 0,
+  max: 100,
+  splitNumber: 5
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:207-217](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Category Axis
+
+Ordinal axis for discrete categorical data. Requires explicit data definition.
+
+```javascript
+xAxis: {
+  type: 'category',
+  data: ['Q1', 'Q2', 'Q3', 'Q4'],
+  boundaryGap: true,
+  axisTick: {
+    alignWithLabel: true
+  }
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:182-206](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Time Axis
+
+Temporal axis optimized for time-series data with automatic time formatting.
+
+```javascript
+xAxis: {
+  type: 'time',
+  splitNumber: 10,
+  axisLabel: {
+    formatter: '{yyyy}-{MM}-{dd}'
+  }
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:223-226](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Log Axis
+
+Logarithmic axis for exponential data patterns.
+
+```javascript
+xAxis: {
+  type: 'log',
+  logBase: 10,
+  min: 1,
+  max: 100000
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:218-222](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+## Key Properties
+
+<ParamField path="type" type="'value' | 'category' | 'time' | 'log'" default="'value'">
+  Axis type determines the scale and data interpretation.
+  
+  Reference: [src/coord/axisCommonTypes.ts:34](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="position" type="'top' | 'bottom'">
+  Position of the X-axis. Default is `'bottom'`.
+  
+  Reference: [src/coord/cartesian/AxisModel.ts:31-36](~/workspace/source/src/coord/cartesian/AxisModel.ts)
+</ParamField>
+
+<ParamField path="offset" type="number" default="0">
+  Offset in pixels from the default position. Useful for multiple axes on the same position.
+  
+  Reference: [src/coord/cartesian/AxisModel.ts:38](~/workspace/source/src/coord/cartesian/AxisModel.ts)
+</ParamField>
+
+<ParamField path="gridIndex" type="number" default="0">
+  Index of the grid component that the axis belongs to.
+  
+  Reference: [src/coord/cartesian/AxisModel.ts:34](~/workspace/source/src/coord/cartesian/AxisModel.ts)
+</ParamField>
+
+<ParamField path="name" type="string">
+  Axis name displayed on the chart.
+  
+  Reference: [src/coord/axisCommonTypes.ts:44](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="nameLocation" type="'start' | 'middle' | 'center' | 'end'" default="'end'">
+  Location of the axis name:
+  - `'start'`: place name based on axis.extent[0]
+  - `'end'`: place name based on axis.extent[1]
+  - `'middle'` or `'center'`: place name at the center
+  
+  Reference: [src/coord/axisCommonTypes.ts:51](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="nameGap" type="number" default="15">
+  Gap between axis name and axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:67](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="nameRotate" type="number">
+  Rotation angle of the axis name in degrees.
+  
+  Reference: [src/coord/axisCommonTypes.ts:53](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="inverse" type="boolean" default="false">
+  Whether to inverse the axis direction.
+  
+  Reference: [src/coord/axisCommonTypes.ts:42](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="min" type="number | 'dataMin' | function">
+  Minimum value of the axis. Can be:
+  - A specific number
+  - `'dataMin'`: use the minimum value in data
+  - A function that returns the min value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:105](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="max" type="number | 'dataMax' | function">
+  Maximum value of the axis. Can be:
+  - A specific number
+  - `'dataMax'`: use the maximum value in data
+  - A function that returns the max value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:112](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="boundaryGap" type="boolean | [string, string]">
+  For category axis: whether to add gap at both ends (default `true`).
+  For value/time/log axis: gap value at both ends as `[GAP, GAP]` where GAP can be absolute pixel or percent.
+  
+  Reference: [src/coord/axisCommonTypes.ts:140](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitNumber" type="number" default="5">
+  Number of segments the axis is split into. Only works for value, time, and log axes.
+  
+  Reference: [src/coord/axisCommonTypes.ts:145](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="interval" type="number">
+  Mandatory interval for axis ticks. Overrides automatic calculation.
+  
+  Reference: [src/coord/axisCommonTypes.ts:149](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="scale" type="boolean" default="false">
+  Only for value axis. If `false`, axis always includes zero. If `true`, the axis may not contain zero.
+  
+  Reference: [src/coord/axisCommonTypes.ts:216](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Label Configuration
+
+<ParamField path="axisLabel" type="object">
+  Configuration for axis labels.
+  
+  Reference: [src/coord/axisCommonTypes.ts:89](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.show" type="boolean" default="true">
+  Whether to show axis labels.
+</ParamField>
+
+<ParamField path="axisLabel.inside" type="boolean" default="false">
+  Whether labels are inside the grid or outside.
+  
+  Reference: [src/coord/axisCommonTypes.ts:315](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.rotate" type="number" default="0">
+  Rotation angle of labels in degrees. Positive values rotate clockwise.
+  
+  Reference: [src/coord/axisCommonTypes.ts:316](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.margin" type="number" default="8">
+  Margin between label and axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:331](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.formatter" type="string | function">
+  Label formatter. Can be a template string or callback function.
+  
+  Reference: [src/coord/axisCommonTypes.ts:340](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.hideOverlap" type="boolean" default="false">
+  Whether to hide overlapping labels automatically.
+  
+  Reference: [src/coord/axisCommonTypes.ts:335](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Line & Ticks
+
+<ParamField path="axisLine" type="object">
+  Configuration for the axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:92](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLine.show" type="boolean | 'auto'" default="true">
+  Whether to show the axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:232](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLine.onZero" type="boolean" default="true">
+  Whether the axis line aligns with the zero position of the other axis.
+  
+  Reference: [src/coord/axisCommonTypes.ts:233](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick" type="object">
+  Configuration for axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:93](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.show" type="boolean | 'auto'" default="true">
+  Whether to show axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:245](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.inside" type="boolean" default="false">
+  Whether ticks are inside the grid or outside.
+  
+  Reference: [src/coord/axisCommonTypes.ts:247](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.length" type="number" default="5">
+  Length of axis ticks in pixels.
+  
+  Reference: [src/coord/axisCommonTypes.ts:249](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.alignWithLabel" type="boolean" default="false">
+  For category axis with `boundaryGap: true`, whether ticks align with labels.
+  
+  Reference: [src/coord/axisCommonTypes.ts:203](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Split Lines & Areas
+
+<ParamField path="splitLine" type="object">
+  Configuration for split lines (grid lines).
+  
+  Reference: [src/coord/axisCommonTypes.ts:95](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitLine.show" type="boolean" default="true">
+  Whether to show split lines.
+  
+  Reference: [src/coord/axisCommonTypes.ts:354](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea" type="object">
+  Configuration for split areas (alternating background areas).
+  
+  Reference: [src/coord/axisCommonTypes.ts:97](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea.show" type="boolean" default="false">
+  Whether to show split areas.
+  
+  Reference: [src/coord/axisCommonTypes.ts:370](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Advanced Examples
+
+### Multiple X-Axes
+
+```javascript
+option = {
+  xAxis: [
+    {
+      type: 'category',
+      data: ['A', 'B', 'C', 'D'],
+      position: 'bottom'
+    },
+    {
+      type: 'category',
+      data: ['Category 1', 'Category 2', 'Category 3', 'Category 4'],
+      position: 'top'
+    }
+  ],
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    data: [10, 20, 30, 40],
+    type: 'bar',
+    xAxisIndex: 0
+  }]
+}
+```
+
+### Time Axis with Custom Formatting
+
+```javascript
+xAxis: {
+  type: 'time',
+  axisLabel: {
+    formatter: {
+      year: '{yyyy}',
+      month: '{MMM}',
+      day: '{d}',
+      hour: '{HH}:{mm}',
+      minute: '{HH}:{mm}'
+    }
+  },
+  splitNumber: 10
+}
+```
+
+### Value Axis with Custom Range
+
+```javascript
+xAxis: {
+  type: 'value',
+  min: function(value) {
+    return value.min - 10;
+  },
+  max: function(value) {
+    return value.max + 10;
+  },
+  scale: true,
+  boundaryGap: ['10%', '10%']
+}
+```
+
+## Related Components
+
+- [Y-Axis](/components/y-axis) - Vertical axis configuration
+- [Grid](/components/grid) - Cartesian coordinate system
+- [Angle Axis](/components/angle-axis) - Angular axis for polar charts
+- [Radius Axis](/components/radius-axis) - Radial axis for polar charts

@@ -1,122 +1,219 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Apache ECharts",
+  "theme": "sequoia",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#5470c6",
+    "light": "#91cc75",
+    "dark": "#3ba272"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/apache/echarts"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/apache/echarts"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "installation",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/options",
+              "concepts/dataset",
+              "concepts/coordinate-systems",
+              "concepts/rendering",
+              "concepts/event-handling"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Guides",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "guides/customization",
+              "guides/responsive-design",
+              "guides/performance",
+              "guides/accessibility",
+              "guides/server-side-rendering"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Charts",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Basic Charts",
             "pages": [
-              "api-reference/introduction"
+              "charts/line",
+              "charts/bar",
+              "charts/pie",
+              "charts/scatter",
+              "charts/candlestick"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Advanced Charts",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "charts/graph",
+              "charts/tree",
+              "charts/treemap",
+              "charts/sunburst",
+              "charts/sankey"
+            ]
+          },
+          {
+            "group": "Statistical Charts",
+            "pages": [
+              "charts/boxplot",
+              "charts/heatmap",
+              "charts/parallel",
+              "charts/radar"
+            ]
+          },
+          {
+            "group": "Special Charts",
+            "pages": [
+              "charts/funnel",
+              "charts/gauge",
+              "charts/map",
+              "charts/custom"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Coordinate Systems",
+            "pages": [
+              "components/grid",
+              "components/polar",
+              "components/geo",
+              "components/parallel-coordinates",
+              "components/calendar"
+            ]
+          },
+          {
+            "group": "Axes",
+            "pages": [
+              "components/x-axis",
+              "components/y-axis",
+              "components/angle-axis",
+              "components/radius-axis"
+            ]
+          },
+          {
+            "group": "Interactive Components",
+            "pages": [
+              "components/legend",
+              "components/tooltip",
+              "components/toolbox",
+              "components/data-zoom",
+              "components/brush"
+            ]
+          },
+          {
+            "group": "Visual Components",
+            "pages": [
+              "components/title",
+              "components/visual-map",
+              "components/timeline",
+              "components/mark-point",
+              "components/mark-line",
+              "components/mark-area"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core API",
+            "pages": [
+              "api/echarts-instance",
+              "api/init",
+              "api/connect",
+              "api/dispose",
+              "api/use"
+            ]
+          },
+          {
+            "group": "Chart Instance",
+            "pages": [
+              "api/set-option",
+              "api/get-option",
+              "api/resize",
+              "api/dispatch-action",
+              "api/on-off"
+            ]
+          },
+          {
+            "group": "Options",
+            "pages": [
+              "api/options/series",
+              "api/options/global",
+              "api/options/types"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Resources",
+        "groups": [
+          {
+            "group": "Examples",
+            "pages": [
+              "examples/getting-started",
+              "examples/real-time-data",
+              "examples/large-datasets",
+              "examples/mobile"
+            ]
+          },
+          {
+            "group": "Themes & Styling",
+            "pages": [
+              "themes/overview",
+              "themes/built-in-themes",
+              "themes/custom-themes"
+            ]
+          },
+          {
+            "group": "Extensions",
+            "pages": [
+              "extensions/echarts-gl",
+              "extensions/wordcloud",
+              "extensions/liquidfill",
+              "extensions/bmap"
+            ]
+          },
+          {
+            "group": "Migration & Support",
+            "pages": [
+              "migration/v5-to-v6",
+              "migration/v4-to-v5",
+              "contributing",
+              "changelog"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

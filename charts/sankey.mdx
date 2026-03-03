@@ -1,0 +1,477 @@
+---
+title: "Sankey Diagram"
+description: "Visualize flow and distribution between nodes using weighted connections"
+icon: "arrows-split-up-and-left"
+---
+
+Sankey diagrams visualize the flow of resources, energy, or information between nodes. The width of each link represents the magnitude of flow, making it ideal for showing how quantities are distributed and transformed across a system.
+
+## When to Use
+
+Use Sankey diagrams when you need to:
+
+- Visualize energy or material flows in systems
+- Show user journey flows and conversion funnels
+- Display budget allocations and fund transfers
+- Illustrate supply chain flows and logistics
+- Represent data transformations and ETL pipelines
+- Show traffic flow and network bandwidth usage
+
+## Basic Configuration
+
+A Sankey diagram requires nodes and links (edges) data where each link has a numeric value determining its width.
+
+```javascript
+option = {
+  series: [{
+    type: 'sankey',
+    data: [
+      { name: 'A' },
+      { name: 'B' },
+      { name: 'C' },
+      { name: 'D' }
+    ],
+    links: [
+      { source: 'A', target: 'B', value: 10 },
+      { source: 'A', target: 'C', value: 15 },
+      { source: 'B', target: 'D', value: 8 },
+      { source: 'C', target: 'D', value: 12 }
+    ]
+  }]
+};
+```
+
+## Complete Example
+
+Here's a comprehensive example showing an energy flow diagram:
+
+```javascript
+option = {
+  title: {
+    text: 'Energy Flow Sankey Diagram'
+  },
+  tooltip: {
+    trigger: 'item',
+    triggerOn: 'mousemove',
+    formatter: function(params) {
+      if (params.dataType === 'edge') {
+        return `${params.data.source} → ${params.data.target}<br/>Flow: ${params.value} TWh`;
+      }
+      return `${params.name}<br/>Total: ${params.value} TWh`;
+    }
+  },
+  series: [{
+    type: 'sankey',
+    
+    // Node data
+    data: [
+      // Energy sources
+      { name: 'Coal', depth: 0 },
+      { name: 'Natural Gas', depth: 0 },
+      { name: 'Nuclear', depth: 0 },
+      { name: 'Renewables', depth: 0 },
+      
+      // Conversion/transmission
+      { name: 'Electricity', depth: 1 },
+      { name: 'Heat', depth: 1 },
+      
+      // End use
+      { name: 'Residential', depth: 2 },
+      { name: 'Commercial', depth: 2 },
+      { name: 'Industrial', depth: 2 },
+      { name: 'Transport', depth: 2 }
+    ],
+    
+    // Links (flows)
+    links: [
+      // Sources to conversion
+      { source: 'Coal', target: 'Electricity', value: 150 },
+      { source: 'Coal', target: 'Heat', value: 50 },
+      { source: 'Natural Gas', target: 'Electricity', value: 100 },
+      { source: 'Natural Gas', target: 'Heat', value: 80 },
+      { source: 'Nuclear', target: 'Electricity', value: 90 },
+      { source: 'Renewables', target: 'Electricity', value: 120 },
+      
+      // Conversion to end use
+      { source: 'Electricity', target: 'Residential', value: 140 },
+      { source: 'Electricity', target: 'Commercial', value: 100 },
+      { source: 'Electricity', target: 'Industrial', value: 180 },
+      { source: 'Electricity', target: 'Transport', value: 40 },
+      { source: 'Heat', target: 'Residential', value: 60 },
+      { source: 'Heat', target: 'Commercial', value: 40 },
+      { source: 'Heat', target: 'Industrial', value: 30 }
+    ],
+    
+    // Layout orientation
+    orient: 'horizontal',
+    
+    // Node alignment
+    nodeAlign: 'justify',
+    
+    // Node dimensions
+    nodeWidth: 20,
+    nodeGap: 8,
+    
+    // Layout iterations
+    layoutIterations: 32,
+    
+    // Enable dragging
+    draggable: true,
+    
+    // Enable roam (zoom and pan)
+    roam: true,
+    
+    // Layout position
+    left: '5%',
+    right: '20%',
+    top: '5%',
+    bottom: '5%',
+    
+    // Node label
+    label: {
+      show: true,
+      position: 'right',
+      fontSize: 12,
+      color: '#333'
+    },
+    
+    // Edge label
+    edgeLabel: {
+      show: false,
+      fontSize: 10,
+      formatter: '{c} TWh'
+    },
+    
+    // Item style for nodes
+    itemStyle: {
+      borderWidth: 1,
+      borderColor: '#aaa'
+    },
+    
+    // Line style for edges
+    lineStyle: {
+      color: 'gradient',  // gradient from source to target
+      opacity: 0.3,
+      curveness: 0.5
+    },
+    
+    // Emphasis (hover) state
+    emphasis: {
+      focus: 'trajectory',  // highlight the flow path
+      label: {
+        show: true,
+        fontSize: 14,
+        fontWeight: 'bold'
+      },
+      lineStyle: {
+        opacity: 0.6
+      }
+    },
+    
+    // Level-specific styling
+    levels: [
+      {
+        depth: 0,
+        itemStyle: {
+          color: '#fbb4ae'
+        },
+        label: {
+          position: 'left'
+        }
+      },
+      {
+        depth: 1,
+        itemStyle: {
+          color: '#b3cde3'
+        }
+      },
+      {
+        depth: 2,
+        itemStyle: {
+          color: '#ccebc5'
+        },
+        label: {
+          position: 'right'
+        }
+      }
+    ]
+  }]
+};
+```
+
+## Key Options
+
+### Node Data
+
+<ParamField path="series.data" type="SankeyNodeItemOption[]">
+  Array of node data. From SankeySeries.ts:73-86, 142
+  
+  <Expandable title="node properties">
+    <ParamField path="name" type="string">
+      Node name, used as identifier.
+    </ParamField>
+    
+    <ParamField path="depth" type="number">
+      Node depth (column index) for manual positioning.
+    </ParamField>
+    
+    <ParamField path="localX" type="number">
+      X position within the layout.
+    </ParamField>
+    
+    <ParamField path="localY" type="number">
+      Y position within the layout.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="ItemStyleOption">
+      Visual style for this node.
+    </ParamField>
+    
+    <ParamField path="label" type="SeriesLabelOption">
+      Label configuration for this node.
+    </ParamField>
+    
+    <ParamField path="draggable" type="boolean">
+      Whether this node can be dragged.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Edge Data
+
+<ParamField path="series.links" type="SankeyEdgeItemOption[]">
+  Array of link (edge) data. From SankeySeries.ts:88-94, 145
+  
+  <Expandable title="link properties">
+    <ParamField path="source" type="string | number">
+      Source node name or index.
+    </ParamField>
+    
+    <ParamField path="target" type="string | number">
+      Target node name or index.
+    </ParamField>
+    
+    <ParamField path="value" type="number">
+      Flow value determining link width. Required.
+    </ParamField>
+    
+    <ParamField path="lineStyle" type="SankeyEdgeStyleOption">
+      Style for this link.
+    </ParamField>
+    
+    <ParamField path="edgeLabel" type="SeriesLabelOption">
+      Label for this link.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Layout Configuration
+
+<ParamField path="series.orient" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Layout orientation. From SankeySeries.ts:116, 313
+  
+  - `'horizontal'`: Nodes flow from left to right
+  - `'vertical'`: Nodes flow from top to bottom
+</ParamField>
+
+<ParamField path="series.nodeAlign" type="'justify' | 'left' | 'right'" default="'justify'">
+  Node alignment strategy. From SankeySeries.ts:140, 341
+  
+  - `'justify'`: Spread nodes to justify within the layout
+  - `'left'`: Align all nodes to the left
+  - `'right'`: Align all nodes to the right
+</ParamField>
+
+<ParamField path="series.nodeWidth" type="number" default="20">
+  Width of node rectangles in pixels. From SankeySeries.ts:120, 315
+</ParamField>
+
+<ParamField path="series.nodeGap" type="number" default="8">
+  Vertical gap between nodes in pixels. From SankeySeries.ts:124, 317
+</ParamField>
+
+<ParamField path="series.layoutIterations" type="number" default="32">
+  Number of iterations for layout optimization. From SankeySeries.ts:138, 320
+  
+  Higher values may produce better layouts but take longer to compute.
+</ParamField>
+
+### Interaction
+
+<ParamField path="series.draggable" type="boolean" default="true">
+  Whether nodes can be dragged to adjust positions. From SankeySeries.ts:129, 318
+</ParamField>
+
+<ParamField path="series.roam" type="boolean | 'scale' | 'move'" default="false">
+  Whether to enable zoom and pan. From SankeySeries.ts:323
+</ParamField>
+
+### Labels
+
+<ParamField path="series.label" type="object">
+  Node label configuration. From SankeySeries.ts:328-332
+  
+  <Expandable title="properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show node labels.
+    </ParamField>
+    
+    <ParamField path="position" type="string" default="'right'">
+      Label position relative to node.
+    </ParamField>
+    
+    <ParamField path="fontSize" type="number" default="12">
+      Font size.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="series.edgeLabel" type="object">
+  Edge label configuration. From SankeySeries.ts:150-152, 334-337
+  
+  <Expandable title="properties">
+    <ParamField path="show" type="boolean" default="false">
+      Whether to show edge labels.
+    </ParamField>
+    
+    <ParamField path="position" type="'inside'" default="'inside'">
+      Label position on the edge.
+    </ParamField>
+    
+    <ParamField path="fontSize" type="number" default="12">
+      Font size.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Line Style
+
+<ParamField path="series.lineStyle" type="object">
+  Style for edge lines. From SankeySeries.ts:63-65, 343-347
+  
+  <Expandable title="properties">
+    <ParamField path="color" type="string" default="'#aaa'">
+      Line color. Can be 'source', 'target', or 'gradient'.
+    </ParamField>
+    
+    <ParamField path="opacity" type="number" default="0.2">
+      Line opacity (0-1).
+    </ParamField>
+    
+    <ParamField path="curveness" type="number" default="0.5">
+      Curvature of the links (0-1).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Emphasis
+
+<ParamField path="series.emphasis.focus" type="'self' | 'adjacency' | 'trajectory'">
+  What to highlight on hover. From SankeySeries.ts:69
+  
+  - `'self'`: Only the hovered element
+  - `'adjacency'`: Connected nodes and edges
+  - `'trajectory'`: The complete flow path
+</ParamField>
+
+<ParamField path="series.emphasis" type="object">
+  Emphasis state styling. From SankeySeries.ts:349-356
+  
+  <Expandable title="properties">
+    <ParamField path="label.show" type="boolean" default="true">
+      Show label on hover.
+    </ParamField>
+    
+    <ParamField path="lineStyle.opacity" type="number" default="0.5">
+      Edge opacity on hover.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Levels
+
+<ParamField path="series.levels" type="SankeyLevelOption[]">
+  Depth-level specific configurations. From SankeySeries.ts:96-98, 148, 339
+  
+  Each level configuration applies to all nodes at that depth.
+  
+  <Expandable title="level properties">
+    <ParamField path="depth" type="number">
+      The depth (column) this configuration applies to. Required.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="ItemStyleOption">
+      Node style for this level.
+    </ParamField>
+    
+    <ParamField path="label" type="SeriesLabelOption">
+      Label style for this level.
+    </ParamField>
+    
+    <ParamField path="lineStyle" type="LineStyleOption">
+      Edge style for edges starting from this level.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Layout Box
+
+<ParamField path="series.left" type="string | number" default="'5%'">
+  Distance from left edge. From SankeySeries.ts:308
+</ParamField>
+
+<ParamField path="series.top" type="string | number" default="'5%'">
+  Distance from top edge. From SankeySeries.ts:309
+</ParamField>
+
+<ParamField path="series.right" type="string | number" default="'20%'">
+  Distance from right edge. From SankeySeries.ts:310
+</ParamField>
+
+<ParamField path="series.bottom" type="string | number" default="'5%'">
+  Distance from bottom edge. From SankeySeries.ts:311
+</ParamField>
+
+## Advanced Features
+
+### Gradient Coloring
+
+Set `lineStyle.color: 'gradient'` to create a gradient from the source node color to the target node color:
+
+```javascript
+lineStyle: {
+  color: 'gradient',
+  opacity: 0.3
+}
+```
+
+### Custom Node Positioning
+
+Use `depth`, `localX`, and `localY` in node data for manual positioning:
+
+```javascript
+data: [
+  { name: 'A', depth: 0, localY: 100 },
+  { name: 'B', depth: 1, localY: 200 }
+]
+```
+
+### Focus Modes
+
+Different focus modes highlight different parts of the diagram:
+
+- `adjacency`: Shows immediate connections
+- `trajectory`: Shows the complete flow path through the network
+
+## Best Practices
+
+- Use meaningful node names that clearly identify each stage
+- Set appropriate `nodeGap` to prevent node overlap
+- Use `levels` to apply consistent styling to each depth level
+- Enable `draggable` to let users optimize node positions
+- Set `lineStyle.color: 'gradient'` for visually appealing flow visualization
+- Use `emphasis.focus: 'trajectory'` to highlight complete flow paths
+- Consider `orient: 'vertical'` for processes that naturally flow top-to-bottom
+- Increase `layoutIterations` for complex diagrams to improve automatic layout
+- Use `nodeAlign: 'justify'` for balanced layouts, or 'left'/'right' for aligned layouts
+- Show edge labels only when the values are essential (can get cluttered)

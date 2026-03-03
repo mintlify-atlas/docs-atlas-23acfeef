@@ -1,0 +1,479 @@
+---
+title: Global Configuration Options
+description: Global configuration options for Apache ECharts including title, legend, tooltip, grid, and more
+---
+
+# Global Configuration Options
+
+Global options control the overall appearance and behavior of an ECharts instance. These are top-level properties in the `EChartsOption` object.
+
+## Basic Structure
+
+```javascript
+const option = {
+  title: { /* ... */ },
+  legend: { /* ... */ },
+  tooltip: { /* ... */ },
+  grid: { /* ... */ },
+  xAxis: { /* ... */ },
+  yAxis: { /* ... */ },
+  series: [ /* ... */ ]
+};
+
+myChart.setOption(option);
+```
+
+## EChartsOption Interface
+
+The complete option interface is defined in `~/workspace/source/src/export/option.ts:258-293`:
+
+```typescript
+interface EChartsOption {
+  // Dataset for data management
+  dataset?: DatasetComponentOption | DatasetComponentOption[];
+  
+  // Accessibility
+  aria?: AriaComponentOption;
+  
+  // Title component
+  title?: TitleComponentOption | TitleComponentOption[];
+  
+  // Coordinate systems
+  grid?: GridComponentOption | GridComponentOption[];
+  radar?: RadarComponentOption | RadarComponentOption[];
+  polar?: PolarComponentOption | PolarComponentOption[];
+  geo?: GeoComponentOption | GeoComponentOption[];
+  
+  // Axes
+  angleAxis?: AngleAxisComponentOption | AngleAxisComponentOption[];
+  radiusAxis?: RadiusAxisComponentOption | RadiusAxisComponentOption[];
+  xAxis?: XAxisComponentOption | XAxisComponentOption[];
+  yAxis?: YAxisComponentOption | YAxisComponentOption[];
+  singleAxis?: SingleAxisComponentOption | SingleAxisComponentOption[];
+  parallel?: ParallelComponentOption | ParallelComponentOption[];
+  parallelAxis?: ParallelAxisComponentOption | ParallelAxisComponentOption[];
+  calendar?: CalendarComponentOption | CalendarComponentOption[];
+  matrix?: MatrixComponentOption | MatrixComponentOption[];
+  
+  // Interactive components
+  toolbox?: ToolboxComponentOption | ToolboxComponentOption[];
+  tooltip?: TooltipComponentOption | TooltipComponentOption[];
+  axisPointer?: AxisPointerComponentOption | AxisPointerComponentOption[];
+  brush?: BrushComponentOption | BrushComponentOption[];
+  
+  // Other components
+  timeline?: TimelineComponentOption | TimelineSliderComponentOption;
+  legend?: LegendComponentOption | LegendComponentOption[];
+  dataZoom?: DataZoomComponentOption | DataZoomComponentOption[];
+  visualMap?: VisualMapComponentOption | VisualMapComponentOption[];
+  thumbnail?: ThumbnailComponentOption | ThumbnailComponentOption[];
+  graphic?: GraphicComponentOption | GraphicComponentOption[];
+  
+  // Series (charts)
+  series?: SeriesOption | SeriesOption[];
+  
+  // Timeline options
+  options?: EChartsOption[];
+  baseOption?: EChartsOption;
+}
+```
+
+## Core Components
+
+### Title
+
+Display chart title and subtitle:
+
+```javascript
+title: {
+  text: 'Main Title',
+  subtext: 'Subtitle',
+  left: 'center',
+  top: 'top',
+  textStyle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333'
+  }
+}
+```
+
+### Legend
+
+Show legend for series identification (supports plain and scrollable types from `~/workspace/source/src/export/option.ts:150-151`):
+
+```javascript
+legend: {
+  show: true,
+  type: 'plain', // or 'scroll'
+  orient: 'horizontal',
+  left: 'center',
+  top: 'bottom',
+  data: ['Series 1', 'Series 2'],
+  selected: {
+    'Series 1': true,
+    'Series 2': false
+  }
+}
+```
+
+### Tooltip
+
+Interactive tooltip on hover:
+
+```javascript
+tooltip: {
+  show: true,
+  trigger: 'axis', // or 'item', 'none'
+  axisPointer: {
+    type: 'line' // or 'shadow', 'cross'
+  },
+  formatter: '{b}: {c}',
+  backgroundColor: 'rgba(50,50,50,0.7)',
+  borderColor: '#333',
+  borderWidth: 0,
+  textStyle: {
+    color: '#fff'
+  }
+}
+```
+
+### Toolbox
+
+Interactive toolbox with features (from `~/workspace/source/src/export/option.ts:131-144`):
+
+```javascript
+toolbox: {
+  show: true,
+  feature: {
+    dataZoom: { show: true },
+    dataView: { show: true, readOnly: false },
+    magicType: { show: true, type: ['line', 'bar'] },
+    restore: { show: true },
+    saveAsImage: { show: true }
+  }
+}
+```
+
+## Coordinate Systems
+
+### Grid (Cartesian)
+
+Rectangular coordinate system for line, bar, scatter charts:
+
+```javascript
+grid: {
+  left: '10%',
+  right: '10%',
+  top: '15%',
+  bottom: '10%',
+  containLabel: true, // Include axis labels in grid size
+  show: false,
+  backgroundColor: 'transparent',
+  borderColor: '#ccc',
+  borderWidth: 1
+}
+```
+
+### Polar
+
+Polar coordinate system:
+
+```javascript
+polar: {
+  center: ['50%', '50%'],
+  radius: '75%'
+}
+```
+
+### Radar
+
+Radar coordinate system:
+
+```javascript
+radar: {
+  indicator: [
+    { name: 'Sales', max: 6500 },
+    { name: 'Administration', max: 16000 },
+    { name: 'Information Technology', max: 30000 }
+  ],
+  center: ['50%', '50%'],
+  radius: 75,
+  shape: 'polygon' // or 'circle'
+}
+```
+
+### Geo
+
+Geographic coordinate system:
+
+```javascript
+geo: {
+  map: 'world',
+  roam: true,
+  itemStyle: {
+    areaColor: '#eee',
+    borderColor: '#444'
+  }
+}
+```
+
+## Axis Components
+
+### X/Y Axis (Cartesian)
+
+```javascript
+xAxis: {
+  type: 'category', // or 'value', 'time', 'log'
+  data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  name: 'Day of Week',
+  nameLocation: 'middle',
+  nameGap: 30,
+  boundaryGap: true,
+  axisLine: {
+    show: true,
+    lineStyle: { color: '#333' }
+  },
+  axisTick: {
+    show: true,
+    alignWithLabel: true
+  },
+  axisLabel: {
+    show: true,
+    rotate: 0,
+    formatter: '{value}'
+  },
+  splitLine: {
+    show: false
+  }
+},
+yAxis: {
+  type: 'value',
+  name: 'Value',
+  min: 0,
+  max: 'dataMax',
+  splitNumber: 5
+}
+```
+
+### Radius/Angle Axis (Polar)
+
+```javascript
+radiusAxis: {
+  type: 'value'
+},
+angleAxis: {
+  type: 'category',
+  data: ['A', 'B', 'C', 'D']
+}
+```
+
+### Single Axis
+
+For single-dimensional data:
+
+```javascript
+singleAxis: {
+  type: 'time',
+  bottom: '10%'
+}
+```
+
+### Parallel Axis
+
+For parallel coordinates:
+
+```javascript
+parallelAxis: [
+  { dim: 0, name: 'Price' },
+  { dim: 1, name: 'Size' },
+  { dim: 2, name: 'Weight' }
+]
+```
+
+## Data Components
+
+### Dataset
+
+Manage data separately from series:
+
+```javascript
+dataset: {
+  source: [
+    ['Product', 'Sales', 'Price', 'Year'],
+    ['A', 43.3, 85.8, 2012],
+    ['B', 83.1, 73.4, 2013],
+    ['C', 86.4, 65.2, 2014]
+  ]
+}
+```
+
+### DataZoom
+
+Zoom and navigate data (from `~/workspace/source/src/export/option.ts:146-147`):
+
+```javascript
+dataZoom: [
+  {
+    type: 'slider', // or 'inside'
+    start: 0,
+    end: 100,
+    xAxisIndex: 0
+  },
+  {
+    type: 'inside',
+    xAxisIndex: 0
+  }
+]
+```
+
+### VisualMap
+
+Map data to visual channels (from `~/workspace/source/src/export/option.ts:148-149`):
+
+```javascript
+visualMap: {
+  type: 'continuous', // or 'piecewise'
+  min: 0,
+  max: 100,
+  inRange: {
+    color: ['#50a3ba', '#eac736', '#d94e5d']
+  },
+  calculable: true
+}
+```
+
+## Interactive Components
+
+### AxisPointer
+
+Axis indicator:
+
+```javascript
+axisPointer: {
+  type: 'line',
+  link: { xAxisIndex: 'all' },
+  label: {
+    backgroundColor: '#777'
+  }
+}
+```
+
+### Brush
+
+Area selection tool:
+
+```javascript
+brush: {
+  toolbox: ['rect', 'polygon', 'clear'],
+  xAxisIndex: 0
+}
+```
+
+## Global Settings
+
+From `~/workspace/source/src/util/types.ts:688-715`:
+
+```javascript
+{
+  // Background color
+  backgroundColor: '#fff',
+  
+  // Dark mode
+  darkMode: false, // or true, 'auto'
+  
+  // Global text style
+  textStyle: {
+    fontFamily: 'sans-serif',
+    fontSize: 12,
+    color: '#333'
+  },
+  
+  // Use UTC time
+  useUTC: false,
+  
+  // Color palette
+  color: ['#5470c6', '#91cc75', '#fac858'],
+  
+  // Animation
+  animation: true,
+  animationDuration: 1000,
+  animationEasing: 'cubicOut',
+  
+  // State animation
+  stateAnimation: {
+    duration: 300,
+    easing: 'cubicOut'
+  }
+}
+```
+
+## Timeline
+
+For showing multiple options over time:
+
+```javascript
+{
+  baseOption: {
+    timeline: {
+      axisType: 'category',
+      data: ['2015', '2016', '2017']
+    },
+    // Base configuration
+    title: { text: 'Timeline Demo' }
+  },
+  options: [
+    { series: [{ data: [100, 200, 300] }] },
+    { series: [{ data: [150, 250, 350] }] },
+    { series: [{ data: [200, 300, 400] }] }
+  ]
+}
+```
+
+## Graphic
+
+Custom graphic elements:
+
+```javascript
+graphic: {
+  type: 'group',
+  children: [
+    {
+      type: 'rect',
+      left: 'center',
+      top: 'center',
+      shape: { width: 100, height: 50 },
+      style: { fill: '#333' }
+    },
+    {
+      type: 'text',
+      left: 'center',
+      top: 'center',
+      style: { text: 'Custom Text', fill: '#fff' }
+    }
+  ]
+}
+```
+
+## Aria (Accessibility)
+
+Accessibility support:
+
+```javascript
+aria: {
+  enabled: true,
+  label: {
+    description: 'This is a bar chart showing sales data'
+  }
+}
+```
+
+## Related Documentation
+
+- [Series Options](/api/options/series) - Configure chart series
+- [TypeScript Types](/api/options/types) - Type definitions for TypeScript
+
+## Source Code Reference
+
+- Main option types: `~/workspace/source/src/export/option.ts`
+- Component imports: `~/workspace/source/src/export/option.ts:20-70`

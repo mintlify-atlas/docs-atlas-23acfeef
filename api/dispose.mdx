@@ -1,0 +1,424 @@
+---
+title: 'echarts.dispose()'
+description: 'Dispose an ECharts instance and release resources'
+---
+
+The `echarts.dispose()` method destroys an ECharts instance and releases all associated resources including event listeners, DOM references, and memory.
+
+## Signature
+
+```typescript
+function dispose(chart: EChartsType | HTMLElement | string): void
+```
+
+## Parameters
+
+<ParamField path="chart" type="EChartsType | HTMLElement | string" required>
+  The chart to dispose. Can be:
+  - **EChartsType**: The chart instance itself
+  - **HTMLElement**: The DOM element containing the chart
+  - **string**: The chart instance ID
+  
+  ```javascript
+  // Method 1: Pass instance directly
+  const chart = echarts.init(dom);
+  echarts.dispose(chart);
+  
+  // Method 2: Pass DOM element
+  echarts.dispose(document.getElementById('main'));
+  
+  // Method 3: Pass instance ID
+  echarts.dispose('ec_1234567890');
+  ```
+</ParamField>
+
+## Returns
+
+<ResponseField name="void" type="void">
+  This method does not return a value.
+</ResponseField>
+
+## What Gets Cleaned Up
+
+When you call `dispose()`, ECharts performs the following cleanup:
+
+1. **Event Listeners**: Removes all event listeners (mouse events, custom events, etc.)
+2. **DOM References**: Clears the DOM attribute marker and removes canvas/SVG elements
+3. **Views**: Disposes all component views and chart views
+4. **ZRender**: Destroys the ZRender instance (the underlying rendering engine)
+5. **Memory**: Nullifies internal references to prevent memory leaks
+6. **Connections**: Removes the instance from connected groups
+7. **Registry**: Removes the instance from the global instances registry
+
+## Examples
+
+### Basic Disposal
+
+```javascript
+import * as echarts from 'echarts';
+
+const dom = document.getElementById('main');
+const chart = echarts.init(dom);
+
+chart.setOption({
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150] }]
+});
+
+// When you're done with the chart
+echarts.dispose(chart);
+
+// Or dispose by DOM
+echarts.dispose(dom);
+
+// Or dispose by ID
+echarts.dispose(chart.getId());
+```
+
+### Cleanup in React Component
+
+```javascript
+import { useEffect, useRef } from 'react';
+import * as echarts from 'echarts';
+
+function ChartComponent({ data }) {
+  const chartRef = useRef(null);
+  const instanceRef = useRef(null);
+  
+  useEffect(() => {
+    // Initialize chart
+    if (chartRef.current) {
+      instanceRef.current = echarts.init(chartRef.current);
+      
+      instanceRef.current.setOption({
+        xAxis: { type: 'category', data: data.categories },
+        yAxis: { type: 'value' },
+        series: [{ type: 'line', data: data.values }]
+      });
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      if (instanceRef.current) {
+        echarts.dispose(instanceRef.current);
+        instanceRef.current = null;
+      }
+    };
+  }, []); // Empty deps - only run on mount/unmount
+  
+  // Update chart when data changes
+  useEffect(() => {
+    if (instanceRef.current) {
+      instanceRef.current.setOption({
+        xAxis: { type: 'category', data: data.categories },
+        series: [{ data: data.values }]
+      });
+    }
+  }, [data]);
+  
+  return <div ref={chartRef} style={{ width: '100%', height: '400px' }} />;
+}
+```
+
+### Cleanup in Vue Component
+
+```vue
+<template>
+  <div ref="chartDom" style="width: 100%; height: 400px"></div>
+</template>
+
+<script>
+import * as echarts from 'echarts';
+
+export default {
+  name: 'ChartComponent',
+  props: ['data'],
+  data() {
+    return {
+      chart: null
+    };
+  },
+  mounted() {
+    this.chart = echarts.init(this.$refs.chartDom);
+    this.updateChart();
+  },
+  beforeUnmount() {
+    // Cleanup before component is destroyed
+    if (this.chart) {
+      echarts.dispose(this.chart);
+      this.chart = null;
+    }
+  },
+  watch: {
+    data: {
+      handler() {
+        this.updateChart();
+      },
+      deep: true
+    }
+  },
+  methods: {
+    updateChart() {
+      if (this.chart) {
+        this.chart.setOption({
+          xAxis: { type: 'category', data: this.data.categories },
+          yAxis: { type: 'value' },
+          series: [{ type: 'line', data: this.data.values }]
+        });
+      }
+    }
+  }
+};
+</script>
+```
+
+### Recreating a Chart
+
+```javascript
+const dom = document.getElementById('main');
+
+// Create initial chart
+let chart = echarts.init(dom);
+chart.setOption({ /* ... */ });
+
+// Later, dispose and recreate
+function recreateChart(newTheme) {
+  // Dispose existing instance
+  if (chart) {
+    echarts.dispose(chart);
+  }
+  
+  // Create new instance with different theme
+  chart = echarts.init(dom, newTheme);
+  chart.setOption({ /* ... */ });
+}
+
+recreateChart('dark');
+```
+
+### Handling Dynamic Chart Containers
+
+```javascript
+class ChartManager {
+  constructor() {
+    this.charts = new Map();
+  }
+  
+  createChart(domId, options) {
+    const dom = document.getElementById(domId);
+    
+    // Dispose existing chart if any
+    if (this.charts.has(domId)) {
+      echarts.dispose(this.charts.get(domId));
+    }
+    
+    // Create new chart
+    const chart = echarts.init(dom);
+    chart.setOption(options);
+    this.charts.set(domId, chart);
+    
+    return chart;
+  }
+  
+  disposeChart(domId) {
+    const chart = this.charts.get(domId);
+    if (chart) {
+      echarts.dispose(chart);
+      this.charts.delete(domId);
+    }
+  }
+  
+  disposeAll() {
+    this.charts.forEach(chart => echarts.dispose(chart));
+    this.charts.clear();
+  }
+}
+
+// Usage
+const manager = new ChartManager();
+manager.createChart('chart1', { /* ... */ });
+manager.createChart('chart2', { /* ... */ });
+
+// Cleanup when done
+manager.disposeAll();
+```
+
+### Single Page Application (SPA) Cleanup
+
+```javascript
+// Store references to all active charts
+const activeCharts = [];
+
+function initDashboard() {
+  const chart1 = echarts.init(document.getElementById('chart1'));
+  const chart2 = echarts.init(document.getElementById('chart2'));
+  const chart3 = echarts.init(document.getElementById('chart3'));
+  
+  chart1.setOption({ /* ... */ });
+  chart2.setOption({ /* ... */ });
+  chart3.setOption({ /* ... */ });
+  
+  activeCharts.push(chart1, chart2, chart3);
+}
+
+function cleanupDashboard() {
+  // Dispose all charts when navigating away
+  activeCharts.forEach(chart => {
+    echarts.dispose(chart);
+  });
+  activeCharts.length = 0;
+}
+
+// In your router or page lifecycle
+router.on('routeChange', () => {
+  cleanupDashboard();
+});
+```
+
+## Important Behaviors
+
+<Warning>
+  **Memory Leaks**: Always dispose of chart instances when they're no longer needed. Failing to dispose charts in single-page applications or dynamic UIs can lead to memory leaks.
+  
+  ```javascript
+  // BAD: Creates new instance without disposing old one
+  function updateChart() {
+    chart = echarts.init(dom); // Memory leak!
+    chart.setOption(newOption);
+  }
+  
+  // GOOD: Dispose before recreating
+  function updateChart() {
+    if (chart) {
+      echarts.dispose(chart);
+    }
+    chart = echarts.init(dom);
+    chart.setOption(newOption);
+  }
+  ```
+</Warning>
+
+<Note>
+  **Multiple Disposal Safe**: Calling `dispose()` multiple times on the same instance is safe. After the first call, subsequent calls will simply log a warning in development mode.
+  
+  ```javascript
+  echarts.dispose(chart);
+  echarts.dispose(chart); // Safe, but logs warning in dev mode
+  ```
+</Note>
+
+<Info>
+  **Instance Validation**: Before disposing, ECharts checks if the provided parameter is a valid instance. If you pass an invalid ID or a DOM element without a chart, the method will do nothing.
+  
+  ```javascript
+  echarts.dispose('invalid-id'); // No error, just does nothing
+  echarts.dispose(emptyDiv); // No error, just does nothing
+  ```
+</Info>
+
+<Note>
+  **Alternative: Instance Method**: You can also call `dispose()` directly on the chart instance:
+  
+  ```javascript
+  const chart = echarts.init(dom);
+  
+  // Both are equivalent
+  echarts.dispose(chart);
+  chart.dispose();
+  ```
+</Note>
+
+## Checking Disposal Status
+
+Before performing operations, check if an instance has been disposed:
+
+```javascript
+const chart = echarts.init(dom);
+
+// Later in code
+if (!chart.isDisposed()) {
+  chart.setOption(newOption);
+} else {
+  console.log('Chart has been disposed');
+}
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Disposing in SPA
+
+```javascript
+// BAD: Memory leak in React
+function Chart({ data }) {
+  const chartRef = useRef();
+  
+  useEffect(() => {
+    const chart = echarts.init(chartRef.current);
+    chart.setOption({ /* ... */ });
+    // Missing cleanup!
+  }, []);
+  
+  return <div ref={chartRef} />;
+}
+
+// GOOD: Proper cleanup
+function Chart({ data }) {
+  const chartRef = useRef();
+  
+  useEffect(() => {
+    const chart = echarts.init(chartRef.current);
+    chart.setOption({ /* ... */ });
+    
+    return () => echarts.dispose(chart); // Cleanup!
+  }, []);
+  
+  return <div ref={chartRef} />;
+}
+```
+
+### Pitfall 2: Disposing Too Early
+
+```javascript
+// BAD: Disposing before async operation completes
+const chart = echarts.init(dom);
+chart.setOption({ /* ... */ });
+
+setTimeout(() => {
+  chart.setOption({ /* update */ }); // Error: chart disposed!
+}, 1000);
+
+echarts.dispose(chart); // Too early!
+
+// GOOD: Dispose after all operations complete
+const chart = echarts.init(dom);
+chart.setOption({ /* ... */ });
+
+setTimeout(() => {
+  chart.setOption({ /* update */ });
+  echarts.dispose(chart); // Dispose when done
+}, 1000);
+```
+
+### Pitfall 3: Not Cleaning Up Event Listeners
+
+```javascript
+// The dispose() method removes ECharts' internal listeners,
+// but you should also clean up your own references
+
+const chart = echarts.init(dom);
+const handleResize = () => chart.resize();
+
+window.addEventListener('resize', handleResize);
+
+// When disposing
+window.removeEventListener('resize', handleResize); // Clean up!
+echarts.dispose(chart);
+```
+
+## See Also
+
+- [echarts.init()](/api/init) - Initialize an ECharts instance
+- [echarts.getInstanceByDom()](/api/echarts-instance) - Get instance by DOM element
+- [echarts.getInstanceById()](/api/echarts-instance) - Get instance by ID
+- [isDisposed()](/api/echarts-instance) - Check disposal status

@@ -1,0 +1,250 @@
+---
+title: Word Cloud
+description: Word cloud extension for Apache ECharts
+---
+
+# Word Cloud Extension
+
+The word cloud extension for Apache ECharts enables you to create beautiful and customizable word cloud visualizations.
+
+## Overview
+
+Word clouds are a visual representation of text data where the size of each word indicates its frequency or importance. This extension integrates seamlessly with ECharts, allowing you to create interactive word clouds with various customization options.
+
+## Installation
+
+### Using npm
+
+```bash
+npm install echarts-wordcloud
+```
+
+### Using CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud/dist/echarts-wordcloud.min.js"></script>
+```
+
+## Basic Usage
+
+```javascript
+import * as echarts from 'echarts';
+import 'echarts-wordcloud';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  series: [{
+    type: 'wordCloud',
+    shape: 'circle',
+    data: [
+      { name: 'ECharts', value: 10000 },
+      { name: 'Data', value: 8000 },
+      { name: 'Visualization', value: 6000 },
+      { name: 'Chart', value: 5000 },
+      { name: 'JavaScript', value: 4000 },
+      { name: 'Apache', value: 3000 }
+    ]
+  }]
+};
+
+chart.setOption(option);
+```
+
+## Configuration Options
+
+### Shape
+
+Control the shape of the word cloud:
+
+```javascript
+series: [{
+  type: 'wordCloud',
+  shape: 'circle', // 'circle', 'cardioid', 'diamond', 'square', 'triangle'
+  // Or use a custom shape
+  maskImage: imageElement
+}]
+```
+
+### Layout
+
+Customize the layout algorithm:
+
+```javascript
+series: [{
+  type: 'wordCloud',
+  sizeRange: [12, 60],
+  rotationRange: [-90, 90],
+  rotationStep: 45,
+  gridSize: 8,
+  drawOutOfBound: false
+}]
+```
+
+### Text Style
+
+Style the words:
+
+```javascript
+series: [{
+  type: 'wordCloud',
+  textStyle: {
+    fontFamily: 'sans-serif',
+    fontWeight: 'bold',
+    color: function () {
+      return 'rgb(' + [
+        Math.round(Math.random() * 160),
+        Math.round(Math.random() * 160),
+        Math.round(Math.random() * 160)
+      ].join(',') + ')';
+    }
+  },
+  emphasis: {
+    textStyle: {
+      shadowBlur: 10,
+      shadowColor: '#333'
+    }
+  }
+}]
+```
+
+## Advanced Examples
+
+### Colored by Value
+
+```javascript
+const option = {
+  series: [{
+    type: 'wordCloud',
+    data: data,
+    textStyle: {
+      color: function(params) {
+        // Color based on value
+        const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666'];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+    }
+  }]
+};
+```
+
+### Custom Shape with Image Mask
+
+```javascript
+const maskImage = new Image();
+maskImage.src = 'path/to/mask-image.png';
+
+maskImage.onload = function() {
+  const option = {
+    series: [{
+      type: 'wordCloud',
+      maskImage: maskImage,
+      data: data
+    }]
+  };
+  chart.setOption(option);
+};
+```
+
+### Interactive Word Cloud
+
+```javascript
+const option = {
+  series: [{
+    type: 'wordCloud',
+    data: data,
+    emphasis: {
+      focus: 'self',
+      textStyle: {
+        textShadowBlur: 10,
+        textShadowColor: '#333'
+      }
+    }
+  }]
+};
+
+chart.on('click', function(params) {
+  console.log('Clicked word:', params.name, 'Value:', params.value);
+});
+```
+
+## Complete Configuration Example
+
+```javascript
+const option = {
+  series: [{
+    type: 'wordCloud',
+    
+    // Shape of the word cloud
+    shape: 'circle',
+    
+    // Keep words inside shape
+    keepAspect: false,
+    
+    // Positioning
+    left: 'center',
+    top: 'center',
+    width: '70%',
+    height: '80%',
+    
+    // Size range of words
+    sizeRange: [12, 60],
+    
+    // Rotation settings
+    rotationRange: [-90, 90],
+    rotationStep: 45,
+    
+    // Layout grid size
+    gridSize: 8,
+    
+    // Whether to draw out of bound
+    drawOutOfBound: false,
+    
+    // Layout animation
+    layoutAnimation: true,
+    
+    // Text style
+    textStyle: {
+      fontFamily: 'sans-serif',
+      fontWeight: 'bold',
+      color: function () {
+        return 'rgb(' + [
+          Math.round(Math.random() * 160),
+          Math.round(Math.random() * 160),
+          Math.round(Math.random() * 160)
+        ].join(',') + ')';
+      }
+    },
+    
+    // Emphasis style
+    emphasis: {
+      focus: 'self',
+      textStyle: {
+        textShadowBlur: 10,
+        textShadowColor: '#333'
+      }
+    },
+    
+    // Data
+    data: [
+      { name: 'Word1', value: 1000 },
+      { name: 'Word2', value: 900 },
+      // ...
+    ]
+  }]
+};
+```
+
+## Resources
+
+- **GitHub Repository**: [ecomfe/echarts-wordcloud](https://github.com/ecomfe/echarts-wordcloud)
+- **Examples**: See the repository for live examples and demos
+- **Algorithm**: Based on [wordcloud2.js](https://github.com/timdream/wordcloud2.js)
+
+## Tips
+
+- For better performance with large datasets, consider limiting the number of words displayed
+- Use `gridSize` to control the compactness of the layout (smaller values = tighter packing)
+- The `sizeRange` should be adjusted based on your container size
+- Custom masks work best with high-contrast images

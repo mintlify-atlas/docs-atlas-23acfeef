@@ -1,0 +1,731 @@
+---
+title: "Custom Chart Type"
+description: "Create fully customized visualizations with complete control over rendering using the custom series type"
+---
+
+## When to Use Custom Charts
+
+The custom series type provides maximum flexibility when built-in chart types don't meet your needs. Use custom charts for:
+
+- **Unique visualizations**: Creating chart types not available in ECharts by default
+- **Complex graphics**: Building visualizations that combine multiple shapes and elements
+- **Custom interactions**: Implementing specialized hover, click, or animation behaviors
+- **Business-specific displays**: Designing charts that match specific business domain requirements
+- **Advanced layouts**: Creating custom positioning and arrangement logic for data elements
+
+The custom series gives you direct access to rendering via a `renderItem` function, allowing you to build virtually any visualization.
+
+## Basic Configuration
+
+A custom chart uses the `type: 'custom'` series option with a `renderItem` function:
+
+```typescript
+type CustomSeriesOption = {
+  type: 'custom'
+  renderItem: CustomSeriesRenderItem
+  coordinateSystem?: string | 'none'
+  data: any[]
+  clip?: boolean
+  encode?: SeriesEncodeOptionMixin
+}
+
+type CustomSeriesRenderItem = (
+  params: CustomSeriesRenderItemParams,
+  api: CustomSeriesRenderItemAPI
+) => CustomRootElementOption | undefined | null
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:360-403
+
+## Complete Working Example
+
+Here's a custom series that creates a custom error bar chart:
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  title: {
+    text: 'Custom Error Bars'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['A', 'B', 'C', 'D', 'E']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      type: 'custom',
+      renderItem: function (params, api) {
+        const categoryIndex = api.value(0);
+        const value = api.value(1);
+        const errorLow = api.value(2);
+        const errorHigh = api.value(3);
+        
+        const point = api.coord([categoryIndex, value]);
+        const lowPoint = api.coord([categoryIndex, value - errorLow]);
+        const highPoint = api.coord([categoryIndex, value + errorHigh]);
+        
+        const barWidth = api.size([1, 0])[0] * 0.3;
+        
+        return {
+          type: 'group',
+          children: [
+            // Main point
+            {
+              type: 'circle',
+              shape: {
+                cx: point[0],
+                cy: point[1],
+                r: 5
+              },
+              style: {
+                fill: api.visual('color')
+              }
+            },
+            // Error bar line
+            {
+              type: 'line',
+              shape: {
+                x1: point[0],
+                y1: lowPoint[1],
+                x2: point[0],
+                y2: highPoint[1]
+              },
+              style: {
+                stroke: api.visual('color'),
+                lineWidth: 2
+              }
+            },
+            // Lower cap
+            {
+              type: 'line',
+              shape: {
+                x1: point[0] - barWidth / 2,
+                y1: lowPoint[1],
+                x2: point[0] + barWidth / 2,
+                y2: lowPoint[1]
+              },
+              style: {
+                stroke: api.visual('color'),
+                lineWidth: 2
+              }
+            },
+            // Upper cap
+            {
+              type: 'line',
+              shape: {
+                x1: point[0] - barWidth / 2,
+                y1: highPoint[1],
+                x2: point[0] + barWidth / 2,
+                y2: highPoint[1]
+              },
+              style: {
+                stroke: api.visual('color'),
+                lineWidth: 2
+              }
+            }
+          ]
+        };
+      },
+      encode: {
+        x: 0,
+        y: 1
+      },
+      data: [
+        [0, 10, 2, 3],  // [category, value, errorLow, errorHigh]
+        [1, 15, 3, 2],
+        [2, 12, 1, 4],
+        [3, 18, 2, 2],
+        [4, 14, 3, 3]
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## The renderItem Function
+
+The `renderItem` function is called for each data item and returns a graphic element configuration.
+
+### Parameters
+
+```typescript
+interface CustomSeriesRenderItemParams {
+  context: Dictionary<unknown>        // Persistent state across renders
+  dataIndex: number                   // Current data index
+  seriesId: string
+  seriesName: string
+  seriesIndex: number
+  coordSys: CustomSeriesRenderItemParamsCoordSys
+  encode: WrapEncodeDefRet           // Dimension encoding
+  dataIndexInside: number            // Index in filtered data
+  dataInsideLength: number           // Length of filtered data
+  actionType?: string                // Type of action triggering render
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:337-351
+
+### API Methods
+
+```typescript
+interface CustomSeriesRenderItemAPI {
+  // Get data value
+  value(dim: number | string, dataIndexInside?: number): number | string
+  
+  // Convert data to pixel coordinates
+  coord(data: number | number[]): number[]
+  
+  // Get pixel size from data size
+  size?(dataSize: number | number[], dataItem?: number | number[]): number | number[]
+  
+  // Get visual properties
+  visual(visualType: string, dataIndexInside?: number): any
+  
+  // Get bar layout info
+  barLayout(opt: BarGridLayoutOptionForCustomSeries): BarGridLayoutResult
+  
+  // Get canvas dimensions
+  getWidth(): number
+  getHeight(): number
+  
+  // Get ZRender instance
+  getZr(): ZRenderType
+  
+  // Generate font string
+  font(opt: TextStyleOptions): string
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:273-302
+
+### Return Value: Element Options
+
+The `renderItem` function returns an element option object describing what to render.
+
+## Element Types
+
+Custom series supports multiple graphic element types:
+
+### Group
+
+Container for multiple elements:
+
+```typescript
+interface CustomGroupOption {
+  type: 'group'
+  children: CustomElementOption[]
+  width?: number
+  height?: number
+  $mergeChildren?: false | 'byName' | 'byIndex'
+  // Transform, position, etc.
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:155-165
+
+```javascript
+{
+  type: 'group',
+  x: 100,
+  y: 100,
+  children: [
+    { type: 'circle', /* ... */ },
+    { type: 'rect', /* ... */ }
+  ]
+}
+```
+
+### Path Shapes
+
+Built-in path shapes:
+
+#### Circle
+```javascript
+{
+  type: 'circle',
+  shape: {
+    cx: 100,    // Center x
+    cy: 100,    // Center y
+    r: 50       // Radius
+  },
+  style: {
+    fill: 'red',
+    stroke: 'blue',
+    lineWidth: 2
+  }
+}
+```
+
+#### Rectangle
+```javascript
+{
+  type: 'rect',
+  shape: {
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 50,
+    r: 5  // Border radius
+  },
+  style: { /* ... */ }
+}
+```
+
+#### Sector (Pie slice)
+```javascript
+{
+  type: 'sector',
+  shape: {
+    cx: 100,
+    cy: 100,
+    r: 50,
+    r0: 20,        // Inner radius
+    startAngle: 0, // In radians
+    endAngle: Math.PI / 2
+  },
+  style: { /* ... */ }
+}
+```
+
+#### Line
+```javascript
+{
+  type: 'line',
+  shape: {
+    x1: 0,
+    y1: 0,
+    x2: 100,
+    y2: 100,
+    percent: 1  // For animation
+  },
+  style: {
+    stroke: 'blue',
+    lineWidth: 2
+  }
+}
+```
+
+#### Polygon
+```javascript
+{
+  type: 'polygon',
+  shape: {
+    points: [[0, 0], [100, 0], [100, 100], [0, 100]]
+  },
+  style: { /* ... */ }
+}
+```
+
+#### Polyline
+```javascript
+{
+  type: 'polyline',
+  shape: {
+    points: [[0, 0], [50, 50], [100, 0]]
+  },
+  style: {
+    stroke: 'blue',
+    fill: null,  // No fill for polyline
+    lineWidth: 2
+  }
+}
+```
+
+#### Arc
+```javascript
+{
+  type: 'arc',
+  shape: {
+    cx: 100,
+    cy: 100,
+    r: 50,
+    startAngle: 0,
+    endAngle: Math.PI
+  },
+  style: { /* ... */ }
+}
+```
+
+#### Ring
+```javascript
+{
+  type: 'ring',
+  shape: {
+    cx: 100,
+    cy: 100,
+    r: 50,
+    r0: 30
+  },
+  style: { /* ... */ }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:177-189
+
+### SVG Path
+
+Custom path from SVG path data:
+
+```javascript
+{
+  type: 'path',
+  shape: {
+    pathData: 'M0,0 L100,0 L100,100 L0,100 Z',
+    // Or use 'd' (SVG standard):
+    d: 'M0,0 L100,0 L100,100 L0,100 Z',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    layout: 'center'  // Or 'cover'
+  },
+  style: { /* ... */ }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:191-204
+
+### Image
+
+```javascript
+{
+  type: 'image',
+  style: {
+    image: 'http://example.com/image.png',  // URL or data URI
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:219-227
+
+### Text
+
+```javascript
+{
+  type: 'text',
+  x: 100,
+  y: 100,
+  style: {
+    text: 'Hello World',
+    font: '14px sans-serif',
+    fill: 'black',
+    textAlign: 'center',
+    textVerticalAlign: 'middle'
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:232-240
+
+## Common Element Properties
+
+### Transform
+
+All elements support transform properties:
+
+```javascript
+{
+  type: 'rect',
+  x: 100,           // Position x
+  y: 100,           // Position y
+  rotation: Math.PI / 4,  // Rotation in radians
+  scaleX: 1.5,
+  scaleY: 1.5,
+  originX: 50,      // Transform origin x
+  originY: 50,      // Transform origin y
+  // ...
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:110-112
+
+### Style
+
+```javascript
+style: {
+  fill: 'red',              // Fill color
+  stroke: 'blue',           // Stroke color
+  lineWidth: 2,             // Stroke width
+  lineDash: [5, 5],         // Dash pattern
+  opacity: 0.8,             // Overall opacity
+  fillOpacity: 0.5,         // Fill opacity
+  strokeOpacity: 1,         // Stroke opacity
+  shadowBlur: 10,
+  shadowColor: 'rgba(0,0,0,0.5)',
+  shadowOffsetX: 5,
+  shadowOffsetY: 5
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:138
+
+### States
+
+Elements can have different styles for emphasis, blur, and select states:
+
+```javascript
+{
+  type: 'circle',
+  shape: { /* ... */ },
+  style: { fill: 'blue' },
+  emphasis: {
+    style: {
+      fill: 'red',
+      lineWidth: 3
+    }
+  },
+  blur: {
+    style: {
+      opacity: 0.3
+    }
+  },
+  select: {
+    style: {
+      fill: 'green',
+      stroke: 'black',
+      lineWidth: 2
+    }
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:145-148
+
+### Animation
+
+#### Transition
+
+Specify which properties should animate:
+
+```javascript
+{
+  type: 'circle',
+  shape: { cx: 100, cy: 100, r: 50 },
+  transition: ['shape', 'style'],  // Animate shape and style changes
+  style: { fill: 'red' }
+}
+```
+
+Or specify specific properties:
+
+```javascript
+{
+  transition: ['x', 'y', 'r'],
+  shape: {
+    r: 50,
+    transition: 'r'  // Only animate radius changes
+  }
+}
+```
+
+#### Enter/Update/Leave Animations
+
+```javascript
+{
+  type: 'rect',
+  enterAnimation: {
+    duration: 1000,
+    easing: 'cubicOut',
+    delay: 0
+  },
+  updateAnimation: {
+    duration: 500
+  },
+  leaveAnimation: {
+    duration: 500
+  },
+  // ...
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:130-132
+
+### During Callback
+
+Execute code during animation:
+
+```javascript
+{
+  type: 'circle',
+  during: function(apiDuring) {
+    // Called during animation
+    const phase = apiDuring.getAnimationPhase();
+    const time = apiDuring.getAnimationTime();
+    // Update element properties
+  },
+  // ...
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:128, 139
+
+## Coordinate System Integration
+
+Custom series can work with any coordinate system:
+
+### Cartesian (Default)
+
+```javascript
+{
+  type: 'custom',
+  coordinateSystem: 'cartesian2d',
+  renderItem: function(params, api) {
+    const point = api.coord([api.value(0), api.value(1)]);
+    return {
+      type: 'circle',
+      shape: { cx: point[0], cy: point[1], r: 10 }
+    };
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:428
+
+### Polar
+
+```javascript
+{
+  type: 'custom',
+  coordinateSystem: 'polar',
+  renderItem: function(params, api) {
+    const point = api.coord([api.value(0), api.value(1)]);
+    // point is [x, y] in pixels
+  }
+}
+```
+
+### None (Absolute positioning)
+
+```javascript
+{
+  type: 'custom',
+  coordinateSystem: 'none',
+  renderItem: function(params, api) {
+    return {
+      type: 'circle',
+      x: 100,
+      y: 100,
+      shape: { cx: 0, cy: 0, r: 10 }
+    };
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:373
+
+## Context for Persistent State
+
+Use `params.context` to maintain state across render calls:
+
+```javascript
+renderItem: function(params, api) {
+  if (!params.context.initialized) {
+    params.context.sum = 0;
+    params.context.initialized = true;
+  }
+  
+  params.context.sum += api.value(1);
+  
+  // Use params.context.sum
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:338
+
+## Encoding Dimensions
+
+The `encode` option maps data dimensions to coordinate system axes:
+
+```javascript
+{
+  type: 'custom',
+  encode: {
+    x: 0,      // First data dimension is x
+    y: 1,      // Second dimension is y
+    tooltip: [2, 3]  // Show these in tooltip
+  },
+  data: [
+    [10, 20, 30, 40],  // x=10, y=20, tooltip shows 30, 40
+    [15, 25, 35, 45]
+  ]
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:344
+
+## Clipping
+
+#### `clip`
+Type: `boolean`  
+Default: `false`
+
+Whether to clip elements outside the coordinate system's boundaries. By default, custom series does not clip.
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:402, 436
+
+## Default Options
+
+```javascript
+{
+  coordinateSystem: 'cartesian2d',
+  z: 2,
+  legendHoverLink: true,
+  clip: false
+}
+```
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts:427-436
+
+## Advanced Example: Custom Calendar Chart
+
+```javascript
+{
+  type: 'custom',
+  coordinateSystem: 'calendar',
+  renderItem: function(params, api) {
+    const cellPoint = api.coord(api.value(0));
+    const cellWidth = params.coordSys.cellWidth;
+    const cellHeight = params.coordSys.cellHeight;
+    const value = api.value(1);
+    
+    return {
+      type: 'rect',
+      shape: {
+        x: cellPoint[0] - cellWidth / 2,
+        y: cellPoint[1] - cellHeight / 2,
+        width: cellWidth,
+        height: cellHeight
+      },
+      style: {
+        fill: api.visual('color')
+      },
+      emphasis: {
+        style: {
+          stroke: '#000',
+          lineWidth: 2
+        }
+      }
+    };
+  },
+  data: [
+    ['2024-01-01', 100],
+    ['2024-01-02', 150],
+    // ...
+  ]
+}
+```
+
+The custom series type is extremely powerful and flexible. Refer to the source code for complete type definitions and capabilities.
+
+Source: ~/workspace/source/src/chart/custom/CustomSeries.ts

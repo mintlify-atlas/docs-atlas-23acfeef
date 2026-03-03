@@ -1,0 +1,248 @@
+---
+title: Parallel Coordinates
+description: Configure the parallel coordinate system for visualizing high-dimensional data with multiple parallel axes
+---
+
+The `parallel` component creates a parallel coordinate system, which displays multiple dimensions on parallel axes. It's ideal for analyzing relationships and patterns in high-dimensional datasets.
+
+## When to Use
+
+Use parallel coordinates when you need to:
+- Visualize datasets with many dimensions (variables)
+- Identify correlations and patterns across multiple attributes
+- Filter and explore multivariate data interactively
+- Compare multiple items across several metrics
+- Detect clusters and outliers in high-dimensional space
+
+## Basic Configuration
+
+```javascript
+option = {
+  parallel: {
+    left: '5%',
+    right: '15%',
+    bottom: 100,
+    parallelAxisDefault: {
+      type: 'value',
+      nameLocation: 'end',
+      nameGap: 20
+    }
+  },
+  parallelAxis: [
+    { dim: 0, name: 'Price' },
+    { dim: 1, name: 'Weight' },
+    { dim: 2, name: 'Volume' },
+    { dim: 3, name: 'Density' }
+  ],
+  series: [{
+    type: 'parallel',
+    data: [
+      [12.99, 100, 4.2, 23.8],
+      [9.99, 80, 3.8, 21.1],
+      [20.00, 120, 5.1, 23.5]
+    ]
+  }]
+};
+```
+
+## With Axis Expansion
+
+Enable axis expansion for better exploration of dense datasets:
+
+```javascript
+option = {
+  parallel: {
+    layout: 'horizontal',
+    axisExpandable: true,
+    axisExpandCenter: 15,
+    axisExpandCount: 10,
+    axisExpandWidth: 60,
+    axisExpandTriggerOn: 'mousemove'
+  },
+  parallelAxis: [
+    { dim: 0, name: 'A' },
+    { dim: 1, name: 'B' },
+    { dim: 2, name: 'C' },
+    { dim: 3, name: 'D' },
+    { dim: 4, name: 'E' },
+    { dim: 5, name: 'F' },
+    { dim: 6, name: 'G' },
+    { dim: 7, name: 'H' },
+    { dim: 8, name: 'I' },
+    { dim: 9, name: 'J' },
+    { dim: 10, name: 'K' },
+    { dim: 11, name: 'L' }
+  ],
+  series: [{
+    type: 'parallel',
+    lineStyle: { width: 1 },
+    data: [
+      // 12 dimensions per data item
+    ]
+  }]
+};
+```
+
+## Vertical Layout
+
+Create a vertical parallel coordinate system:
+
+```javascript
+option = {
+  parallel: {
+    layout: 'vertical',
+    left: 100,
+    right: 100,
+    top: '10%',
+    bottom: '10%'
+  },
+  parallelAxis: [
+    { dim: 0, name: 'Temperature' },
+    { dim: 1, name: 'Humidity' },
+    { dim: 2, name: 'Pressure' }
+  ],
+  series: [{
+    type: 'parallel',
+    data: [[25, 60, 1013], [28, 55, 1012], [22, 65, 1015]]
+  }]
+};
+```
+
+## Properties
+
+<ParamField path="layout" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Layout direction of the parallel axes.
+  
+  Source: `ParallelModel.ts:44, 97`
+</ParamField>
+
+<ParamField path="left" type="number | string" default="80">
+  Distance from the left side of the container.
+  
+  Source: `ParallelModel.ts:90`
+</ParamField>
+
+<ParamField path="top" type="number | string" default="60">
+  Distance from the top of the container.
+  
+  Source: `ParallelModel.ts:91`
+</ParamField>
+
+<ParamField path="right" type="number | string" default="80">
+  Distance from the right side of the container.
+  
+  Source: `ParallelModel.ts:92`
+</ParamField>
+
+<ParamField path="bottom" type="number | string" default="60">
+  Distance from the bottom of the container.
+  
+  Source: `ParallelModel.ts:93`
+</ParamField>
+
+<ParamField path="width" type="number | string">
+  Width of the parallel coordinate system. Defaults to: totalWidth - left - right.
+  
+  Source: `ParallelModel.ts:94`
+</ParamField>
+
+<ParamField path="height" type="number | string">
+  Height of the parallel coordinate system. Defaults to: totalHeight - top - bottom.
+  
+  Source: `ParallelModel.ts:95`
+</ParamField>
+
+<ParamField path="axisExpandable" type="boolean" default="false">
+  Whether axes can be expanded for better interaction. Only works when there are more than 3 axes, more than `axisExpandCount` axes, and `axisExpandWidth` > 0.
+  
+  Source: `ParallelModel.ts:46, 101`
+</ParamField>
+
+<ParamField path="axisExpandCenter" type="number">
+  The index of the axis that is centered during expansion. Defaults to approximately the middle axis.
+  
+  Source: `ParallelModel.ts:47, 102`
+</ParamField>
+
+<ParamField path="axisExpandCount" type="number" default="0">
+  Number of axes to show expanded. Must be > 1 for expansion to work.
+  
+  Source: `ParallelModel.ts:48, 103`
+</ParamField>
+
+<ParamField path="axisExpandWidth" type="number" default="50">
+  Width of each expanded axis in pixels.
+  
+  Source: `ParallelModel.ts:49, 104`
+</ParamField>
+
+<ParamField path="axisExpandTriggerOn" type="'click' | 'mousemove'" default="'click'">
+  How to trigger axis expansion interaction.
+  
+  Source: `ParallelModel.ts:50, 110`
+</ParamField>
+
+<ParamField path="parallelAxisDefault" type="ParallelAxisOption">
+  Default configuration applied to all parallel axes. Individual axis settings override these defaults.
+  
+  Source: `ParallelModel.ts:63, 112`
+</ParamField>
+
+<ParamField path="z" type="number" default="0">
+  z-index of the component.
+  
+  Source: `ParallelModel.ts:89`
+</ParamField>
+
+## Implementation Details
+
+The Parallel class implements both `CoordinateSystemMaster` and `CoordinateSystem` interfaces. Key implementation details from `Parallel.ts`:
+
+### Dimensions
+
+Parallel coordinates use dynamically created dimensions based on the `parallelAxis` components. Each dimension is named as 'dim0', 'dim1', 'dim2', etc. (source: `ParallelModel.ts:77, 177`).
+
+### Axis Management
+
+The system maintains:
+- A hash map of axes by dimension (source: `Parallel.ts:88`)
+- An array of axis layout information (source: `Parallel.ts:94`)
+- References to all parallel axis models (source: `Parallel.ts:99`)
+
+### Axis Expansion
+
+When `axisExpandable` is true and conditions are met (source: `Parallel.ts:225-230`):
+- Axes can be collapsed to save space
+- A window of expanded axes is shown with full labels
+- Users can slide the expansion window via interaction
+- Collapsed axes have reduced width (`axisCollapseWidth`)
+- Expanded axes use the full `axisExpandWidth`
+
+The expansion behavior is controlled by:
+- `axisExpandWindow`: The coordinate range of expanded axes (source: `Parallel.ts:235-246`)
+- `axisExpandSlideTriggerArea`: Sensitivity zones for triggering expansion slide (source: `ParallelModel.ts:59, 109`)
+
+### Layout Calculation
+
+The `_makeLayoutInfo()` method (source: `Parallel.ts:212-276`) calculates:
+- Pixel dimension index (0 for horizontal, 1 for vertical)
+- Layout length and axis length
+- Positions for collapsed and expanded axes
+- Window indices for which axes are expanded
+
+### Coordinate Conversion
+
+- `dataToPoint(value, dim)` - Convert a dimension value to canvas point (source: `Parallel.ts:350-355`)
+- `axisCoordToPoint(coord, dim)` - Convert axis coordinate to point using transformation matrix (source: `Parallel.ts:427-430`)
+
+### Active State Detection
+
+The `eachActiveState()` method (source: `Parallel.ts:362-404`) iterates through data to determine if each item is:
+- `'normal'`: No brush selection is active
+- `'active'`: Passes all axis brush filters
+- `'inactive'`: Filtered out by at least one axis brush
+
+## Related Components
+
+- [Parallel Chart](/charts/parallel) - Line series for parallel coordinates visualization
+- [Brush](/components/brush) - Interactive data filtering for parallel coordinates

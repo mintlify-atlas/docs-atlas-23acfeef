@@ -1,0 +1,381 @@
+---
+title: Pie Chart
+description: Display proportional data with circular pie charts in Apache ECharts
+---
+
+## Overview
+
+Pie charts display data as proportional slices of a circle, making them ideal for showing part-to-whole relationships. Each slice represents a category's contribution to the total.
+
+## When to Use
+
+Use pie charts when you need to:
+
+- Show proportions and percentages of a whole
+- Compare parts of a single data series
+- Display composition or distribution
+- Visualize simple percentage breakdowns (ideally 5-7 categories or fewer)
+- Create donut charts with inner radius
+
+## Basic Configuration
+
+The pie chart is configured through the `PieSeriesOption` interface with extensive customization options.
+
+```typescript
+interface PieSeriesOption {
+  type: 'pie'
+  data?: (OptionDataValueNumeric | PieDataItemOption)[]
+  radius?: number | string | (number | string)[]
+  center?: (number | string)[]
+  roseType?: 'radius' | 'area'
+  startAngle?: number
+  minAngle?: number
+  selectedOffset?: number
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Market Share by Product',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b}: {c} ({d}%)'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  series: [
+    {
+      name: 'Product',
+      type: 'pie',
+      radius: '50%',
+      center: ['50%', '50%'],
+      data: [
+        { value: 1048, name: 'Product A' },
+        { value: 735, name: 'Product B' },
+        { value: 580, name: 'Product C' },
+        { value: 484, name: 'Product D' },
+        { value: 300, name: 'Product E' }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      },
+      label: {
+        show: true,
+        formatter: '{b}: {d}%'
+      },
+      labelLine: {
+        show: true
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="radius" type="number | string | (number | string)[]" default="[0, '50%']">
+  The radius of the pie chart. Can be:
+  - Single value for outer radius: `'50%'` or `150`
+  - Array `[innerRadius, outerRadius]` for donut charts: `['40%', '70%']`
+  
+  ```javascript
+  radius: '60%'              // Simple pie
+  radius: ['40%', '70%']     // Donut chart
+  radius: [30, 100]          // Absolute pixel values
+  ```
+</ParamField>
+
+<ParamField path="center" type="(number | string)[]" default="['50%', '50%']">
+  Center position of the pie chart as `[x, y]`. Can use percentage or pixel values.
+  
+  ```javascript
+  center: ['50%', '50%']     // Center of container
+  center: [200, 150]         // Absolute position
+  ```
+</ParamField>
+
+<ParamField path="roseType" type="'radius' | 'area'">
+  Creates a rose (nightingale) chart where sector angles or areas represent values.
+  - `'radius'`: Sectors have equal angles, different radii
+  - `'area'`: Sectors have different angles and areas
+  
+  ```javascript
+  roseType: 'radius'
+  ```
+</ParamField>
+
+<ParamField path="startAngle" type="number" default="90">
+  Starting angle of the first sector, in degrees. 0° is at 3 o'clock, increases counterclockwise.
+  
+  ```javascript
+  startAngle: 90   // Start at 12 o'clock
+  startAngle: 0    // Start at 3 o'clock
+  ```
+</ParamField>
+
+<ParamField path="endAngle" type="number | 'auto'" default="'auto'">
+  Ending angle. Set to a specific value for partial pie charts.
+  
+  ```javascript
+  startAngle: 0,
+  endAngle: 180  // Semi-circle
+  ```
+</ParamField>
+
+<ParamField path="clockwise" type="boolean" default="true">
+  Whether sectors are laid out clockwise.
+  
+  ```javascript
+  clockwise: false
+  ```
+</ParamField>
+
+<ParamField path="minAngle" type="number" default="0">
+  Minimum angle for a sector (in degrees). Prevents very small slices from being invisible.
+  
+  ```javascript
+  minAngle: 5
+  ```
+</ParamField>
+
+<ParamField path="minShowLabelAngle" type="number" default="0">
+  If a sector's angle is less than this value, its label won't be displayed.
+  
+  ```javascript
+  minShowLabelAngle: 10
+  ```
+</ParamField>
+
+<ParamField path="padAngle" type="number" default="0">
+  Padding angle between sectors in degrees.
+  
+  ```javascript
+  padAngle: 5  // 5 degree gaps between sectors
+  ```
+</ParamField>
+
+<ParamField path="selectedOffset" type="number" default="10">
+  Offset distance when a sector is selected.
+  
+  ```javascript
+  selectedOffset: 15
+  ```
+</ParamField>
+
+<ParamField path="label" type="PieLabelOption">
+  Label configuration with pie-specific positioning.
+  
+  ```javascript
+  label: {
+    show: true,
+    position: 'outside',    // 'outside' | 'inside' | 'center' | 'outer' | 'inner'
+    formatter: '{b}: {d}%', // {b}=name, {c}=value, {d}=percentage
+    rotate: 'radial',       // boolean | number | 'radial' | 'tangential'
+    alignTo: 'none',        // 'none' | 'labelLine' | 'edge'
+    edgeDistance: '25%',    // Distance from edge when alignTo is 'edge'
+    distanceToLabelLine: 5
+  }
+  ```
+</ParamField>
+
+<ParamField path="labelLine" type="PieLabelLineOption">
+  Configuration for the label guide lines.
+  
+  ```javascript
+  labelLine: {
+    show: true,
+    length: 15,        // First segment length
+    length2: 30,       // Second segment length
+    smooth: false,
+    minTurnAngle: 90,
+    maxSurfaceAngle: 90,
+    lineStyle: {
+      width: 1,
+      type: 'solid'
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="PieItemStyleOption">
+  Visual style of pie sectors with border radius support.
+  
+  ```javascript
+  itemStyle: {
+    borderRadius: 10,           // Uniform radius
+    borderRadius: [10, 5],      // [outer, inner]
+    borderRadius: '20%',        // Percentage of radius
+    borderColor: '#fff',
+    borderWidth: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="avoidLabelOverlap" type="boolean" default="true">
+  Whether to use a strategy to avoid label overlapping.
+  
+  ```javascript
+  avoidLabelOverlap: true
+  ```
+</ParamField>
+
+<ParamField path="percentPrecision" type="number" default="2">
+  Decimal precision for percentage values.
+  
+  ```javascript
+  percentPrecision: 1  // Show 12.3% instead of 12.34%
+  ```
+</ParamField>
+
+<ParamField path="stillShowZeroSum" type="boolean" default="true">
+  Whether to show the pie when all data values are zero.
+  
+  ```javascript
+  stillShowZeroSum: false
+  ```
+</ParamField>
+
+<ParamField path="showEmptyCircle" type="boolean" default="true">
+  Whether to show an empty circle when there's no data.
+  
+  ```javascript
+  showEmptyCircle: true,
+  emptyCircleStyle: {
+    color: 'lightgray',
+    opacity: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis when hovering over sectors.
+  
+  ```javascript
+  emphasis: {
+    focus: 'self',      // 'none' | 'self' | 'series'
+    scale: true,        // Whether to scale up
+    scaleSize: 5        // Scale up size in pixels
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Pie chart data consists of name-value pairs:
+
+```javascript
+// Array of objects (recommended)
+data: [
+  { value: 1048, name: 'Category A' },
+  { value: 735, name: 'Category B' },
+  { 
+    value: 580, 
+    name: 'Category C',
+    itemStyle: { color: '#91cc75' },
+    label: { show: true }
+  }
+]
+
+// Simple values (names taken from source or indices)
+data: [1048, 735, 580, 484, 300]
+```
+
+## Advanced Features
+
+### Donut Chart
+
+```javascript
+series: [{
+  type: 'pie',
+  radius: ['40%', '70%'],
+  data: [
+    { value: 335, name: 'Direct' },
+    { value: 310, name: 'Email' },
+    { value: 234, name: 'Ads' }
+  ]
+}]
+```
+
+### Rose (Nightingale) Chart
+
+```javascript
+series: [{
+  type: 'pie',
+  roseType: 'radius',
+  radius: [30, 150],
+  data: [
+    { value: 40, name: 'A' },
+    { value: 38, name: 'B' },
+    { value: 32, name: 'C' },
+    { value: 30, name: 'D' }
+  ]
+}]
+```
+
+### Nested Pie Charts
+
+```javascript
+series: [
+  {
+    type: 'pie',
+    radius: [0, '30%'],
+    data: [/* outer data */]
+  },
+  {
+    type: 'pie',
+    radius: ['45%', '60%'],
+    data: [/* inner data */]
+  }
+]
+```
+
+### Custom Label Formatting
+
+```javascript
+label: {
+  formatter: function(params) {
+    return params.name + '\n' + 
+           params.value + ' (' + params.percent + '%)';
+  }
+}
+```
+
+## Callback Data Parameters
+
+Pie charts provide special callback parameters including percentage:
+
+```typescript
+interface PieCallbackDataParams {
+  name: string
+  value: number
+  percent: number  // Percentage value (0-100)
+  dataIndex: number
+  // ... other standard params
+}
+```
+
+## Source Reference
+
+The pie chart implementation can be found in:
+- Series model: `src/chart/pie/PieSeries.ts:148-348`
+- Default options: `src/chart/pie/PieSeries.ts:219-335`
+- Type definitions: `src/chart/pie/PieSeries.ts:64-142`
+- Callback params: `src/chart/pie/PieSeries.ts:60-62`

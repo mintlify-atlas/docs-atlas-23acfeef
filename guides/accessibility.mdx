@@ -1,0 +1,498 @@
+---
+title: 'Accessibility Features'
+description: 'Implement ARIA labels and accessibility features to make Apache ECharts charts accessible to all users'
+---
+
+## Overview
+
+Apache ECharts includes built-in accessibility features through ARIA (Accessible Rich Internet Applications) support. The ARIA module automatically generates descriptive labels for screen readers and provides decal patterns for users with color vision deficiencies.
+
+## ARIA Support
+
+The ARIA module is implemented in `src/component/aria/` and `src/visual/aria.ts`, providing automatic accessibility features.
+
+### Enabling ARIA
+
+Aria support is enabled through the `aria` option:
+
+```javascript
+var option = {
+    aria: {
+        enabled: true
+    },
+    // ... rest of your chart configuration
+};
+```
+
+<Note>
+  The `aria.show` property is deprecated. Use `aria.enabled` instead (see `src/component/aria/preprocessor.ts:29-32`).
+</Note>
+
+### Complete ARIA Configuration
+
+From `src/visual/aria.ts:31-38`, the default ARIA configuration is:
+
+```javascript
+var option = {
+    aria: {
+        enabled: true,
+        
+        // Decal patterns for accessibility
+        decal: {
+            show: false
+        },
+        
+        // Label configuration for screen readers
+        label: {
+            enabled: true,
+            description: '',  // Custom description
+            general: {
+                withTitle: 'This is a chart about "{title}"',
+                withoutTitle: 'This is a chart'
+            },
+            series: {
+                maxCount: 10,  // Max series to describe
+                single: {
+                    prefix: '',
+                    withName: 'The chart type is {seriesType}, representing {seriesName}.',
+                    withoutName: 'The chart type is {seriesType}.'
+                },
+                multiple: {
+                    prefix: 'It consists of {seriesCount} series.',
+                    withName: 'The {seriesId} series is a {seriesType}, representing {seriesName}.',
+                    withoutName: 'The {seriesId} series is a {seriesType}.',
+                    separator: {
+                        middle: ';',
+                        end: '.'
+                    }
+                }
+            },
+            data: {
+                maxCount: 10,  // Max data points to describe per series
+                allData: 'The data is as follows: ',
+                partialData: 'The first {displayCnt} items are: ',
+                withName: '{name} is {value}',
+                withoutName: '{value}',
+                separator: {
+                    middle: ',',
+                    end: ''
+                }
+            }
+        }
+    }
+};
+```
+
+## Automatic ARIA Label Generation
+
+From `src/visual/aria.ts:141-250`, ECharts automatically generates descriptive ARIA labels:
+
+### How ARIA Labels Work
+
+1. Sets the chart container's `role` attribute to `img`
+2. Generates a descriptive `aria-label` from chart data
+3. Includes title, series information, and data values
+4. Respects locale settings for type names
+
+```javascript
+// Implementation from src/visual/aria.ts:156
+dom.setAttribute('role', 'img');
+dom.setAttribute('aria-label', generatedLabel);
+```
+
+### Custom ARIA Description
+
+Provide a custom description to override auto-generation:
+
+```javascript
+var option = {
+    aria: {
+        enabled: true,
+        label: {
+            description: 'A bar chart showing monthly sales data for 2024. Sales increased from $10,000 in January to $50,000 in December, with a notable spike in June reaching $75,000.'
+        }
+    },
+    title: {
+        text: 'Monthly Sales 2024'
+    },
+    series: [{
+        type: 'bar',
+        data: [10000, 15000, 20000, 25000, 30000, 75000, 40000, 45000, 50000, 45000, 48000, 50000]
+    }]
+};
+```
+
+## Generated Label Example
+
+For a chart with title and series, the auto-generated label might be:
+
+```javascript
+var option = {
+    aria: {
+        enabled: true
+    },
+    title: {
+        text: 'Sales Statistics'
+    },
+    series: [
+        {
+            name: 'Product A',
+            type: 'bar',
+            data: [120, 200, 150, 80, 70, 110]
+        },
+        {
+            name: 'Product B',
+            type: 'bar',
+            data: [90, 150, 120, 100, 80, 95]
+        }
+    ]
+};
+
+// Generated aria-label (from src/visual/aria.ts:174-247):
+// "This is a chart about Sales Statistics. It consists of 2 series.
+// The 0 series is a bar chart, representing Product A. The data is as follows:
+// 120, 200, 150, 80, 70, 110.
+// The 1 series is a bar chart, representing Product B. The data is as follows:
+// 90, 150, 120, 100, 80, 95."
+```
+
+## Decal Patterns
+
+Decal patterns provide visual distinction beyond color, helping users with color vision deficiencies.
+
+### Enabling Decals
+
+```javascript
+var option = {
+    aria: {
+        enabled: true,
+        decal: {
+            show: true
+        }
+    },
+    series: [{
+        type: 'bar',
+        data: [10, 20, 30, 40, 50]
+    }]
+};
+```
+
+### How Decals Work
+
+From `src/visual/aria.ts:61-138`, the decal system:
+
+1. Automatically applies patterns to series/data items
+2. Uses different patterns for each category
+3. Works with pie charts, bar charts, and other series types
+4. Merges user-specified decals with palette decals
+
+```javascript
+// Implementation details from src/visual/aria.ts:107-114
+const paletteDecal = getDecalFromPalette(
+    seriesModel.ecModel,
+    name,
+    decalScope,
+    dataCount
+);
+const specifiedDecal = data.getItemVisual(idx, 'decal');
+data.setItemVisual(idx, 'decal', mergeDecal(specifiedDecal, paletteDecal));
+```
+
+### Custom Decal Patterns
+
+```javascript
+var option = {
+    aria: {
+        enabled: true,
+        decal: {
+            show: true,
+            decals: [
+                {
+                    symbol: 'rect',
+                    symbolSize: 1,
+                    color: 'rgba(0, 0, 0, 0.2)'
+                },
+                {
+                    symbol: 'circle',
+                    symbolSize: 1,
+                    color: 'rgba(0, 0, 0, 0.2)'
+                },
+                {
+                    dashArrayX: [1, 0],
+                    dashArrayY: [2, 5],
+                    rotation: Math.PI / 4,
+                    color: 'rgba(0, 0, 0, 0.2)'
+                }
+            ]
+        }
+    },
+    series: [{
+        type: 'pie',
+        data: [
+            { value: 335, name: 'Category A' },
+            { value: 234, name: 'Category B' },
+            { value: 548, name: 'Category C' }
+        ]
+    }]
+};
+```
+
+## Localization Support
+
+ARIA labels support localization for series type names (from `src/visual/aria.ts:276-279`):
+
+```javascript
+import * as echarts from 'echarts';
+
+// Use localized type names
+echarts.registerLocale('EN', {
+    aria: {
+        general: {
+            withTitle: 'This is a chart about "{title}"',
+            withoutTitle: 'This is a chart'
+        },
+        series: {
+            single: {
+                prefix: '',
+                withName: 'The chart type is {seriesType}, representing {seriesName}.',
+                withoutName: 'The chart type is {seriesType}.'
+            },
+            multiple: {
+                prefix: 'It consists of {seriesCount} chart(s).',
+                withName: 'Chart {seriesId} is {seriesType}, representing {seriesName}.',
+                withoutName: 'Chart {seriesId} is {seriesType}.',
+                separator: {
+                    middle: '; ',
+                    end: '.'
+                }
+            }
+        }
+    },
+    series: {
+        typeNames: {
+            pie: 'pie chart',
+            bar: 'bar chart',
+            line: 'line chart',
+            scatter: 'scatter plot',
+            effectScatter: 'ripple scatter plot',
+            radar: 'radar chart',
+            tree: 'tree diagram',
+            treemap: 'treemap',
+            sunburst: 'sunburst chart',
+            boxplot: 'boxplot',
+            candlestick: 'candlestick chart',
+            k: 'k line chart',
+            heatmap: 'heatmap',
+            map: 'map',
+            parallel: 'parallel coordinate map',
+            lines: 'line graph',
+            graph: 'relationship graph',
+            sankey: 'sankey diagram',
+            funnel: 'funnel chart',
+            gauge: 'gauge',
+            pictorialBar: 'pictorial bar chart',
+            themeRiver: 'theme river map',
+            custom: 'custom chart'
+        }
+    }
+});
+```
+
+## Keyboard Navigation
+
+While ECharts doesn't have built-in keyboard navigation for individual data points, you can enhance accessibility with tooltips:
+
+```javascript
+var option = {
+    aria: {
+        enabled: true
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross'
+        },
+        // Ensure tooltip text is accessible
+        textStyle: {
+            fontSize: 14
+        },
+        // Use semantic HTML in formatter
+        formatter: function(params) {
+            var result = '<strong>' + params[0].name + '</strong><br/>';
+            params.forEach(function(item) {
+                result += item.marker + ' ' + 
+                         item.seriesName + ': <strong>' + 
+                         item.value + '</strong><br/>';
+            });
+            return result;
+        }
+    },
+    series: [{
+        type: 'line',
+        data: [10, 20, 30, 40, 50]
+    }]
+};
+```
+
+## Focus Management
+
+Make the chart container focusable for keyboard users:
+
+```html
+<div id="main" 
+     tabindex="0" 
+     role="img"
+     style="width: 600px; height: 400px;"
+     onkeydown="handleChartKeyboard(event)">
+</div>
+
+<script>
+var myChart = echarts.init(document.getElementById('main'));
+myChart.setOption({
+    aria: {
+        enabled: true,
+        label: {
+            description: 'Interactive chart. Press Enter for details.'
+        }
+    },
+    // ... chart options
+});
+
+function handleChartKeyboard(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        // Show additional information or data table
+        showDataTable();
+    }
+}
+</script>
+```
+
+## Accessible Color Schemes
+
+Use high-contrast, colorblind-friendly palettes:
+
+```javascript
+// Colorblind-friendly palette
+var colorBlindSafePalette = [
+    '#0173B2',  // Blue
+    '#DE8F05',  // Orange  
+    '#029E73',  // Green
+    '#CC78BC',  // Purple
+    '#CA9161',  // Brown
+    '#FBAFE4',  // Pink
+    '#949494',  // Gray
+    '#ECE133'   // Yellow
+];
+
+var option = {
+    color: colorBlindSafePalette,
+    aria: {
+        enabled: true,
+        decal: {
+            show: true  // Add patterns as additional distinction
+        }
+    },
+    series: [{
+        type: 'bar',
+        data: [10, 20, 30, 40, 50]
+    }]
+};
+```
+
+## Data Table Alternative
+
+Provide a data table as an accessible alternative:
+
+```html
+<div id="chart-container">
+    <div id="main" style="width: 600px; height: 400px;"></div>
+    
+    <details style="margin-top: 20px;">
+        <summary>View data as table</summary>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Generated from chart data -->
+            </tbody>
+        </table>
+    </details>
+</div>
+
+<script>
+var chartData = [
+    { name: 'Jan', value: 120 },
+    { name: 'Feb', value: 200 },
+    { name: 'Mar', value: 150 }
+];
+
+// Populate chart
+var myChart = echarts.init(document.getElementById('main'));
+myChart.setOption({
+    aria: { enabled: true },
+    xAxis: { type: 'category', data: chartData.map(d => d.name) },
+    yAxis: { type: 'value' },
+    series: [{ type: 'bar', data: chartData.map(d => d.value) }]
+});
+
+// Populate accessible table
+var tbody = document.querySelector('#data-table tbody');
+chartData.forEach(function(item) {
+    var row = tbody.insertRow();
+    row.insertCell(0).textContent = item.name;
+    row.insertCell(1).textContent = item.value;
+});
+</script>
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Enable ARIA" icon="universal-access">
+    Always set `aria.enabled: true` for public-facing charts
+  </Card>
+  <Card title="Use Decals" icon="fill-drip">
+    Enable `aria.decal.show: true` to help users with color vision deficiencies
+  </Card>
+  <Card title="Custom Descriptions" icon="message">
+    Provide meaningful `aria.label.description` for complex charts
+  </Card>
+  <Card title="Alternative Formats" icon="table">
+    Offer data tables or text summaries as alternatives
+  </Card>
+</CardGroup>
+
+<Tip>
+  Test your charts with screen readers like NVDA (Windows), JAWS (Windows), or VoiceOver (macOS/iOS) to ensure the ARIA labels are helpful.
+</Tip>
+
+## Architecture
+
+The ARIA implementation consists of three main components:
+
+1. **Preprocessor** (`src/component/aria/preprocessor.ts`) - Normalizes ARIA options and handles deprecated properties
+2. **Install** (`src/component/aria/install.ts`) - Registers the ARIA preprocessor and visual handler
+3. **Visual Handler** (`src/visual/aria.ts`) - Generates ARIA labels and applies decal patterns
+
+```javascript
+// From src/component/aria/install.ts:24-26
+export function install(registers: EChartsExtensionInstallRegisters) {
+    registers.registerPreprocessor(ariaPreprocessor);
+    registers.registerVisual(registers.PRIORITY.VISUAL.ARIA, ariaVisual);
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Customization" icon="palette" href="/guides/customization">
+    Design accessible color schemes with themes
+  </Card>
+  <Card title="Performance" icon="gauge-high" href="/guides/performance">
+    Optimize accessibility for large datasets
+  </Card>
+</CardGroup>

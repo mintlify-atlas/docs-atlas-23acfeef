@@ -1,0 +1,520 @@
+---
+title: 'Radar Chart'
+description: 'Multi-dimensional data visualization in a radial layout'
+icon: 'radar'
+---
+
+## Overview
+
+Radar charts (also known as spider charts or star charts) display multi-dimensional data in a two-dimensional chart with three or more quantitative variables represented on axes starting from the same point. Each data series is shown as a polygon, making it easy to compare multiple items across several dimensions.
+
+## When to Use
+
+Use radar charts when you need to:
+
+- **Compare multiple items** across several metrics or dimensions
+- **Visualize performance** across different categories
+- **Display strengths and weaknesses** in a compact format
+- **Show skill assessments** or competency matrices
+- **Analyze product features** across multiple attributes
+- **Present survey results** with multiple questions
+
+## Basic Configuration
+
+### Series Type
+
+Radar charts require a radar coordinate system:
+
+```typescript
+import { RadarSeriesOption } from 'echarts/types/src/chart/radar/RadarSeries';
+import { RadarOption } from 'echarts/types/src/coord/radar/RadarModel';
+
+const option: RadarSeriesOption = {
+  type: 'radar',
+  coordinateSystem: 'radar'
+};
+```
+
+### Data Format
+
+Radar series data is an array of values corresponding to each indicator:
+
+```typescript
+type RadarSeriesDataValue = OptionDataValue[];  // Values for each indicator
+
+const data = [
+  [4200, 3000, 20000, 35000, 50000, 18000],  // Values for all indicators
+  [5000, 14000, 28000, 26000, 42000, 21000]
+];
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  title: {
+    text: 'Product Comparison'
+  },
+  tooltip: {
+    trigger: 'item'
+  },
+  legend: {
+    data: ['Product A', 'Product B']
+  },
+  // Define the radar coordinate system
+  radar: {
+    center: ['50%', '50%'],
+    radius: '60%',
+    startAngle: 90,
+    clockwise: false,
+    shape: 'polygon',
+    splitNumber: 5,
+    axisName: {
+      show: true,
+      color: '#999',
+      fontSize: 12
+    },
+    axisLine: {
+      lineStyle: {
+        color: '#ccc'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#ccc'
+      }
+    },
+    splitArea: {
+      show: true,
+      areaStyle: {
+        color: ['rgba(114, 172, 209, 0.1)', 
+                'rgba(114, 172, 209, 0.2)']
+      }
+    },
+    // Define indicators (axes)
+    indicator: [
+      { name: 'Sales', max: 6500 },
+      { name: 'Marketing', max: 16000 },
+      { name: 'Development', max: 30000 },
+      { name: 'Support', max: 38000 },
+      { name: 'Technology', max: 52000 },
+      { name: 'Administration', max: 25000 }
+    ]
+  },
+  series: [
+    {
+      name: 'Budget vs Spending',
+      type: 'radar',
+      data: [
+        {
+          value: [4200, 3000, 20000, 35000, 50000, 18000],
+          name: 'Product A',
+          lineStyle: {
+            width: 2,
+            type: 'solid'
+          },
+          areaStyle: {
+            opacity: 0.3
+          },
+          itemStyle: {
+            color: '#5470c6'
+          },
+          symbol: 'circle',
+          symbolSize: 6
+        },
+        {
+          value: [5000, 14000, 28000, 26000, 42000, 21000],
+          name: 'Product B',
+          lineStyle: {
+            width: 2,
+            type: 'solid'
+          },
+          areaStyle: {
+            opacity: 0.3
+          },
+          itemStyle: {
+            color: '#91cc75'
+          },
+          symbol: 'circle',
+          symbolSize: 6
+        }
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Radar Coordinate System
+
+### radar Component
+
+Defines the radar coordinate system (RadarModel.ts:187-235):
+
+```typescript
+interface RadarOption {
+  center?: [string | number, string | number];  // Default: ['50%', '50%']
+  radius?: string | number;                     // Default: '50%'
+  startAngle?: number;                          // Default: 90
+  clockwise?: boolean;                          // Default: false
+  shape?: 'polygon' | 'circle';                 // Default: 'polygon'
+  splitNumber?: number;                         // Default: 5
+  scale?: boolean;                              // Default: false
+  boundaryGap?: [number, number];               // Default: [0, 0]
+  axisName?: {
+    show?: boolean;                             // Default: true
+    color?: string;
+    formatter?: string | Function;
+  };
+  axisNameGap?: number;                         // Default: 15
+  axisLine?: AxisLineOption;
+  axisTick?: AxisTickOption;
+  axisLabel?: AxisLabelOption;
+  splitLine?: SplitLineOption;
+  splitArea?: SplitAreaOption;
+  indicator?: RadarIndicatorOption[];           // Required
+}
+```
+
+### indicator Configuration
+
+Defines the radar axes (RadarModel.ts:47-58):
+
+```typescript
+interface RadarIndicatorOption {
+  name?: string;              // Indicator name
+  text?: string;              // @deprecated Use 'name' instead
+  min?: number;               // Minimum value
+  max?: number;               // Maximum value
+  color?: ColorString;        // Axis name color
+  axisType?: 'value' | 'log'; // Axis type
+}
+```
+
+```javascript
+indicator: [
+  { name: 'Sales', max: 6500, min: 0 },
+  { name: 'Marketing', max: 16000 },
+  { name: 'Development', max: 30000, color: '#c23531' },
+  { name: 'Support', max: 38000, axisType: 'log' }
+]
+```
+
+### Shape Options
+
+Two shape modes available (RadarModel.ts:217):
+
+```javascript
+radar: {
+  shape: 'polygon'  // Classic radar chart with straight lines
+}
+
+radar: {
+  shape: 'circle'   // Circular grid with curved areas
+}
+```
+
+### Angle Configuration
+
+Control the orientation (RadarModel.ts:197-199):
+
+```javascript
+radar: {
+  startAngle: 90,      // Starting angle in degrees (0 = right, 90 = top)
+  clockwise: false     // Direction: false = counterclockwise, true = clockwise
+}
+```
+
+## Series Options
+
+### Default Configuration
+
+From RadarSeries.ts:150-170:
+
+```javascript
+{
+  type: 'radar',
+  coordinateSystem: 'radar',
+  radarIndex: 0,              // Which radar coordinate to use
+  z: 2,
+  colorBy: 'data',            // Color by data item
+  legendHoverLink: true,
+  
+  // Line styling
+  lineStyle: {
+    width: 2,
+    type: 'solid',
+    join: 'round'
+  },
+  
+  // Label configuration
+  label: {
+    position: 'top'
+  },
+  
+  // Symbol (marker) styling
+  symbolSize: 8
+}
+```
+
+### lineStyle
+
+Defines the line appearance connecting data points (RadarSeries.ts:157-160):
+
+```typescript
+lineStyle?: LineStyleOption;
+```
+
+```javascript
+series: [{
+  type: 'radar',
+  lineStyle: {
+    width: 3,
+    type: 'solid',    // 'solid' | 'dashed' | 'dotted'
+    join: 'round',    // 'round' | 'bevel' | 'miter'
+    color: '#5470c6'
+  }
+}]
+```
+
+### areaStyle
+
+Fills the area enclosed by the radar line:
+
+```typescript
+areaStyle?: AreaStyleOption;
+```
+
+```javascript
+series: [{
+  type: 'radar',
+  areaStyle: {
+    opacity: 0.3,
+    color: '#5470c6'  // Can use gradients
+  }
+}]
+```
+
+### Symbol Options
+
+Control the markers at data points (RadarSeries.ts:168):
+
+```typescript
+symbol?: string;        // 'circle' | 'rect' | 'triangle' | etc.
+symbolSize?: number;    // Default: 8
+symbolRotate?: number;
+```
+
+```javascript
+series: [{
+  type: 'radar',
+  symbol: 'circle',
+  symbolSize: 10,
+  symbolRotate: 0
+}]
+```
+
+## Data Item Options
+
+### RadarSeriesDataItemOption
+
+Each data item can have custom styling (RadarSeries.ts:57-61):
+
+```typescript
+interface RadarSeriesDataItemOption {
+  value?: RadarSeriesDataValue;  // Array of values
+  name?: string;                 // Data item name
+  lineStyle?: LineStyleOption;
+  areaStyle?: AreaStyleOption;
+  itemStyle?: ItemStyleOption;
+  label?: SeriesLabelOption;
+  symbol?: string;
+  symbolSize?: number;
+}
+```
+
+```javascript
+series: [{
+  type: 'radar',
+  data: [
+    {
+      value: [4200, 3000, 20000, 35000, 50000, 18000],
+      name: 'Product A',
+      lineStyle: {
+        color: '#c23531',
+        width: 3
+      },
+      areaStyle: {
+        opacity: 0.4,
+        color: 'rgba(194, 53, 49, 0.3)'
+      },
+      itemStyle: {
+        color: '#c23531'
+      },
+      symbol: 'diamond',
+      symbolSize: 8
+    },
+    [5000, 14000, 28000, 26000, 42000, 21000]  // Simple array format
+  ]
+}]
+```
+
+## Emphasis State
+
+Customize the hover state appearance:
+
+```javascript
+series: [{
+  type: 'radar',
+  emphasis: {
+    lineStyle: {
+      width: 4
+    },
+    areaStyle: {
+      opacity: 0.6
+    },
+    itemStyle: {
+      borderWidth: 2,
+      borderColor: '#fff',
+      shadowBlur: 10,
+      shadowColor: 'rgba(0,0,0,0.3)'
+    },
+    label: {
+      show: true,
+      fontSize: 14,
+      fontWeight: 'bold'
+    }
+  }
+}]
+```
+
+## Advanced Axis Configuration
+
+### axisName Formatting
+
+Customize indicator name display (RadarModel.ts:201-206):
+
+```javascript
+radar: {
+  axisName: {
+    show: true,
+    color: '#999',
+    fontSize: 14,
+    fontWeight: 'bold',
+    formatter: '{value} Units'  // String template
+  }
+}
+
+// Or use a function
+radar: {
+  axisName: {
+    formatter: function(name, indicator) {
+      return name.toUpperCase();
+    }
+  }
+}
+```
+
+### splitLine and splitArea
+
+Customize the radar grid (RadarModel.ts:230-231):
+
+```javascript
+radar: {
+  splitLine: {
+    show: true,
+    lineStyle: {
+      color: '#ccc',
+      width: 1,
+      type: 'dashed'
+    }
+  },
+  splitArea: {
+    show: true,
+    areaStyle: {
+      color: [
+        'rgba(114, 172, 209, 0.1)',
+        'rgba(114, 172, 209, 0.2)'
+      ]
+    }
+  }
+}
+```
+
+### scale Option
+
+Control whether to scale the axis (RadarModel.ts:214):
+
+```javascript
+radar: {
+  scale: true,  // Don't force min to 0
+  indicator: [
+    { name: 'Sales', min: 1000, max: 6500 }  // Can start from non-zero
+  ]
+}
+```
+
+## Tooltip Customization
+
+Radar charts have custom tooltip formatting (RadarSeries.ts:103-129):
+
+```javascript
+tooltip: {
+  trigger: 'item',
+  formatter: function(params) {
+    const data = params.data;
+    return `${params.name}<br/>${params.marker}Value: ${params.value}`;
+  }
+}
+```
+
+## Legend Integration
+
+Radar series support legend interaction (RadarSeries.ts:88-92):
+
+```javascript
+legend: {
+  data: ['Product A', 'Product B']
+},
+series: [{
+  type: 'radar',
+  data: [
+    { name: 'Product A', value: [4200, 3000, 20000] },
+    { name: 'Product B', value: [5000, 14000, 28000] }
+  ]
+}]
+```
+
+## Dependencies
+
+Radar series depends on the radar coordinate system (RadarSeries.ts:78):
+
+```typescript
+static dependencies = ['radar'];
+```
+
+## Performance Considerations
+
+- Limit the number of indicators (axes) to 5-10 for readability
+- Use `progressive` rendering for many data series
+- Disable `areaStyle` if not needed to improve performance
+- Reduce `symbolSize` for charts with many data points
+- Consider using simpler shapes ('polygon') for better performance
+
+## Best Practices
+
+- **Indicator count**: 3-8 indicators work best for clarity
+- **Data normalization**: Ensure all indicators use comparable scales
+- **Color choice**: Use distinct colors for different data series
+- **Label placement**: Keep indicator names short and readable
+- **Area opacity**: Use 0.2-0.4 opacity for overlapping areas
+
+## Related Charts
+
+- **Parallel Coordinates** - Alternative for high-dimensional data
+- **Polar Bar Chart** - For categorical data in radial layout
+- **Sunburst Chart** - For hierarchical radial data

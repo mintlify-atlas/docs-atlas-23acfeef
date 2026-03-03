@@ -1,0 +1,454 @@
+---
+title: 'Parallel Coordinates Chart'
+description: 'Multi-dimensional data visualization with parallel axes'
+icon: 'lines-leaning'
+---
+
+## Overview
+
+Parallel coordinates charts visualize multi-dimensional data by displaying multiple parallel axes. Each data point is represented as a polyline that crosses each axis at the corresponding value, making it ideal for analyzing relationships and patterns across many dimensions.
+
+## When to Use
+
+Use parallel coordinates charts when you need to:
+
+- **Visualize multi-dimensional data** with 3 or more variables
+- **Identify correlations** between multiple attributes
+- **Filter and explore** large datasets interactively
+- **Compare items** across multiple metrics simultaneously
+- **Detect patterns and clusters** in high-dimensional data
+- **Analyze outliers** across multiple dimensions
+
+## Basic Configuration
+
+### Series Type
+
+Parallel charts require a parallel coordinate system:
+
+```typescript
+import { ParallelSeriesOption } from 'echarts/types/src/chart/parallel/ParallelSeries';
+import { ParallelCoordinateSystemOption } from 'echarts/types/src/coord/parallel/ParallelModel';
+
+const option: ParallelSeriesOption = {
+  type: 'parallel',
+  coordinateSystem: 'parallel'
+};
+```
+
+### Data Format
+
+Parallel series data is an array where each item contains values for all dimensions:
+
+```typescript
+type ParallelSeriesDataValue = OptionDataValue[];  // [dim0, dim1, dim2, ...]
+
+const data = [
+  [12.99, 100, 82, 'Good'],     // Item 1: price, quantity, score, rating
+  [9.99, 80, 77, 'Good'],       // Item 2
+  [20.99, 120, 90, 'Excellent'] // Item 3
+];
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  title: {
+    text: 'Product Performance Analysis'
+  },
+  // Define the parallel coordinate system
+  parallel: {
+    left: '5%',
+    right: '15%',
+    bottom: '10%',
+    top: '10%',
+    layout: 'horizontal',
+    parallelAxisDefault: {
+      type: 'value',
+      nameLocation: 'end',
+      nameGap: 20,
+      nameTextStyle: {
+        fontSize: 12
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#aaa'
+        }
+      },
+      axisTick: {
+        lineStyle: {
+          color: '#777'
+        }
+      },
+      splitLine: {
+        show: false
+      },
+      axisLabel: {
+        color: '#999'
+      }
+    }
+  },
+  // Define individual parallel axes
+  parallelAxis: [
+    { dim: 0, name: 'Price', type: 'value' },
+    { dim: 1, name: 'Quantity', type: 'value' },
+    { dim: 2, name: 'Score', type: 'value', min: 0, max: 100 },
+    { 
+      dim: 3, 
+      name: 'Rating', 
+      type: 'category',
+      data: ['Poor', 'Fair', 'Good', 'Excellent']
+    },
+    { dim: 4, name: 'Satisfaction', type: 'value', min: 0, max: 10 }
+  ],
+  visualMap: {
+    show: true,
+    min: 0,
+    max: 100,
+    dimension: 2,  // Map color based on 'Score' dimension
+    inRange: {
+      color: ['#d94e5d', '#eac736', '#50a3ba']
+    }
+  },
+  series: [
+    {
+      name: 'Products',
+      type: 'parallel',
+      lineStyle: {
+        width: 2,
+        opacity: 0.5
+      },
+      emphasis: {
+        lineStyle: {
+          width: 4,
+          opacity: 1
+        }
+      },
+      data: [
+        [12.99, 100, 82, 'Good', 8.2],
+        [9.99, 80, 77, 'Good', 7.5],
+        [20.99, 120, 90, 'Excellent', 9.1],
+        [15.50, 95, 85, 'Good', 8.5],
+        [8.99, 60, 65, 'Fair', 6.8],
+        [25.00, 150, 95, 'Excellent', 9.5]
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Coordinate System Configuration
+
+### parallel Component
+
+Defines the parallel coordinate system container (ParallelModel.ts:87-112):
+
+```typescript
+interface ParallelCoordinateSystemOption {
+  layout?: 'horizontal' | 'vertical';  // Default: 'horizontal'
+  left?: number | string;              // Default: 80
+  right?: number | string;             // Default: 80
+  top?: number | string;               // Default: 60
+  bottom?: number | string;            // Default: 60
+  axisExpandable?: boolean;            // Default: false
+  axisExpandCenter?: number;           // Default: null
+  axisExpandCount?: number;            // Default: 0
+  axisExpandWidth?: number;            // Default: 50
+  axisExpandTriggerOn?: 'click' | 'mousemove';  // Default: 'click'
+  parallelAxisDefault?: ParallelAxisOption;
+}
+```
+
+```javascript
+parallel: {
+  layout: 'horizontal',
+  left: '10%',
+  right: '10%',
+  top: '15%',
+  bottom: '10%',
+  axisExpandable: true,
+  axisExpandCenter: 15,
+  axisExpandCount: 10,
+  axisExpandWidth: 60,
+  axisExpandTriggerOn: 'mousemove'
+}
+```
+
+### parallelAxis Component
+
+Defines individual parallel axes (AxisModel.ts:43-58):
+
+```typescript
+interface ParallelAxisOption extends AxisBaseOption {
+  dim?: number | number[];        // Dimension index: 0, 1, 2, ...
+  parallelIndex?: number;         // Index of parallel coordinate system
+  areaSelectStyle?: {
+    width?: number;
+    borderWidth?: number;
+    borderColor?: ZRColor;
+    color?: ZRColor;
+    opacity?: number;
+  };
+  realtime?: boolean;            // Realtime update when selecting
+}
+```
+
+```javascript
+parallelAxis: [
+  {
+    dim: 0,
+    name: 'Price',
+    type: 'value',
+    min: 0,
+    max: 100,
+    areaSelectStyle: {
+      width: 20,
+      borderWidth: 1,
+      borderColor: 'rgba(160,197,232)',
+      color: 'rgba(160,197,232)',
+      opacity: 0.3
+    },
+    realtime: true
+  },
+  {
+    dim: 1,
+    name: 'Category',
+    type: 'category',
+    data: ['A', 'B', 'C', 'D']
+  }
+]
+```
+
+## Series Options
+
+### Default Configuration
+
+From ParallelSeries.ts:127-156:
+
+```javascript
+{
+  type: 'parallel',
+  coordinateSystem: 'parallel',
+  parallelIndex: 0,              // Which parallel coordinate to use
+  z: 2,
+  
+  // Line styling
+  lineStyle: {
+    width: 1,
+    opacity: 0.45,
+    type: 'solid'
+  },
+  
+  // Label configuration
+  label: {
+    show: false
+  },
+  
+  // Interactive opacity
+  inactiveOpacity: 0.05,         // Opacity of unselected lines
+  activeOpacity: 1,              // Opacity of selected lines
+  
+  // Progressive rendering
+  progressive: 500,
+  
+  // Line smoothing
+  smooth: false,                 // true | false | number (0-1)
+  
+  // Animation
+  animationEasing: 'linear'
+}
+```
+
+### lineStyle
+
+Defines the appearance of parallel lines (ParallelSeries.ts:141-145):
+
+```typescript
+lineStyle?: LineStyleOption;
+```
+
+```javascript
+series: [{
+  type: 'parallel',
+  lineStyle: {
+    width: 2,
+    opacity: 0.6,
+    type: 'solid',     // 'solid' | 'dashed' | 'dotted'
+    color: '#5470c6'   // Can also be a callback function
+  }
+}]
+```
+
+### smooth
+
+Controls line smoothing (ParallelSeries.ts:153):
+
+```typescript
+smooth?: boolean | number;  // false | true | 0-1
+```
+
+```javascript
+smooth: true        // Smooth curves
+smooth: false       // Straight lines
+smooth: 0.3         // Custom smoothness (0 = straight, 1 = very smooth)
+```
+
+### inactiveOpacity / activeOpacity
+
+Controls opacity during axis area selection (ParallelSeries.ts:138-139):
+
+```typescript
+inactiveOpacity?: number;  // Default: 0.05
+activeOpacity?: number;    // Default: 1
+```
+
+```javascript
+series: [{
+  type: 'parallel',
+  inactiveOpacity: 0.1,   // Dim unselected lines
+  activeOpacity: 0.9      // Highlight selected lines
+}]
+```
+
+## Data Item Options
+
+### ParallelSeriesDataItemOption
+
+Each data item can have custom styling (ParallelSeries.ts:58-61):
+
+```typescript
+interface ParallelSeriesDataItemOption {
+  value?: ParallelSeriesDataValue;  // [dim0, dim1, dim2, ...]
+  lineStyle?: LineStyleOption;
+  label?: SeriesLabelOption;
+}
+```
+
+```javascript
+series: [{
+  type: 'parallel',
+  data: [
+    {
+      value: [12.99, 100, 82, 'Good'],
+      lineStyle: {
+        color: '#c23531',
+        width: 3
+      }
+    },
+    [9.99, 80, 77, 'Good'],  // Simple array format
+  ]
+}]
+```
+
+## Emphasis State
+
+Default emphasis configuration (ParallelSeries.ts:146-149):
+
+```javascript
+emphasis: {
+  label: {
+    show: false
+  }
+}
+```
+
+Custom emphasis:
+
+```javascript
+emphasis: {
+  lineStyle: {
+    width: 4,
+    opacity: 1,
+    shadowBlur: 10,
+    shadowColor: 'rgba(0,0,0,0.3)'
+  },
+  label: {
+    show: true,
+    position: 'top'
+  }
+}
+```
+
+## Interactive Features
+
+### Axis Area Selection
+
+Users can brush/select ranges on axes to filter data. The `realtime` option controls update behavior:
+
+```javascript
+parallelAxis: [{
+  dim: 0,
+  realtime: true  // Update immediately while dragging
+}]
+```
+
+### Axis Expand
+
+Expand axes on interaction for better readability:
+
+```javascript
+parallel: {
+  axisExpandable: true,
+  axisExpandCenter: 15,        // Center axis index
+  axisExpandCount: 10,         // Number of expanded axes
+  axisExpandWidth: 60,         // Width of expanded axes
+  axisExpandTriggerOn: 'click' // 'click' | 'mousemove'
+}
+```
+
+## Advanced Usage
+
+### Encoding Dimensions
+
+Map data dimensions explicitly (ParallelSeries.ts:160-182):
+
+```javascript
+series: [{
+  type: 'parallel',
+  encode: {
+    dim0: 'price',
+    dim1: 'quantity',
+    dim2: 'score'
+  },
+  data: [
+    { price: 12.99, quantity: 100, score: 82 }
+  ]
+}]
+```
+
+### Getting Active Indices
+
+Retrieve raw indices based on active state (ParallelSeries.ts:113-125):
+
+```javascript
+// In your event handler
+const activeIndices = series.getRawIndicesByActiveState('active');
+const inactiveIndices = series.getRawIndicesByActiveState('inactive');
+```
+
+## Dependencies
+
+Parallel series depends on the parallel coordinate system (ParallelSeries.ts:94):
+
+```typescript
+static dependencies = ['parallel'];
+```
+
+## Performance Considerations
+
+- **Progressive rendering**: Default is 500 items per frame (ParallelSeries.ts:152)
+- Use `progressive` option for large datasets (1000+ lines)
+- Reduce `lineStyle.width` and `opacity` for better performance
+- Consider data sampling for extremely large datasets (10,000+ items)
+- Disable `smooth` for better performance with many lines
+
+## Related Charts
+
+- **Radar Chart** - Alternative for comparing multi-dimensional data
+- **Scatter Matrix** - For pairwise dimension comparisons
+- **Heatmap** - For visualizing dimension correlations

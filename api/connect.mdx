@@ -1,0 +1,300 @@
+---
+title: 'echarts.connect()'
+description: 'Connect multiple ECharts instances for synchronized interactions'
+---
+
+The `echarts.connect()` method connects multiple ECharts instances to enable synchronized interactions across charts. When charts are connected, actions like tooltips, data zoom, and highlighting are synchronized.
+
+## Signature
+
+```typescript
+function connect(groupId: string | EChartsType[]): string
+```
+
+## Parameters
+
+<ParamField path="groupId" type="string | EChartsType[]" required>
+  Either a group ID string or an array of ECharts instances to connect.
+  
+  **Method 1: Array of Charts**
+  ```javascript
+  const chart1 = echarts.init(dom1);
+  const chart2 = echarts.init(dom2);
+  echarts.connect([chart1, chart2]);
+  ```
+  
+  **Method 2: Group ID with Pre-set Groups**
+  ```javascript
+  chart1.group = 'myGroup';
+  chart2.group = 'myGroup';
+  echarts.connect('myGroup');
+  ```
+</ParamField>
+
+## Returns
+
+<ResponseField name="groupId" type="string">
+  The group ID that was used to connect the charts. If an array was passed, either:
+  - The existing `group` property from one of the charts
+  - A newly generated group ID (format: `g_<timestamp>`)
+</ResponseField>
+
+## Synchronized Actions
+
+When charts are connected, the following interactions are synchronized:
+
+- **Tooltip**: Hovering over one chart shows tooltips on all connected charts
+- **DataZoom**: Zooming/panning in one chart updates all connected charts
+- **Legend**: Toggling legend items affects all connected charts
+- **Brush**: Selecting regions synchronizes across charts
+- **Timeline**: Timeline changes propagate to all connected charts
+- **Highlight/Downplay**: Emphasizing elements affects all connected charts
+
+## Examples
+
+### Basic Connection (Array Method)
+
+```javascript
+import * as echarts from 'echarts';
+
+// Initialize multiple charts
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+// Configure charts
+chart1.setOption({
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150, 80, 70] }],
+  dataZoom: [{ type: 'slider' }]
+});
+
+chart2.setOption({
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [220, 182, 191, 234, 290] }],
+  dataZoom: [{ type: 'slider' }]
+});
+
+// Connect charts - zoom on one will affect the other
+echarts.connect([chart1, chart2]);
+```
+
+### Using Group IDs
+
+```javascript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+const chart3 = echarts.init(document.getElementById('chart3'));
+
+// Assign group IDs before connecting
+chart1.group = 'salesGroup';
+chart2.group = 'salesGroup';
+chart3.group = 'salesGroup';
+
+// Connect all charts with the same group ID
+const groupId = echarts.connect('salesGroup');
+console.log('Connected group:', groupId); // 'salesGroup'
+```
+
+### Multiple Independent Groups
+
+```javascript
+// Create two separate groups of connected charts
+const chart1 = echarts.init(dom1);
+const chart2 = echarts.init(dom2);
+const chart3 = echarts.init(dom3);
+const chart4 = echarts.init(dom4);
+
+// Group 1: Sales charts
+chart1.group = 'sales';
+chart2.group = 'sales';
+echarts.connect('sales');
+
+// Group 2: Traffic charts
+chart3.group = 'traffic';
+chart4.group = 'traffic';
+echarts.connect('traffic');
+
+// chart1 and chart2 are synced together
+// chart3 and chart4 are synced together
+// But the two groups are independent
+```
+
+### Dashboard with Synchronized DataZoom
+
+```javascript
+// Create a dashboard with multiple time-series charts
+const charts = [];
+const chartDoms = ['chart1', 'chart2', 'chart3'].map(id => 
+  document.getElementById(id)
+);
+
+chartDoms.forEach(dom => {
+  const chart = echarts.init(dom);
+  chart.setOption({
+    xAxis: { 
+      type: 'time',
+      boundaryGap: false
+    },
+    yAxis: { type: 'value' },
+    dataZoom: [
+      { type: 'slider', xAxisIndex: 0 },
+      { type: 'inside', xAxisIndex: 0 }
+    ],
+    series: [{
+      type: 'line',
+      data: generateTimeSeriesData()
+    }]
+  });
+  charts.push(chart);
+});
+
+// Connect all charts - zooming one updates all
+const groupId = echarts.connect(charts);
+console.log('Dashboard group:', groupId);
+
+function generateTimeSeriesData() {
+  const data = [];
+  const now = Date.now();
+  for (let i = 0; i < 100; i++) {
+    data.push([now + i * 3600000, Math.random() * 100]);
+  }
+  return data;
+}
+```
+
+### Export Connected Charts as Single Image
+
+```javascript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+chart1.setOption({ /* ... */ });
+chart2.setOption({ /* ... */ });
+
+// Connect charts
+chart1.group = 'export';
+chart2.group = 'export';
+echarts.connect('export');
+
+// Export all connected charts as a single image
+const dataURL = chart1.getConnectedDataURL({
+  type: 'png',
+  pixelRatio: 2,
+  backgroundColor: '#fff',
+  connectedBackgroundColor: '#f5f5f5'
+});
+
+// Use the dataURL to download or display
+const link = document.createElement('a');
+link.href = dataURL;
+link.download = 'connected-charts.png';
+link.click();
+```
+
+## Disconnecting Charts
+
+To disconnect charts, use `echarts.disconnect()`:
+
+```javascript
+// Connect charts
+const chart1 = echarts.init(dom1);
+const chart2 = echarts.init(dom2);
+chart1.group = 'myGroup';
+chart2.group = 'myGroup';
+echarts.connect('myGroup');
+
+// Later, disconnect them
+echarts.disconnect('myGroup');
+
+// Now interactions are no longer synchronized
+```
+
+## Important Behaviors
+
+<Info>
+  **Automatic Group ID Generation**: When connecting charts via an array without pre-set group IDs, ECharts will:
+  1. Check if any chart in the array has a `group` property
+  2. Use that group ID for all charts
+  3. If no group exists, generate a new ID with format `g_<timestamp>`
+  
+  ```javascript
+  const chart1 = echarts.init(dom1);
+  const chart2 = echarts.init(dom2);
+  chart1.group = 'existing';
+  
+  // All charts will use 'existing' as the group ID
+  const groupId = echarts.connect([chart1, chart2]);
+  console.log(groupId); // 'existing'
+  console.log(chart2.group); // 'existing'
+  ```
+</Info>
+
+<Note>
+  **Group Property Updates**: When connecting charts, the `group` property is automatically set on all instances to match the group ID.
+  
+  ```javascript
+  const chart = echarts.init(dom);
+  console.log(chart.group); // undefined
+  
+  echarts.connect([chart]);
+  console.log(chart.group); // 'g_1234567890' (generated)
+  ```
+</Note>
+
+<Warning>
+  **Connection Persistence**: Chart connections persist until explicitly disconnected or until instances are disposed. Make sure to call `disconnect()` or `dispose()` to clean up when charts are no longer needed.
+</Warning>
+
+## Use Cases
+
+### 1. Multi-View Analytics Dashboard
+
+Display different visualizations of the same dataset with synchronized interactions:
+
+```javascript
+// Line chart for trends
+const trendChart = echarts.init(document.getElementById('trends'));
+// Bar chart for comparisons  
+const comparisonChart = echarts.init(document.getElementById('comparison'));
+// Pie chart for distribution
+const distributionChart = echarts.init(document.getElementById('distribution'));
+
+echarts.connect([trendChart, comparisonChart, distributionChart]);
+
+// Hovering over a data point shows related info in all charts
+```
+
+### 2. Time-Series Correlation
+
+Compare multiple metrics over the same time period:
+
+```javascript
+const tempChart = echarts.init(document.getElementById('temperature'));
+const humidityChart = echarts.init(document.getElementById('humidity'));
+const pressureChart = echarts.init(document.getElementById('pressure'));
+
+echarts.connect([tempChart, humidityChart, pressureChart]);
+
+// Zooming the time range on one chart updates all others
+```
+
+### 3. Geographic Data Comparison
+
+Synchronize map interactions across different time periods or datasets:
+
+```javascript
+const map2023 = echarts.init(document.getElementById('map2023'));
+const map2024 = echarts.init(document.getElementById('map2024'));
+
+echarts.connect([map2023, map2024]);
+
+// Hovering over a region highlights it in both maps
+```
+
+## See Also
+
+- [echarts.disconnect()](/api/echarts-instance) - Disconnect charts
+- [echarts.init()](/api/init) - Initialize chart instances
+- [getConnectedDataURL()](/api/echarts-instance) - Export connected charts

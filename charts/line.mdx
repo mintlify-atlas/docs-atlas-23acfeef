@@ -1,0 +1,307 @@
+---
+title: Line Chart
+description: Display trends and changes over time with line charts in Apache ECharts
+---
+
+## Overview
+
+Line charts are used to visualize data trends over a continuous interval or time period. They're ideal for showing how values change, making them perfect for time-series data, trend analysis, and comparing multiple datasets.
+
+## When to Use
+
+Use line charts when you need to:
+
+- Show trends or changes over time
+- Display continuous data with many data points
+- Compare multiple data series on the same axes
+- Highlight rates of change and patterns
+- Visualize correlations between variables
+
+## Basic Configuration
+
+The line chart is configured through the `LineSeriesOption` interface, which extends the base series options with line-specific properties.
+
+```typescript
+interface LineSeriesOption {
+  type: 'line'
+  coordinateSystem?: 'cartesian2d' | 'polar'
+  data?: (LineDataValue | LineDataItemOption)[]
+  smooth?: boolean | number
+  step?: false | 'start' | 'end' | 'middle'
+  lineStyle?: LineStyleOption
+  areaStyle?: AreaStyleOption
+  showSymbol?: boolean
+  connectNulls?: boolean
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Monthly Sales Trend'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: ['Sales 2023', 'Sales 2024']
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'Sales 2023',
+      type: 'line',
+      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      smooth: false,
+      lineStyle: {
+        width: 2,
+        type: 'solid'
+      },
+      symbol: 'emptyCircle',
+      symbolSize: 6
+    },
+    {
+      name: 'Sales 2024',
+      type: 'line',
+      data: [920, 1032, 1101, 1234, 1490, 1530, 1620],
+      smooth: true,
+      areaStyle: {
+        opacity: 0.3
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="coordinateSystem" type="'cartesian2d' | 'polar'" default="'cartesian2d'">
+  The coordinate system to use. Line charts support both Cartesian (2D grid) and polar coordinate systems.
+</ParamField>
+
+<ParamField path="smooth" type="boolean | number" default="false">
+  Whether to show as a smooth curve. If set to a number (0-1), it controls the smoothness factor. When `true`, defaults to a moderate smoothing.
+  
+  ```javascript
+  smooth: 0.3  // 30% smoothing
+  ```
+</ParamField>
+
+<ParamField path="step" type="false | 'start' | 'end' | 'middle'" default="false">
+  Enable step line style. 
+  - `'start'`: Step before the point
+  - `'end'`: Step after the point  
+  - `'middle'`: Step in the middle
+  
+  ```javascript
+  step: 'middle'
+  ```
+</ParamField>
+
+<ParamField path="lineStyle" type="LineStyleOption">
+  Style configuration for the line.
+  
+  ```javascript
+  lineStyle: {
+    width: 2,
+    type: 'solid',  // 'solid' | 'dashed' | 'dotted'
+    color: '#5470c6',
+    shadowBlur: 10,
+    shadowColor: 'rgba(0, 0, 0, 0.3)'
+  }
+  ```
+</ParamField>
+
+<ParamField path="areaStyle" type="AreaStyleOption">
+  When set, the area under the line will be filled. The `origin` property controls where the fill starts.
+  
+  ```javascript
+  areaStyle: {
+    color: 'rgba(84, 112, 198, 0.3)',
+    origin: 'auto'  // 'auto' | 'start' | 'end' | number
+  }
+  ```
+</ParamField>
+
+<ParamField path="showSymbol" type="boolean" default="true">
+  Whether to show symbols (data point markers) on the line.
+  
+  ```javascript
+  showSymbol: true
+  ```
+</ParamField>
+
+<ParamField path="showAllSymbol" type="'auto' | boolean" default="'auto'">
+  Controls symbol display strategy:
+  - `'auto'`: Show all symbols if possible, otherwise follow interval strategy
+  - `true`: Show all symbols
+  - `false`: Follow label interval strategy
+</ParamField>
+
+<ParamField path="symbol" type="string" default="'emptyCircle'">
+  Symbol type for data points. Can be: `'circle'`, `'rect'`, `'roundRect'`, `'triangle'`, `'diamond'`, `'pin'`, `'arrow'`, `'none'`, or a custom SVG path.
+  
+  ```javascript
+  symbol: 'circle',
+  symbolSize: 8
+  ```
+</ParamField>
+
+<ParamField path="connectNulls" type="boolean" default="false">
+  Whether to connect null data points. When `false`, breaks in the line appear where data is null.
+  
+  ```javascript
+  connectNulls: true
+  ```
+</ParamField>
+
+<ParamField path="smoothMonotone" type="'x' | 'y' | 'none'" default="null">
+  When using smooth curves, this ensures monotonicity along the specified axis.
+  
+  ```javascript
+  smooth: true,
+  smoothMonotone: 'x'
+  ```
+</ParamField>
+
+<ParamField path="sampling" type="string" default="'none'">
+  Sampling strategy for large datasets. Options: `'none'`, `'average'`, `'max'`, `'min'`, `'sum'`, `'lttb'`.
+  
+  ```javascript
+  sampling: 'lttb'  // Largest-Triangle-Three-Buckets algorithm
+  ```
+</ParamField>
+
+<ParamField path="clip" type="boolean" default="true">
+  Whether to clip overflow values outside the coordinate system.
+</ParamField>
+
+<ParamField path="endLabel" type="LineEndLabelOption">
+  Label configuration for the end of the line.
+  
+  ```javascript
+  endLabel: {
+    show: true,
+    formatter: '{a}',
+    distance: 8,
+    valueAnimation: true
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis configuration when hovering.
+  
+  ```javascript
+  emphasis: {
+    focus: 'series',  // 'none' | 'self' | 'series'
+    scale: true,
+    lineStyle: {
+      width: 'bolder'
+    }
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Line chart data can be specified in multiple formats:
+
+```javascript
+// Simple array of values
+data: [820, 932, 901, 934, 1290]
+
+// Array of coordinate pairs
+data: [
+  [0, 820],
+  [1, 932],
+  [2, 901]
+]
+
+// Array of data item objects
+data: [
+  {
+    value: 820,
+    name: 'Point 1',
+    symbol: 'circle',
+    symbolSize: 10,
+    itemStyle: {
+      color: '#f00'
+    }
+  },
+  { value: 932, name: 'Point 2' }
+]
+```
+
+## Advanced Features
+
+### Area Chart
+
+Create an area chart by adding the `areaStyle` option:
+
+```javascript
+series: [{
+  type: 'line',
+  data: [820, 932, 901, 934, 1290],
+  areaStyle: {
+    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+      { offset: 0, color: 'rgba(84, 112, 198, 0.8)' },
+      { offset: 1, color: 'rgba(84, 112, 198, 0.1)' }
+    ])
+  }
+}]
+```
+
+### Step Line Chart
+
+```javascript
+series: [{
+  type: 'line',
+  data: [820, 932, 901, 934, 1290],
+  step: 'start',
+  lineStyle: {
+    width: 2
+  }
+}]
+```
+
+### Stacked Line Chart
+
+```javascript
+series: [
+  {
+    name: 'Email',
+    type: 'line',
+    stack: 'Total',
+    data: [120, 132, 101, 134, 90]
+  },
+  {
+    name: 'Direct',
+    type: 'line',
+    stack: 'Total',
+    data: [220, 182, 191, 234, 290]
+  }
+]
+```
+
+## Source Reference
+
+The line chart implementation can be found in:
+- Series model: `src/chart/line/LineSeries.ts:137-283`
+- Default options: `src/chart/line/LineSeries.ts:159-234`
+- Type definitions: `src/chart/line/LineSeries.ts:56-135`

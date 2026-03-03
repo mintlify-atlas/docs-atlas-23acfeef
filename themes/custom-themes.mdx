@@ -1,0 +1,865 @@
+---
+title: Creating Custom Themes
+description: Learn how to create and customize your own ECharts themes
+---
+
+# Creating Custom Themes
+
+Creating custom themes allows you to match ECharts visualizations to your brand guidelines, application design system, or personal preferences.
+
+## Theme Structure
+
+A theme is a JavaScript object that defines styling for various chart components. Here's the complete structure:
+
+```javascript
+const customTheme = {
+  // Color palette for series
+  color: ['#color1', '#color2', '#color3', ...],
+  
+  // Background color
+  backgroundColor: '#ffffff',
+  
+  // Dark mode indicator
+  darkMode: false,
+  
+  // Global text style
+  textStyle: {
+    color: '#333',
+    fontFamily: 'sans-serif',
+    fontSize: 12
+  },
+  
+  // Title component
+  title: {
+    textStyle: { color: '#000' },
+    subtextStyle: { color: '#666' }
+  },
+  
+  // Legend component
+  legend: {
+    textStyle: { color: '#333' }
+  },
+  
+  // Tooltip component
+  tooltip: {
+    backgroundColor: 'rgba(50,50,50,0.7)',
+    borderWidth: 0,
+    textStyle: { color: '#fff' },
+    axisPointer: {
+      lineStyle: { color: '#ccc' },
+      crossStyle: { color: '#ccc' }
+    }
+  },
+  
+  // Toolbox component
+  toolbox: {
+    iconStyle: { borderColor: '#333' }
+  },
+  
+  // Data zoom component
+  dataZoom: {
+    borderColor: '#ccc',
+    textStyle: { color: '#333' },
+    handleStyle: { color: '#fff', borderColor: '#ccc' },
+    fillerColor: 'rgba(0,0,0,0.1)'
+  },
+  
+  // Visual map component
+  visualMap: {
+    textStyle: { color: '#333' },
+    color: ['#color1', '#color2']
+  },
+  
+  // Timeline component
+  timeline: {
+    lineStyle: { color: '#333' },
+    itemStyle: { color: '#333' },
+    controlStyle: { color: '#333', borderColor: '#333' },
+    label: { color: '#333' }
+  },
+  
+  // Category axis
+  categoryAxis: {
+    axisLine: { lineStyle: { color: '#333' } },
+    axisTick: { lineStyle: { color: '#333' } },
+    axisLabel: { color: '#333' },
+    splitLine: { lineStyle: { color: ['#eee'] } },
+    splitArea: { areaStyle: { color: ['rgba(255,255,255,0)', 'rgba(0,0,0,0.05)'] } }
+  },
+  
+  // Value axis
+  valueAxis: {
+    axisLine: { lineStyle: { color: '#333' } },
+    axisTick: { lineStyle: { color: '#333' } },
+    axisLabel: { color: '#333' },
+    splitLine: { lineStyle: { color: ['#eee'] } },
+    splitArea: { areaStyle: { color: ['rgba(255,255,255,0)', 'rgba(0,0,0,0.05)'] } }
+  },
+  
+  // Time axis
+  timeAxis: {
+    axisLine: { lineStyle: { color: '#333' } },
+    splitLine: { lineStyle: { color: ['#eee'] } }
+  },
+  
+  // Log axis
+  logAxis: {
+    axisLine: { lineStyle: { color: '#333' } },
+    splitLine: { lineStyle: { color: ['#eee'] } }
+  },
+  
+  // Line series
+  line: {
+    symbol: 'circle',
+    symbolSize: 4,
+    smooth: false,
+    lineStyle: { width: 2 }
+  },
+  
+  // Bar series  
+  bar: {
+    barMinHeight: 0
+  },
+  
+  // Scatter series
+  scatter: {
+    symbol: 'circle',
+    symbolSize: 4
+  },
+  
+  // Candlestick series
+  candlestick: {
+    itemStyle: {
+      color: '#eb5454',
+      color0: '#47b262',
+      borderColor: '#eb5454',
+      borderColor0: '#47b262'
+    }
+  },
+  
+  // Graph series
+  graph: {
+    color: ['#color1', '#color2', ...],
+    itemStyle: { color: '#color1' },
+    linkStyle: { color: '#aaa' }
+  },
+  
+  // Map series
+  map: {
+    itemStyle: { color: '#ddd', borderColor: '#eee' },
+    areaStyle: { color: '#ccc' },
+    label: { color: '#333' }
+  },
+  
+  // Gauge series
+  gauge: {
+    axisLine: {
+      lineStyle: {
+        color: [[0.2, '#47b262'], [0.8, '#ffd700'], [1, '#eb5454']],
+        width: 8
+      }
+    },
+    title: { color: '#333' }
+  }
+};
+```
+
+## Complete Custom Theme Example
+
+Here's a complete example of a custom corporate theme based on the source code patterns:
+
+```javascript
+import * as echarts from 'echarts';
+
+// Define a corporate blue theme
+const corporateTheme = {
+  // Color palette
+  color: [
+    '#0066CC',  // Primary blue
+    '#00A3E0',  // Light blue  
+    '#003D7A',  // Dark blue
+    '#7AB800',  // Success green
+    '#FF6900',  // Warning orange
+    '#CC0000',  // Error red
+    '#6E2B62',  // Purple accent
+    '#404040'   // Neutral gray
+  ],
+  
+  // White background
+  backgroundColor: '#FFFFFF',
+  
+  // Global text styling
+  textStyle: {
+    color: '#333333',
+    fontFamily: '"Helvetica Neue", Arial, sans-serif',
+    fontSize: 12
+  },
+  
+  // Title styling
+  title: {
+    textStyle: {
+      color: '#0066CC',
+      fontWeight: 'bold',
+      fontSize: 18
+    },
+    subtextStyle: {
+      color: '#666666',
+      fontSize: 14
+    }
+  },
+  
+  // Legend styling
+  legend: {
+    textStyle: {
+      color: '#333333'
+    }
+  },
+  
+  // Tooltip styling
+  tooltip: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderWidth: 0,
+    textStyle: {
+      color: '#FFFFFF',
+      fontSize: 12
+    },
+    axisPointer: {
+      type: 'line',
+      lineStyle: {
+        color: '#0066CC',
+        type: 'dashed'
+      },
+      crossStyle: {
+        color: '#0066CC'
+      }
+    }
+  },
+  
+  // Toolbox styling
+  toolbox: {
+    iconStyle: {
+      borderColor: '#0066CC'
+    },
+    emphasis: {
+      iconStyle: {
+        borderColor: '#003D7A'
+      }
+    }
+  },
+  
+  // Data zoom styling
+  dataZoom: {
+    borderColor: '#CCCCCC',
+    textStyle: {
+      color: '#333333'
+    },
+    brushStyle: {
+      color: 'rgba(0, 102, 204, 0.2)'
+    },
+    handleStyle: {
+      color: '#0066CC',
+      borderColor: '#FFFFFF'
+    },
+    fillerColor: 'rgba(0, 102, 204, 0.1)'
+  },
+  
+  // Visual map styling
+  visualMap: {
+    textStyle: {
+      color: '#333333'
+    },
+    color: ['#0066CC', '#E6F2FF']
+  },
+  
+  // Grid styling
+  grid: {
+    borderColor: '#EEEEEE'
+  },
+  
+  // Category axis
+  categoryAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#0066CC'
+      }
+    },
+    axisTick: {
+      lineStyle: {
+        color: '#CCCCCC'
+      }
+    },
+    axisLabel: {
+      color: '#666666'
+    },
+    splitLine: {
+      lineStyle: {
+        color: ['#F0F0F0']
+      }
+    },
+    splitArea: {
+      show: false
+    }
+  },
+  
+  // Value axis  
+  valueAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#0066CC'
+      }
+    },
+    axisTick: {
+      lineStyle: {
+        color: '#CCCCCC'
+      }
+    },
+    axisLabel: {
+      color: '#666666'
+    },
+    splitLine: {
+      lineStyle: {
+        color: ['#F0F0F0'],
+        type: 'dashed'
+      }
+    },
+    splitArea: {
+      show: true,
+      areaStyle: {
+        color: ['rgba(255,255,255,0)', 'rgba(0,0,0,0.02)']
+      }
+    }
+  },
+  
+  // Time axis
+  timeAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#0066CC'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: ['#F0F0F0']
+      }
+    }
+  },
+  
+  // Log axis
+  logAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#0066CC'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: ['#F0F0F0']
+      }
+    }
+  },
+  
+  // Line series defaults
+  line: {
+    symbol: 'circle',
+    symbolSize: 4,
+    smooth: false,
+    lineStyle: {
+      width: 2
+    },
+    emphasis: {
+      lineStyle: {
+        width: 3
+      }
+    }
+  },
+  
+  // Candlestick styling
+  candlestick: {
+    itemStyle: {
+      color: '#7AB800',      // Up/positive color
+      color0: '#CC0000',     // Down/negative color
+      borderColor: '#7AB800',
+      borderColor0: '#CC0000'
+    },
+    lineStyle: {
+      width: 1
+    }
+  },
+  
+  // Scatter series
+  scatter: {
+    symbol: 'circle',
+    symbolSize: 6
+  },
+  
+  // Graph series
+  graph: {
+    itemStyle: {
+      color: '#0066CC'
+    },
+    linkStyle: {
+      color: '#999999',
+      opacity: 0.6
+    }
+  },
+  
+  // Map series
+  map: {
+    itemStyle: {
+      color: '#E6F2FF',
+      borderColor: '#0066CC',
+      borderWidth: 0.5
+    },
+    areaStyle: {
+      color: '#CCCCCC'
+    },
+    label: {
+      color: '#0066CC'
+    }
+  },
+  
+  // Gauge series
+  gauge: {
+    axisLine: {
+      lineStyle: {
+        color: [
+          [0.33, '#7AB800'],   // Green (0-33%)
+          [0.67, '#FF6900'],   // Orange (33-67%)
+          [1, '#CC0000']       // Red (67-100%)
+        ],
+        width: 8
+      }
+    },
+    axisTick: {
+      lineStyle: {
+        color: 'auto'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: 'auto'
+      }
+    },
+    title: {
+      color: '#333333'
+    },
+    detail: {
+      color: '#0066CC'
+    }
+  }
+};
+
+// Register the theme
+echarts.registerTheme('corporate', corporateTheme);
+
+// Use the theme
+const chart = echarts.init(document.getElementById('chart'), 'corporate');
+```
+
+Source pattern reference: `/workspace/source/theme/macarons.js`, `/workspace/source/theme/dark.js`
+
+## Creating a Dark Theme
+
+Based on the official dark theme source code, here's how to create a dark theme:
+
+```javascript
+import * as echarts from 'echarts';
+
+const customDarkTheme = {
+  // Indicate this is a dark theme
+  darkMode: true,
+  
+  // Dark background
+  backgroundColor: '#1a1a1a',
+  
+  // Bright color palette for contrast
+  color: [
+    '#4fc3f7',  // Bright blue
+    '#81c784',  // Bright green  
+    '#ffb74d',  // Bright orange
+    '#e57373',  // Bright red
+    '#ba68c8',  // Bright purple
+    '#4db6ac',  // Bright teal
+    '#ffd54f',  // Bright yellow
+    '#ff8a65'   // Bright coral
+  ],
+  
+  // Light text for dark background
+  textStyle: {
+    color: '#e0e0e0'
+  },
+  
+  title: {
+    textStyle: {
+      color: '#ffffff'
+    },
+    subtextStyle: {
+      color: '#b0b0b0'
+    }
+  },
+  
+  legend: {
+    textStyle: {
+      color: '#e0e0e0'
+    }
+  },
+  
+  tooltip: {
+    backgroundColor: 'rgba(50, 50, 50, 0.9)',
+    textStyle: {
+      color: '#ffffff'
+    },
+    axisPointer: {
+      lineStyle: {
+        color: '#808080'
+      },
+      crossStyle: {
+        color: '#808080'
+      }
+    }
+  },
+  
+  toolbox: {
+    iconStyle: {
+      borderColor: '#e0e0e0'
+    }
+  },
+  
+  // Axis styling for dark theme
+  categoryAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#606060'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#303030'
+      }
+    }
+  },
+  
+  valueAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#606060'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#303030'
+      }
+    },
+    splitArea: {
+      areaStyle: {
+        color: ['rgba(255,255,255,0.01)', 'rgba(255,255,255,0.03)']
+      }
+    }
+  },
+  
+  timeAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#606060'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#303030'
+      }
+    }
+  },
+  
+  logAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#606060'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#303030'
+      }
+    }
+  }
+};
+
+echarts.registerTheme('custom-dark', customDarkTheme);
+```
+
+Source reference: `/workspace/source/theme/dark.js:44-223`
+
+## Theme Distribution Formats
+
+When distributing themes, use the UMD pattern for maximum compatibility:
+
+```javascript
+/*
+ * My Custom ECharts Theme
+ * Version: 1.0.0
+ */
+
+(function(root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['exports', 'echarts'], factory);
+    } else if (
+        typeof exports === 'object' &&
+        typeof exports.nodeName !== 'string'
+    ) {
+        // CommonJS
+        factory(exports, require('echarts/lib/echarts'));
+    } else {
+        // Browser globals
+        factory({}, root.echarts);
+    }
+})(this, function(exports, echarts) {
+    var log = function(msg) {
+        if (typeof console !== 'undefined') {
+            console && console.error && console.error(msg);
+        }
+    };
+    
+    if (!echarts) {
+        log('ECharts is not Loaded');
+        return;
+    }
+    
+    var colorPalette = [
+        '#0066CC',
+        '#00A3E0',
+        '#003D7A',
+        '#7AB800',
+        '#FF6900'
+    ];
+    
+    var theme = {
+        color: colorPalette,
+        // ... rest of theme definition
+    };
+    
+    echarts.registerTheme('my-theme', theme);
+});
+```
+
+Source reference: `/workspace/source/theme/dark.js:20-43`
+
+## Theme Options Reference
+
+### Color Palette
+
+The `color` array defines the default colors used for series data:
+
+```javascript
+color: [
+  '#color1',  // First series
+  '#color2',  // Second series
+  '#color3',  // Third series
+  // ... more colors
+]
+```
+
+Colors are used in order and cycle back to the beginning if there are more series than colors.
+
+### Axis Styling
+
+All axis types share similar styling options:
+
+```javascript
+categoryAxis: {
+  axisLine: {
+    lineStyle: { color: '#333' }  // Axis line color
+  },
+  axisTick: {
+    lineStyle: { color: '#333' }  // Tick mark color
+  },
+  axisLabel: {
+    color: '#666'  // Label text color
+  },
+  splitLine: {
+    lineStyle: {
+      color: ['#eee'],  // Grid line color
+      type: 'solid'     // 'solid' | 'dashed' | 'dotted'
+    }
+  },
+  splitArea: {
+    show: true,
+    areaStyle: {
+      color: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.05)']  // Alternating colors
+    }
+  }
+}
+```
+
+Source reference: `/workspace/source/theme/dark.js:46-69`, `/workspace/source/theme/macarons.js:119-149`
+
+### Line Series Styling
+
+```javascript
+line: {
+  symbol: 'circle',        // Point shape: 'circle' | 'rect' | 'triangle' | etc.
+  symbolSize: 4,           // Point size
+  smooth: true,            // Smooth curves
+  lineStyle: {
+    width: 2,              // Line width
+    type: 'solid'          // 'solid' | 'dashed' | 'dotted'
+  }
+}
+```
+
+Source reference: `/workspace/source/theme/macarons.js:163-167`
+
+### Candlestick Styling
+
+```javascript
+candlestick: {
+  itemStyle: {
+    color: '#eb5454',       // Bullish candle fill
+    color0: '#47b262',      // Bearish candle fill  
+    borderColor: '#eb5454', // Bullish candle border
+    borderColor0: '#47b262' // Bearish candle border
+  },
+  lineStyle: {
+    width: 1
+  }
+}
+```
+
+Source reference: `/workspace/source/theme/dark.js:212-219`, `/workspace/source/theme/macarons.js:169-183`
+
+### Gauge Styling
+
+```javascript
+gauge: {
+  axisLine: {
+    lineStyle: {
+      color: [
+        [0.2, '#47b262'],   // 0-20%: green
+        [0.8, '#ffd700'],   // 20-80%: yellow  
+        [1, '#eb5454']      // 80-100%: red
+      ],
+      width: 8
+    }
+  },
+  axisTick: {
+    splitNumber: 10,
+    length: 15,
+    lineStyle: {
+      color: 'auto'  // Inherits from axisLine color
+    }
+  },
+  splitLine: {
+    length: 22,
+    lineStyle: {
+      color: 'auto'
+    }
+  }
+}
+```
+
+Source reference: `/workspace/source/theme/macarons.js:211-238`
+
+## Best Practices
+
+### 1. Consistent Color Palette
+
+Choose 5-10 distinct colors that work well together:
+
+```javascript
+// Good: High contrast, visually distinct
+color: ['#0066CC', '#7AB800', '#FF6900', '#CC0000', '#6E2B62']
+
+// Avoid: Similar hues, low contrast
+color: ['#0066CC', '#0077DD', '#0088EE', '#0099FF']
+```
+
+### 2. Accessibility
+
+Ensure sufficient contrast between text and backgrounds:
+
+```javascript
+// Light theme - dark text
+textStyle: { color: '#333333' },
+backgroundColor: '#FFFFFF'
+
+// Dark theme - light text  
+textStyle: { color: '#e0e0e0' },
+backgroundColor: '#1a1a1a'
+```
+
+### 3. Dark Mode Indicator
+
+Set `darkMode: true` for dark themes:
+
+```javascript
+const darkTheme = {
+  darkMode: true,
+  backgroundColor: '#1a1a1a',
+  // ...
+};
+```
+
+Source reference: `/workspace/source/theme/dark.js:83`
+
+### 4. Component Consistency
+
+Apply similar styling to related components:
+
+```javascript
+// Define common axis styling
+const axisCommon = {
+  axisLine: { lineStyle: { color: '#0066CC' } },
+  splitLine: { lineStyle: { color: ['#F0F0F0'] } }
+};
+
+// Apply to all axis types
+categoryAxis: axisCommon,
+valueAxis: axisCommon,
+timeAxis: axisCommon,
+logAxis: axisCommon
+```
+
+Source reference: `/workspace/source/theme/dark.js:46-69`, `/workspace/source/theme/dark.js:196-199`
+
+### 5. Testing
+
+Test your theme with different chart types:
+
+```javascript
+// Test with various chart types
+const testCharts = [
+  { type: 'line' },
+  { type: 'bar' },
+  { type: 'scatter' },
+  { type: 'pie' },
+  { type: 'candlestick' },
+  { type: 'gauge' }
+];
+```
+
+## Exporting Themes
+
+Save your theme as a separate JavaScript file for reuse:
+
+```javascript
+// corporate-theme.js
+export default {
+  color: ['#0066CC', '#00A3E0', '#003D7A'],
+  backgroundColor: '#FFFFFF',
+  // ... rest of theme
+};
+```
+
+Then import and register it:
+
+```javascript
+import corporateTheme from './corporate-theme.js';
+import * as echarts from 'echarts';
+
+echarts.registerTheme('corporate', corporateTheme);
+```
+
+## Next Steps
+
+- [Built-in Themes](/themes/built-in-themes) - Explore existing themes for inspiration
+- [Theming Overview](/themes/overview) - Learn more about the theming system

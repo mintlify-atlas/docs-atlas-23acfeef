@@ -1,0 +1,482 @@
+---
+title: 'Timeline Component'
+description: 'Enable time-based navigation and animation through multiple chart options'
+icon: 'clock'
+---
+
+The Timeline component provides an interactive timeline slider that allows users to navigate through different time periods or data states, with support for automatic playback and custom styling.
+
+## Purpose
+
+Timeline enables temporal data exploration by switching between different chart configurations based on time or sequential data. From `~/workspace/source/src/component/timeline/TimelineModel.ts`, it supports automatic playback, manual navigation, and flexible data representation.
+
+## Basic Usage
+
+```javascript
+option = {
+  timeline: {
+    data: ['2020', '2021', '2022', '2023'],
+    autoPlay: true,
+    playInterval: 1000
+  },
+  options: [
+    {
+      title: {text: '2020 Data'},
+      series: [{type: 'bar', data: [100, 200, 300]}]
+    },
+    {
+      title: {text: '2021 Data'},
+      series: [{type: 'bar', data: [150, 250, 350]}]
+    },
+    {
+      title: {text: '2022 Data'},
+      series: [{type: 'bar', data: [200, 300, 400]}]
+    },
+    {
+      title: {text: '2023 Data'},
+      series: [{type: 'bar', data: [250, 350, 450]}]
+    }
+  ]
+}
+```
+
+## Configuration Options
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the timeline component.
+</ParamField>
+
+<ParamField path="axisType" type="'category' | 'time' | 'value'" default="'time'">
+  Type of the timeline axis:
+  - `'category'`: Categorical timeline
+  - `'time'`: Time-based timeline
+  - `'value'`: Numeric timeline
+</ParamField>
+
+<ParamField path="currentIndex" type="number" default="0">
+  Index of the currently selected timeline item.
+  
+  ```javascript
+  timeline: {
+    data: ['2020', '2021', '2022'],
+    currentIndex: 1  // Start at '2021'
+  }
+  ```
+</ParamField>
+
+<ParamField path="autoPlay" type="boolean" default="false">
+  Whether to automatically play the timeline animation.
+</ParamField>
+
+<ParamField path="rewind" type="boolean" default="false">
+  Whether to play in reverse when auto-playing.
+</ParamField>
+
+<ParamField path="loop" type="boolean" default="true">
+  Whether to loop the timeline when reaching the end during auto-play.
+</ParamField>
+
+<ParamField path="playInterval" type="number" default="2000">
+  Play interval in milliseconds between timeline items during auto-play.
+</ParamField>
+
+<ParamField path="realtime" type="boolean" default="true">
+  Whether to update the chart in real-time as the timeline position changes.
+</ParamField>
+
+<ParamField path="controlPosition" type="'left' | 'right' | 'top' | 'bottom'" default="'left'">
+  Position of the play control buttons relative to the timeline.
+</ParamField>
+
+<ParamField path="orient" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Orientation of the timeline component.
+</ParamField>
+
+<ParamField path="inverse" type="boolean" default="false">
+  Whether to inverse the timeline direction.
+</ParamField>
+
+<ParamField path="replaceMerge" type="string | string[]">
+  Specifies which option properties should be replaced instead of merged when switching timeline items.
+  
+  ```javascript
+  timeline: {
+    replaceMerge: ['series', 'xAxis'],
+    data: ['2020', '2021']
+  }
+  ```
+</ParamField>
+
+<ParamField path="data" type="array">
+  Timeline data items. Can be values or objects with configuration.
+  
+  ```javascript
+  data: [
+    '2020',
+    '2021',
+    {value: '2022', tooltip: {formatter: 'Year: {b}'}},
+    '2023'
+  ]
+  ```
+</ParamField>
+
+### Position
+
+<ParamField path="left" type="number | string" default="'20%'">
+  Distance from the left side of the container.
+</ParamField>
+
+<ParamField path="top" type="number | string">
+  Distance from the top of the container.
+</ParamField>
+
+<ParamField path="right" type="number | string" default="'20%'">
+  Distance from the right side of the container.
+</ParamField>
+
+<ParamField path="bottom" type="number | string" default="0">
+  Distance from the bottom of the container.
+</ParamField>
+
+<ParamField path="width" type="number | string">
+  Width of the timeline component.
+</ParamField>
+
+<ParamField path="height" type="number | string" default="40">
+  Height of the timeline component.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]">
+  Padding inside the component.
+</ParamField>
+
+### Item Style
+
+<ParamField path="itemStyle" type="object">
+  Style of timeline items.
+  
+  ```javascript
+  itemStyle: {
+    color: '#304654',
+    borderColor: '#aaa',
+    borderWidth: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="checkpointStyle" type="object">
+  Style of the checkpoint (current position indicator).
+  
+  <Expandable title="Checkpoint Style Properties">
+    <ParamField path="symbol" type="string">
+      Symbol type for the checkpoint.
+    </ParamField>
+    
+    <ParamField path="symbolSize" type="number">
+      Size of the checkpoint symbol.
+    </ParamField>
+    
+    <ParamField path="color" type="string">
+      Color of the checkpoint.
+    </ParamField>
+    
+    <ParamField path="borderColor" type="string">
+      Border color of the checkpoint.
+    </ParamField>
+    
+    <ParamField path="borderWidth" type="number">
+      Border width of the checkpoint.
+    </ParamField>
+    
+    <ParamField path="animation" type="boolean">
+      Whether to enable animation for the checkpoint.
+    </ParamField>
+    
+    <ParamField path="animationDuration" type="number">
+      Duration of checkpoint animation.
+    </ParamField>
+    
+    <ParamField path="animationEasing" type="string">
+      Easing function for checkpoint animation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="lineStyle" type="object">
+  Style of the timeline axis line.
+  
+  ```javascript
+  lineStyle: {
+    show: true,
+    color: '#304654',
+    width: 2,
+    type: 'solid'
+  }
+  ```
+</ParamField>
+
+<ParamField path="label" type="object">
+  Configuration for timeline labels.
+  
+  <Expandable title="Label Properties">
+    <ParamField path="show" type="boolean">
+      Whether to show labels.
+    </ParamField>
+    
+    <ParamField path="position" type="'auto' | 'left' | 'right' | 'top' | 'bottom' | number">
+      Position of the label. Number can be distance to the timeline axis.
+    </ParamField>
+    
+    <ParamField path="interval" type="'auto' | number">
+      Interval of label display.
+    </ParamField>
+    
+    <ParamField path="formatter" type="string | function">
+      Formatter for label text.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Control Style
+
+<ParamField path="controlStyle" type="object">
+  Style configuration for play control buttons.
+  
+  <Expandable title="Control Style Properties">
+    <ParamField path="show" type="boolean">
+      Whether to show control buttons.
+    </ParamField>
+    
+    <ParamField path="showPlayBtn" type="boolean">
+      Whether to show the play button.
+    </ParamField>
+    
+    <ParamField path="showPrevBtn" type="boolean">
+      Whether to show the previous button.
+    </ParamField>
+    
+    <ParamField path="showNextBtn" type="boolean">
+      Whether to show the next button.
+    </ParamField>
+    
+    <ParamField path="itemSize" type="number">
+      Size of control buttons.
+    </ParamField>
+    
+    <ParamField path="itemGap" type="number">
+      Gap between control buttons.
+    </ParamField>
+    
+    <ParamField path="position" type="'left' | 'right' | 'top' | 'bottom'">
+      Position of control buttons.
+    </ParamField>
+    
+    <ParamField path="playIcon" type="string">
+      SVG path for play icon.
+    </ParamField>
+    
+    <ParamField path="stopIcon" type="string">
+      SVG path for stop icon.
+    </ParamField>
+    
+    <ParamField path="prevIcon" type="string">
+      SVG path for previous icon.
+    </ParamField>
+    
+    <ParamField path="nextIcon" type="string">
+      SVG path for next icon.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Emphasis
+
+<ParamField path="emphasis" type="object">
+  Emphasis state styles for timeline items.
+  
+  ```javascript
+  emphasis: {
+    itemStyle: {
+      color: '#c23531'
+    },
+    checkpointStyle: {
+      color: '#316bf3',
+      borderColor: '#fff',
+      borderWidth: 2
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="progress" type="object">
+  Style for the progress section of the timeline.
+  
+  ```javascript
+  progress: {
+    lineStyle: {
+      color: '#316bf3'
+    },
+    itemStyle: {
+      color: '#316bf3'
+    },
+    label: {
+      color: '#316bf3'
+    }
+  }
+  ```
+</ParamField>
+
+## Examples
+
+### Auto-playing Timeline
+
+```javascript
+option = {
+  timeline: {
+    axisType: 'category',
+    autoPlay: true,
+    playInterval: 1500,
+    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+    label: {
+      formatter: function(s) {
+        return '2024-' + s;
+      }
+    }
+  },
+  options: [
+    {
+      title: {text: 'January Sales'},
+      series: [{type: 'bar', data: [100, 200, 300, 400, 500]}]
+    },
+    {
+      title: {text: 'February Sales'},
+      series: [{type: 'bar', data: [150, 230, 320, 450, 520]}]
+    },
+    // ... more options for other months
+  ]
+}
+```
+
+### Styled Timeline with Custom Controls
+
+```javascript
+option = {
+  timeline: {
+    axisType: 'category',
+    orient: 'vertical',
+    autoPlay: false,
+    inverse: true,
+    playInterval: 1000,
+    left: null,
+    right: 0,
+    top: 20,
+    bottom: 20,
+    width: 55,
+    height: null,
+    symbol: 'none',
+    checkpointStyle: {
+      color: '#316bf3',
+      borderColor: '#fff',
+      borderWidth: 3,
+      symbol: 'circle',
+      symbolSize: 12
+    },
+    controlStyle: {
+      showNextBtn: true,
+      showPrevBtn: true,
+      itemSize: 20,
+      itemGap: 12
+    },
+    lineStyle: {
+      color: '#ddd'
+    },
+    label: {
+      color: '#999'
+    },
+    data: ['2015', '2016', '2017', '2018', '2019', '2020']
+  },
+  options: [
+    // ... timeline options
+  ]
+}
+```
+
+### Time-based Timeline
+
+```javascript
+option = {
+  timeline: {
+    axisType: 'time',
+    autoPlay: true,
+    playInterval: 1000,
+    data: [
+      '2024-01-01',
+      '2024-02-01',
+      '2024-03-01',
+      '2024-04-01'
+    ],
+    label: {
+      formatter: function(value) {
+        return new Date(value).toLocaleDateString();
+      }
+    }
+  },
+  options: [
+    // ... options for each time point
+  ]
+}
+```
+
+### Timeline with Progress Styling
+
+```javascript
+option = {
+  timeline: {
+    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+    autoPlay: true,
+    loop: false,
+    itemStyle: {
+      color: '#ddd'
+    },
+    checkpointStyle: {
+      symbol: 'circle',
+      symbolSize: 14,
+      color: '#316bf3',
+      borderColor: '#fff',
+      borderWidth: 3
+    },
+    progress: {
+      lineStyle: {
+        color: '#316bf3',
+        width: 2
+      },
+      itemStyle: {
+        color: '#316bf3'
+      },
+      label: {
+        color: '#316bf3'
+      }
+    },
+    emphasis: {
+      itemStyle: {
+        color: '#316bf3'
+      }
+    }
+  },
+  options: [
+    // ... quarterly data
+  ]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/timeline/TimelineModel.ts:173-344`, the Timeline component:
+
+- **Layout Mode**: Box layout for flexible positioning
+- **Data Types**: Supports category, time, and value axis types
+- **Playback Control**: Methods for play/pause, next/previous navigation
+- **Index Management**: Handles looping and boundary conditions
+- **State Persistence**: Maintains current index across updates
+- **Data Processing**: Converts option data based on axis type
+- **Event System**: Dispatches timeline change events for chart updates

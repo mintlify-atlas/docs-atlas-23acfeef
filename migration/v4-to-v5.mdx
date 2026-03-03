@@ -1,0 +1,372 @@
+---
+title: Migrating from v4 to v5
+description: Complete guide to upgrading Apache ECharts from version 4 to version 5
+---
+
+# Migrating from v4 to v5
+
+Apache ECharts v5.0.0 represents a major milestone with significant improvements in performance, rendering, and API design. This guide helps you upgrade from v4 to v5.
+
+## Overview
+
+ECharts v5 was released with substantial improvements while maintaining backward compatibility for most use cases. The upgrade brings enhanced rendering capabilities, better TypeScript support, and new chart types.
+
+## Major Changes
+
+### Animation System
+
+#### Animation Delay Callbacks
+
+Version 5 introduced breaking changes to support both series-level and item-level delay with `animationDelay` callbacks.
+
+**v4 Behavior:**
+```javascript
+option = {
+  series: [{
+    animationDelay: 100 // Simple numeric value
+  }]
+};
+```
+
+**v5 Enhancement:**
+```javascript
+option = {
+  series: [{
+    // Function callback for per-item control
+    animationDelay: function (idx) {
+      return idx * 10;
+    }
+  }]
+};
+```
+
+### Axis Changes
+
+#### Axis Tick Value Formatting
+
+The axis formatter now receives tick values directly instead of objects:
+
+**Before (v4):**
+```javascript
+xAxis: {
+  axisLabel: {
+    formatter: function(params) {
+      return params.value; // params was an object
+    }
+  }
+}
+```
+
+**After (v5):**
+```javascript
+xAxis: {
+  axisLabel: {
+    formatter: function(value) {
+      return value; // Direct value passed
+    }
+  }
+}
+```
+
+#### Axis Break Support
+
+ECharts v5 introduced axis break functionality with proper TypeScript types:
+
+```javascript
+xAxis: {
+  type: 'value',
+  axisBreak: {
+    breakLine: {
+      style: {
+        color: '#eee',
+        width: 1,
+        type: 'dashed'
+      }
+    }
+  }
+}
+```
+
+### Label System Updates
+
+#### Label Color Inheritance
+
+The legacy `color: 'auto'` is maintained for backward compatibility but `color: 'inherit'` is now preferred:
+
+**Legacy (still supported):**
+```javascript
+label: {
+  color: 'auto' // Works but deprecated
+}
+```
+
+**Recommended:**
+```javascript
+label: {
+  color: 'inherit' // Preferred in v5
+}
+```
+
+#### Label Layout Properties
+
+Label layout properties were refactored:
+
+- `margin` renamed to `edgeDistance`
+- New `minMargin` property added for better layout control
+
+```javascript
+label: {
+  edgeDistance: 10, // Previously 'margin'
+  minMargin: 5      // New property
+}
+```
+
+### Line Chart Events
+
+#### Self-Type Property
+
+Line charts now include a `selfType` property in trigger events to distinguish between line and area interactions:
+
+```javascript
+chart.on('click', 'series.line', function(params) {
+  console.log(params.selfType); // 'line' or 'area'
+  
+  // Disable events for specific parts
+  series: [{
+    type: 'line',
+    triggerLineEvent: false // Disable line events
+  }]
+});
+```
+
+### State Management
+
+#### Candlestick Non-Normal States
+
+v5.0.0 initially removed some candlestick state support, which was later restored. Ensure you're using v5.0.0-rc.3 or later:
+
+```javascript
+series: [{
+  type: 'candlestick',
+  emphasis: {
+    itemStyle: {
+      color: '#c23531'
+    }
+  },
+  select: {
+    itemStyle: {
+      opacity: 1
+    }
+  }
+}]
+```
+
+## Deprecated Features
+
+### Legacy Grid Breaks with ECharts GL
+
+The v4 grid implementation that worked with ECharts GL had breaking changes. If using 3D visualizations:
+
+1. Upgrade to ECharts GL v2.x
+2. Review grid configurations
+3. Test 3D chart rendering thoroughly
+
+## New Features in v5
+
+### Enhanced TypeScript Support
+
+Improved type definitions across all chart types and components:
+
+```typescript
+import { EChartsOption } from 'echarts';
+
+const option: EChartsOption = {
+  // Full type checking and autocomplete
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30]
+  }]
+};
+```
+
+### Time Axis Improvements
+
+#### Custom Values with Formatter
+
+Fixed TypeError when using `customValues` with formatter on time axis:
+
+```javascript
+xAxis: {
+  type: 'time',
+  customValues: [new Date(2020, 0, 1), new Date(2020, 6, 1)],
+  axisLabel: {
+    formatter: function(value) {
+      return new Date(value).toLocaleDateString();
+    }
+  }
+}
+```
+
+### Parallel Series Extent Calculation
+
+Improved axis extent calculation after processing series extents:
+
+```javascript
+series: [{
+  type: 'parallel',
+  data: [[1, 55, 9], [2, 25, 27]],
+  // Proper min/max calculation now handled automatically
+}]
+```
+
+### Tooltip Improvements
+
+Changing tooltip configuration now properly refreshes displayed tooltips:
+
+```javascript
+// Dynamic tooltip updates now work correctly
+chart.setOption({
+  tooltip: {
+    formatter: function(params) {
+      return `Updated: ${params.value}`;
+    }
+  }
+});
+```
+
+## Migration Steps
+
+### Step 1: Update Package
+
+```bash
+npm install echarts@5.x.x
+```
+
+### Step 2: Update Axis Formatters
+
+Search for all `axisLabel.formatter` functions and update parameter usage:
+
+```javascript
+// Find and replace
+formatter: function(params) {
+  return params.value; // Old
+}
+
+// With
+formatter: function(value) {
+  return value; // New
+}
+```
+
+### Step 3: Update Label Colors
+
+Replace `color: 'auto'` with `color: 'inherit'`:
+
+```javascript
+// Update all instances
+label: {
+  color: 'inherit' // Changed from 'auto'
+}
+```
+
+### Step 4: Review Label Margins
+
+If using `margin` in label configuration:
+
+```javascript
+label: {
+  edgeDistance: 10, // Renamed from 'margin'
+  minMargin: 5      // Optional new property
+}
+```
+
+### Step 5: Test Animation Callbacks
+
+If using `animationDelay` callbacks, verify they work with both series and item-level delays.
+
+### Step 6: Update Line Chart Event Handlers
+
+If handling line chart events, utilize the new `selfType` property:
+
+```javascript
+chart.on('click', function(params) {
+  if (params.selfType === 'line') {
+    // Handle line click
+  } else if (params.selfType === 'area') {
+    // Handle area click
+  }
+});
+```
+
+## Common Issues
+
+### Axis Formatter Breaking
+
+If your axis labels stop working:
+
+```javascript
+// ❌ Old (will break)
+formatter: function(params) {
+  return params.value.toFixed(2);
+}
+
+// ✅ New (correct)
+formatter: function(value) {
+  return value.toFixed(2);
+}
+```
+
+### Label Color Not Working
+
+If labels don't inherit colors:
+
+```javascript
+// ❌ May not work consistently
+label: { color: 'auto' }
+
+// ✅ Recommended
+label: { color: 'inherit' }
+```
+
+### Time Axis Custom Values Error
+
+TypeError with time axis custom values should be resolved in v5.x:
+
+```javascript
+// This now works correctly in v5
+xAxis: {
+  type: 'time',
+  customValues: [timestamps...],
+  axisLabel: {
+    formatter: '{yyyy}-{MM}-{dd}'
+  }
+}
+```
+
+## Performance Improvements
+
+v5 includes significant performance enhancements:
+
+- Faster initial rendering
+- Improved animation performance
+- Better memory management
+- Optimized large dataset handling
+
+## Resources
+
+- [GitHub Releases](https://github.com/apache/echarts/releases?q=5.0.0&expanded=true)
+- [v5 Changelog](https://github.com/apache/echarts/releases/tag/5.0.0)
+- [GitHub Issues](https://github.com/apache/echarts/issues)
+- [Mailing List](https://echarts.apache.org/en/maillist.html)
+
+## Getting Help
+
+For migration assistance:
+
+1. Search [GitHub issues](https://github.com/apache/echarts/issues)
+2. Email [dev@echarts.apache.org](mailto:dev@echarts.apache.org)
+3. Check the [official documentation](https://echarts.apache.org/handbook)
+
+<Warning>
+  While v5 maintains good backward compatibility, thorough testing is essential, especially for axis formatters, label styling, and animation callbacks.
+</Warning>

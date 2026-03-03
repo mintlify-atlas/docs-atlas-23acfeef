@@ -1,0 +1,326 @@
+---
+title: "Getting Started Examples"
+description: "Basic examples for beginners learning Apache ECharts"
+---
+
+These examples cover the fundamental chart types and basic configurations to get you started with ECharts.
+
+## Simple Line Chart
+
+Create a basic line chart with smooth curves and area fill:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Simple Line Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="main" style="width: 600px; height: 400px;"></div>
+  <script>
+    // Initialize the chart
+    var chart = echarts.init(document.getElementById('main'));
+
+    // Prepare data
+    var xAxisData = [];
+    var data = [];
+    for (var i = 0; i < 10; i++) {
+      xAxisData.push('Day ' + i);
+      data.push((Math.random() * 5 + 3).toFixed(2));
+    }
+
+    // Configure the chart
+    var option = {
+      title: {
+        text: 'Weekly Temperature'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: xAxisData,
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      series: [{
+        name: 'Temperature',
+        type: 'line',
+        data: data,
+        smooth: true,
+        areaStyle: {},
+        lineStyle: {
+          width: 2
+        }
+      }]
+    };
+
+    // Apply the configuration
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Bar Chart with Stack
+
+Create a stacked bar chart comparing multiple data series:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stacked Bar Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="bar-chart" style="width: 600px; height: 400px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('bar-chart'));
+
+    var option = {
+      title: {
+        text: 'Product Sales Comparison'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      legend: {
+        data: ['Product A', 'Product B', 'Product C']
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Product A',
+          type: 'bar',
+          stack: 'total',
+          data: [120, 132, 101, 134, 90, 230, 210]
+        },
+        {
+          name: 'Product B',
+          type: 'bar',
+          stack: 'total',
+          data: [220, 182, 191, 234, 290, 330, 310]
+        },
+        {
+          name: 'Product C',
+          type: 'bar',
+          stack: 'total',
+          data: [150, 232, 201, 154, 190, 330, 410]
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Pie Chart with Legend
+
+Create an interactive pie chart with selection capabilities:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Pie Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="pie-chart" style="width: 600px; height: 400px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('pie-chart'));
+
+    var option = {
+      title: {
+        text: 'Traffic Source',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['Direct', 'Email', 'Ads', 'Video', 'Search Engine']
+      },
+      series: [
+        {
+          name: 'Traffic Source',
+          type: 'pie',
+          radius: '55%',
+          center: ['50%', '60%'],
+          selectedMode: 'single',
+          data: [
+            { value: 335, name: 'Direct' },
+            { value: 310, name: 'Email' },
+            { value: 234, name: 'Ads' },
+            { value: 135, name: 'Video' },
+            { value: 1548, name: 'Search Engine' }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Scatter Plot with DataZoom
+
+Create a scatter plot with zoom and pan capabilities:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Scatter Plot</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="scatter-chart" style="width: 600px; height: 400px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('scatter-chart'));
+
+    // Generate random scatter data
+    var data = [];
+    for (var i = 0; i < 100; i++) {
+      data.push([
+        Math.random() * 100,
+        Math.random() * 100
+      ]);
+    }
+
+    var option = {
+      title: {
+        text: 'Data Distribution'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: 'X: {c0}<br/>Y: {c1}'
+      },
+      xAxis: {
+        type: 'value',
+        scale: true
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          xAxisIndex: 0
+        },
+        {
+          type: 'inside',
+          yAxisIndex: 0
+        },
+        {
+          type: 'slider',
+          xAxisIndex: 0,
+          bottom: 10
+        }
+      ],
+      series: [
+        {
+          type: 'scatter',
+          data: data,
+          symbolSize: 10,
+          itemStyle: {
+            opacity: 0.7
+          }
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Key Concepts
+
+### Initialization
+
+Always initialize charts with `echarts.init()`:
+
+```javascript
+var chart = echarts.init(document.getElementById('container'));
+```
+
+### Configuration
+
+Use `setOption()` to configure the chart:
+
+```javascript
+chart.setOption({
+  // Chart configuration
+  xAxis: {},
+  yAxis: {},
+  series: []
+});
+```
+
+### Chart Types
+
+Specify chart type in the `series` configuration:
+
+- `type: 'line'` - Line chart
+- `type: 'bar'` - Bar chart
+- `type: 'pie'` - Pie chart
+- `type: 'scatter'` - Scatter plot
+
+### Common Components
+
+- **tooltip** - Interactive data display on hover
+- **legend** - Toggle series visibility
+- **dataZoom** - Zoom and pan functionality
+- **toolbox** - Built-in tools like save image, data view
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Real-time Data" icon="chart-line" href="/examples/real-time-data">
+    Learn how to update charts dynamically with live data
+  </Card>
+  <Card title="Large Datasets" icon="database" href="/examples/large-datasets">
+    Handle performance optimization for big data
+  </Card>
+  <Card title="Mobile Responsive" icon="mobile" href="/examples/mobile">
+    Make charts work perfectly on mobile devices
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/introduction">
+    Explore the complete ECharts API
+  </Card>
+</CardGroup>

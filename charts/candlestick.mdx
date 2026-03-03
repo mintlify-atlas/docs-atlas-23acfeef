@@ -1,0 +1,414 @@
+---
+title: Candlestick Chart
+description: Visualize financial data with candlestick (OHLC) charts in Apache ECharts
+---
+
+## Overview
+
+Candlestick charts, also known as OHLC (Open-High-Low-Close) charts, are specialized charts designed for displaying financial data such as stock prices. Each candlestick represents price movements over a specific time period.
+
+## When to Use
+
+Use candlestick charts when you need to:
+
+- Display stock market data (open, high, low, close prices)
+- Show financial time-series data with OHLC values
+- Analyze price movements and trends in trading
+- Identify bullish and bearish market patterns
+- Visualize volatility and price ranges
+
+## Basic Configuration
+
+The candlestick chart is configured through the `CandlestickSeriesOption` interface, specifically designed for financial data.
+
+```typescript
+interface CandlestickSeriesOption {
+  type: 'candlestick'
+  coordinateSystem?: 'cartesian2d'
+  data?: (CandlestickDataValue | CandlestickDataItemOption)[]
+  itemStyle?: CandlestickItemStyleOption
+  barWidth?: number | string
+  barMaxWidth?: number | string
+  barMinWidth?: number | string
+  // ... more options
+}
+
+type CandlestickDataValue = [
+  open: number,
+  close: number,
+  lowest: number,
+  highest: number
+]
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Stock Price - Daily K-Line'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross'
+    },
+    formatter: function(params) {
+      const data = params[0].data;
+      return `Open: ${data[0]}<br/>
+              Close: ${data[1]}<br/>
+              Low: ${data[2]}<br/>
+              High: ${data[3]}`;
+    }
+  },
+  xAxis: {
+    type: 'category',
+    data: ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05'],
+    boundaryGap: true
+  },
+  yAxis: {
+    type: 'value',
+    scale: true
+  },
+  series: [
+    {
+      name: 'Stock Price',
+      type: 'candlestick',
+      data: [
+        [20, 30, 10, 35],  // [open, close, lowest, highest]
+        [30, 35, 20, 40],
+        [35, 30, 28, 38],
+        [30, 40, 30, 42],
+        [40, 33, 31, 40]
+      ],
+      itemStyle: {
+        color: '#eb5454',         // Bullish (close > open)
+        color0: '#47b262',        // Bearish (close < open)
+        borderColor: '#eb5454',   // Bullish border
+        borderColor0: '#47b262',  // Bearish border
+        borderWidth: 1
+      },
+      emphasis: {
+        itemStyle: {
+          borderWidth: 2
+        }
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="coordinateSystem" type="'cartesian2d'" default="'cartesian2d'">
+  Candlestick charts only support cartesian2d coordinate system.
+</ParamField>
+
+<ParamField path="data" type="(CandlestickDataValue | CandlestickDataItemOption)[]">
+  Data in OHLC format. Each item is an array of `[open, close, lowest, highest]` values.
+  
+  ```javascript
+  data: [
+    [20, 30, 10, 35],  // open, close, low, high
+    [30, 35, 20, 40],
+    {
+      value: [35, 30, 28, 38],
+      itemStyle: { color: '#f00' }
+    }
+  ]
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="CandlestickItemStyleOption">
+  Special item style with separate colors for bullish and bearish candles.
+  
+  ```javascript
+  itemStyle: {
+    color: '#eb5454',          // Bullish candle color (close > open)
+    color0: '#47b262',         // Bearish candle color (close < open)
+    borderColor: '#eb5454',    // Bullish border color
+    borderColor0: '#47b262',   // Bearish border color
+    borderColorDoji: null,     // Border color when close === open
+    borderWidth: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="barWidth" type="number | string">
+  Width of candlesticks. Can be pixel value or percentage.
+  
+  ```javascript
+  barWidth: 10       // 10 pixels
+  barWidth: '60%'    // 60% of category width
+  ```
+</ParamField>
+
+<ParamField path="barMaxWidth" type="number | string">
+  Maximum width of candlesticks.
+  
+  ```javascript
+  barMaxWidth: 20
+  ```
+</ParamField>
+
+<ParamField path="barMinWidth" type="number | string">
+  Minimum width of candlesticks.
+  
+  ```javascript
+  barMinWidth: 2
+  ```
+</ParamField>
+
+<ParamField path="layout" type="'horizontal' | 'vertical'">
+  Layout orientation of the candlesticks.
+  
+  ```javascript
+  layout: null  // Auto-detect based on axis types
+  ```
+</ParamField>
+
+<ParamField path="clip" type="boolean" default="true">
+  Whether to clip candlesticks that overflow the coordinate system.
+  
+  ```javascript
+  clip: true
+  ```
+</ParamField>
+
+<ParamField path="large" type="boolean" default="true">
+  Enable large-scale rendering optimization for better performance with lots of data.
+  
+  ```javascript
+  large: true,
+  largeThreshold: 600
+  ```
+</ParamField>
+
+<ParamField path="largeThreshold" type="number" default="600">
+  Threshold for switching to large rendering mode.
+  
+  ```javascript
+  largeThreshold: 1000
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis when hovering over candlesticks.
+  
+  ```javascript
+  emphasis: {
+    itemStyle: {
+      borderWidth: 2
+    },
+    focus: 'self'  // 'none' | 'self' | 'series'
+  }
+  ```
+</ParamField>
+
+<ParamField path="label" type="SeriesLabelOption">
+  Label configuration for candlesticks.
+  
+  ```javascript
+  label: {
+    show: false,
+    position: 'top',
+    formatter: '{c}'
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Candlestick data uses a specific OHLC (Open-High-Low-Close) format:
+
+```javascript
+// Array format: [open, close, lowest, highest]
+data: [
+  [20, 30, 10, 35],
+  [30, 35, 20, 40],
+  [35, 30, 28, 38]
+]
+
+// Object format with additional options
+data: [
+  {
+    value: [20, 30, 10, 35],
+    itemStyle: {
+      color: '#custom-color',
+      borderColor: '#custom-border'
+    }
+  }
+]
+```
+
+### Data Dimensions
+
+The candlestick series has four default value dimensions:
+
+1. **open**: Opening price
+2. **close**: Closing price
+3. **lowest**: Lowest price (minimum)
+4. **highest**: Highest price (maximum)
+
+These are defined in the series model as:
+
+```typescript
+defaultValueDimensions = [
+  {name: 'open', defaultTooltip: true},
+  {name: 'close', defaultTooltip: true},
+  {name: 'lowest', defaultTooltip: true},
+  {name: 'highest', defaultTooltip: true}
+]
+```
+
+## Advanced Features
+
+### Custom Colors for Bullish/Bearish
+
+```javascript
+series: [{
+  type: 'candlestick',
+  data: [/* OHLC data */],
+  itemStyle: {
+    color: '#26a69a',        // Green for bullish
+    color0: '#ef5350',       // Red for bearish
+    borderColor: '#26a69a',
+    borderColor0: '#ef5350',
+    borderColorDoji: '#888'  // Gray for doji (open === close)
+  }
+}]
+```
+
+### Candlestick with Volume
+
+```javascript
+const option = {
+  xAxis: {
+    type: 'category',
+    data: dates
+  },
+  yAxis: [
+    {
+      type: 'value',
+      scale: true
+    },
+    {
+      type: 'value',
+      scale: true,
+      splitLine: { show: false }
+    }
+  ],
+  series: [
+    {
+      name: 'Price',
+      type: 'candlestick',
+      data: ohlcData,
+      yAxisIndex: 0
+    },
+    {
+      name: 'Volume',
+      type: 'bar',
+      data: volumeData,
+      yAxisIndex: 1,
+      itemStyle: {
+        color: function(params) {
+          const ohlc = ohlcData[params.dataIndex];
+          return ohlc[1] > ohlc[0] ? '#eb5454' : '#47b262';
+        }
+      }
+    }
+  ]
+};
+```
+
+### Candlestick with Moving Average
+
+```javascript
+function calculateMA(dayCount, data) {
+  const result = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i < dayCount - 1) {
+      result.push('-');
+      continue;
+    }
+    let sum = 0;
+    for (let j = 0; j < dayCount; j++) {
+      sum += data[i - j][1];  // Use close price
+    }
+    result.push(sum / dayCount);
+  }
+  return result;
+}
+
+const ohlcData = [/* candlestick data */];
+
+const option = {
+  series: [
+    {
+      name: 'K-Line',
+      type: 'candlestick',
+      data: ohlcData
+    },
+    {
+      name: 'MA5',
+      type: 'line',
+      data: calculateMA(5, ohlcData),
+      smooth: true,
+      lineStyle: { width: 1 }
+    },
+    {
+      name: 'MA20',
+      type: 'line',
+      data: calculateMA(20, ohlcData),
+      smooth: true,
+      lineStyle: { width: 1 }
+    }
+  ]
+};
+```
+
+### Large Dataset Optimization
+
+```javascript
+series: [{
+  type: 'candlestick',
+  large: true,
+  largeThreshold: 600,
+  progressive: 3000,
+  progressiveThreshold: 10000,
+  progressiveChunkMode: 'mod',
+  data: largeOHLCDataset
+}]
+```
+
+## Performance Tips
+
+Candlestick charts have built-in optimizations for financial data:
+
+1. **Large mode** is enabled by default for datasets over 600 candles
+2. **Progressive rendering** helps with very large datasets:
+   ```javascript
+   progressive: 3000,
+   progressiveThreshold: 10000
+   ```
+
+3. **Animation settings** are optimized for smooth updates:
+   ```javascript
+   animationEasing: 'linear',
+   animationDuration: 300
+   ```
+
+## Source Reference
+
+The candlestick chart implementation can be found in:
+- Series model: `src/chart/candlestick/CandlestickSeries.ts:85-167`
+- Default options: `src/chart/candlestick/CandlestickSeries.ts:103-146`
+- Type definitions: `src/chart/candlestick/CandlestickSeries.ts:44-83`
+- Value dimensions: `src/chart/candlestick/CandlestickSeries.ts:96-101`
+- Item style interface: `src/chart/candlestick/CandlestickSeries.ts:44-48`

@@ -1,0 +1,409 @@
+---
+title: 'echarts.use()'
+description: 'Register ECharts extensions, components, and features'
+---
+
+The `echarts.use()` method registers extensions, components, charts, and other features with ECharts. This is essential when using the tree-shakeable version of ECharts to include only the components you need.
+
+## Signature
+
+```typescript
+function use(
+  ext: EChartsExtensionInstaller | EChartsExtension | 
+       (EChartsExtensionInstaller | EChartsExtension)[]
+): void
+```
+
+## Parameters
+
+<ParamField path="ext" type="EChartsExtensionInstaller | EChartsExtension | Array" required>
+  The extension(s) to register. Can be:
+  - **Function**: An installer function that receives the registration API
+  - **Object**: An object with an `install` method
+  - **Array**: An array of functions or objects
+  
+  ```javascript
+  // Single extension (function)
+  echarts.use(BarChart);
+  
+  // Single extension (object)
+  echarts.use({ install: (ec) => { /* ... */ } });
+  
+  // Multiple extensions (array)
+  echarts.use([BarChart, LineChart, GridComponent]);
+  ```
+</ParamField>
+
+## Extension Types
+
+### EChartsExtensionInstaller
+
+```typescript
+type EChartsExtensionInstaller = (ec: EChartsExtensionInstallRegisters) => void
+```
+
+A function that receives the registration API object with methods like:
+- `registerComponentModel()`
+- `registerComponentView()`
+- `registerSeriesModel()`
+- `registerChartView()`
+- `registerCoordinateSystem()`
+- `registerAction()`
+- `registerVisual()`
+- `registerLayout()`
+- And more...
+
+### EChartsExtension
+
+```typescript
+interface EChartsExtension {
+  install: EChartsExtensionInstaller
+}
+```
+
+An object with an `install` property containing the installer function.
+
+## Available Extensions
+
+### Chart Types
+
+```javascript
+import { BarChart, LineChart, PieChart, ScatterChart, 
+         RadarChart, MapChart, TreeChart, TreemapChart, 
+         GraphChart, GaugeChart, FunnelChart, ParallelChart, 
+         SankeyChart, BoxplotChart, CandlestickChart, 
+         EffectScatterChart, LinesChart, HeatmapChart, 
+         PictorialBarChart, ThemeRiverChart, SunburstChart, 
+         CustomChart } from 'echarts/charts';
+
+echarts.use([BarChart, LineChart, PieChart]);
+```
+
+### Components
+
+```javascript
+import { GridComponent, PolarComponent, GeoComponent, 
+         SingleAxisComponent, ParallelComponent, 
+         CalendarComponent, GraphicComponent, 
+         ToolboxComponent, TooltipComponent, 
+         AxisPointerComponent, BrushComponent, 
+         TitleComponent, TimelineComponent, 
+         MarkPointComponent, MarkLineComponent, 
+         MarkAreaComponent, LegendComponent, 
+         DataZoomComponent, DataZoomInsideComponent, 
+         DataZoomSliderComponent, VisualMapComponent, 
+         VisualMapContinuousComponent, 
+         VisualMapPiecewiseComponent, 
+         AriaComponent, DatasetComponent, 
+         TransformComponent } from 'echarts/components';
+
+echarts.use([GridComponent, TooltipComponent, TitleComponent]);
+```
+
+### Renderers
+
+```javascript
+import { CanvasRenderer, SVGRenderer } from 'echarts/renderers';
+
+echarts.use(CanvasRenderer);
+// or
+echarts.use(SVGRenderer);
+```
+
+### Features
+
+```javascript
+import { LabelLayout, UniversalTransition } from 'echarts/features';
+
+echarts.use([LabelLayout, UniversalTransition]);
+```
+
+## Returns
+
+<ResponseField name="void" type="void">
+  This method does not return a value.
+</ResponseField>
+
+## Examples
+
+### Minimal Bundle (Bar Chart)
+
+```javascript
+import * as echarts from 'echarts/core';
+import { BarChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  TitleComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+// Register required components
+echarts.use([
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  CanvasRenderer
+]);
+
+// Now you can use ECharts
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption({
+  title: { text: 'Sales' },
+  tooltip: {},
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [120, 200, 150] }]
+});
+```
+
+### Multiple Chart Types
+
+```javascript
+import * as echarts from 'echarts/core';
+import { LineChart, BarChart, PieChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([
+  LineChart,
+  BarChart,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  CanvasRenderer
+]);
+```
+
+### Advanced Features
+
+```javascript
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  DataZoomComponent,
+  MarkLineComponent,
+  MarkPointComponent
+} from 'echarts/components';
+import { LabelLayout, UniversalTransition } from 'echarts/features';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  DataZoomComponent,
+  MarkLineComponent,
+  MarkPointComponent,
+  LabelLayout,
+  UniversalTransition,
+  CanvasRenderer
+]);
+
+const chart = echarts.init(dom);
+chart.setOption({
+  tooltip: { trigger: 'axis' },
+  dataZoom: [{ type: 'slider' }],
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'line',
+    data: [120, 200, 150],
+    markLine: {
+      data: [{ type: 'average', name: 'Average' }]
+    },
+    markPoint: {
+      data: [
+        { type: 'max', name: 'Max' },
+        { type: 'min', name: 'Min' }
+      ]
+    }
+  }]
+});
+```
+
+### SVG Renderer
+
+```javascript
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent } from 'echarts/components';
+import { SVGRenderer } from 'echarts/renderers';
+
+echarts.use([LineChart, GridComponent, SVGRenderer]);
+
+const chart = echarts.init(dom, null, { renderer: 'svg' });
+```
+
+### Custom Extension
+
+```javascript
+import * as echarts from 'echarts/core';
+
+// Define a custom extension
+const myCustomExtension = {
+  install(ec) {
+    // Register a custom action
+    ec.registerAction(
+      { type: 'myCustomAction', event: 'myCustomEvent' },
+      function(payload, ecModel) {
+        console.log('Custom action triggered:', payload);
+      }
+    );
+    
+    // Register a visual encoding
+    ec.registerVisual(ec.PRIORITY.VISUAL.CHART, function(ecModel) {
+      // Custom visual encoding logic
+    });
+  }
+};
+
+// Use the custom extension
+echarts.use(myCustomExtension);
+```
+
+### Conditional Loading
+
+```javascript
+import * as echarts from 'echarts/core';
+import { LineChart, BarChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer, SVGRenderer } from 'echarts/renderers';
+
+// Base components always needed
+echarts.use([GridComponent, TooltipComponent]);
+
+// Conditionally load chart types
+function loadChartType(type) {
+  if (type === 'line') {
+    echarts.use(LineChart);
+  } else if (type === 'bar') {
+    echarts.use(BarChart);
+  }
+}
+
+// Conditionally load renderer
+function loadRenderer(rendererType) {
+  if (rendererType === 'svg') {
+    echarts.use(SVGRenderer);
+  } else {
+    echarts.use(CanvasRenderer);
+  }
+}
+
+loadChartType('line');
+loadRenderer('canvas');
+```
+
+## Important Behaviors
+
+<Note>
+  **Duplicate Prevention**: ECharts automatically prevents registering the same extension multiple times. If you call `use()` with an already registered extension, it will be silently ignored.
+  
+  ```javascript
+  echarts.use(LineChart);
+  echarts.use(LineChart); // Ignored, already registered
+  ```
+</Note>
+
+<Info>
+  **Order Independence**: You can call `use()` in any order. Extensions can be registered before or after creating chart instances.
+  
+  ```javascript
+  // This works
+  const chart = echarts.init(dom);
+  echarts.use(LineChart);
+  chart.setOption({ /* ... */ });
+  
+  // This also works
+  echarts.use(LineChart);
+  const chart = echarts.init(dom);
+  chart.setOption({ /* ... */ });
+  ```
+</Info>
+
+<Warning>
+  **Must Use Core Import**: When using `echarts.use()`, you must import from `'echarts/core'` instead of `'echarts'`. The full `'echarts'` package already includes all components.
+  
+  ```javascript
+  // CORRECT: Using core for tree-shaking
+  import * as echarts from 'echarts/core';
+  import { LineChart } from 'echarts/charts';
+  echarts.use(LineChart);
+  
+  // WRONG: Full package doesn't need use()
+  import * as echarts from 'echarts';
+  // All components already included, use() not needed
+  ```
+</Warning>
+
+## Bundle Size Comparison
+
+### Full Import
+
+```javascript
+import * as echarts from 'echarts';
+// Bundle size: ~900KB (minified)
+```
+
+### Tree-Shakeable Import
+
+```javascript
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
+// Bundle size: ~200KB (minified)
+// Savings: ~700KB (77% reduction)
+```
+
+## TypeScript Support
+
+ECharts provides full TypeScript support for extensions:
+
+```typescript
+import * as echarts from 'echarts/core';
+import { BarChart, BarSeriesOption } from 'echarts/charts';
+import {
+  GridComponent,
+  GridComponentOption,
+  TooltipComponent,
+  TooltipComponentOption
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+// Compose option type with only the components you use
+type ECOption = echarts.ComposeOption<
+  BarSeriesOption | GridComponentOption | TooltipComponentOption
+>;
+
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
+
+const option: ECOption = {
+  tooltip: {},
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [120, 200, 150] }]
+};
+
+const chart = echarts.init(document.getElementById('main')!);
+chart.setOption(option);
+```
+
+## See Also
+
+- [Tree Shaking Guide](/guides/tree-shaking) - Optimize bundle size
+- [echarts.init()](/api/init) - Initialize chart instances
+- [Custom Extensions](/guides/custom-extensions) - Create your own extensions

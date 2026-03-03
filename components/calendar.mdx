@@ -1,0 +1,344 @@
+---
+title: Calendar
+description: Configure the calendar coordinate system for displaying time-series data in a calendar layout
+---
+
+The `calendar` component provides a calendar-based coordinate system for visualizing data distributed across days, weeks, and months. Perfect for activity heatmaps, contribution calendars, and temporal patterns.
+
+## When to Use
+
+Use the calendar coordinate system when you need to:
+- Display daily activity levels or metrics (like GitHub contribution graphs)
+- Visualize seasonal patterns and trends
+- Show event distributions across months
+- Create heatmaps of time-based data
+- Track habits, attendance, or daily statistics
+
+## Basic Configuration
+
+```javascript
+option = {
+  calendar: {
+    range: '2024',
+    cellSize: ['auto', 20]
+  },
+  series: [{
+    type: 'heatmap',
+    coordinateSystem: 'calendar',
+    data: [
+      ['2024-01-01', 100],
+      ['2024-01-02', 150],
+      ['2024-01-03', 200]
+    ]
+  }]
+};
+```
+
+## Multiple Calendars
+
+Display multiple years or date ranges:
+
+```javascript
+option = {
+  calendar: [
+    {
+      range: '2023',
+      top: 100,
+      cellSize: [18, 18]
+    },
+    {
+      range: '2024',
+      top: 300,
+      cellSize: [18, 18]
+    }
+  ],
+  series: [
+    {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      calendarIndex: 0,
+      data: [/* 2023 data */]
+    },
+    {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      calendarIndex: 1,
+      data: [/* 2024 data */]
+    }
+  ]
+};
+```
+
+## Vertical Layout
+
+Create a vertical calendar orientation:
+
+```javascript
+option = {
+  calendar: {
+    orient: 'vertical',
+    range: '2024-03',
+    cellSize: 40,
+    dayLabel: {
+      firstDay: 1, // Monday
+      nameMap: 'en'
+    },
+    monthLabel: {
+      nameMap: 'en'
+    }
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'calendar',
+    symbolSize: 10,
+    data: [
+      ['2024-03-01', 5],
+      ['2024-03-15', 8]
+    ]
+  }]
+};
+```
+
+## Customized Date Range
+
+Specify a specific date range:
+
+```javascript
+option = {
+  calendar: {
+    range: ['2024-01-15', '2024-03-31'],
+    cellSize: ['auto', 18],
+    splitLine: {
+      show: true,
+      lineStyle: {
+        color: '#ddd',
+        width: 2
+      }
+    }
+  },
+  series: [{
+    type: 'heatmap',
+    coordinateSystem: 'calendar',
+    data: [/* data for the range */]
+  }]
+};
+```
+
+## Properties
+
+<ParamField path="range" type="number | string | Array<number | string>">
+  The date range for the calendar. Can be:
+  - A year: `2024` or `'2024'`
+  - A month: `'2024-03'`
+  - A date range: `['2024-01-01', '2024-12-31']`
+  
+  Note: When using month format like `['2024-01', '2024-02']`, they will be identified as `['2024-01-01', '2024-02-01']`.
+  
+  Source: `CalendarModel.ts:90`
+</ParamField>
+
+<ParamField path="cellSize" type="number | 'auto' | (number | 'auto')[]" default="20">
+  Size of each calendar cell. Can be:
+  - A single number: both width and height
+  - `'auto'`: automatically calculated
+  - An array: `[width, height]`
+  
+  If user has set `width` or both `left` and `right`, cellSize will automatically be set to 'auto'.
+  
+  Source: `CalendarModel.ts:71, 201`
+</ParamField>
+
+<ParamField path="orient" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Layout orientation of the calendar.
+  
+  Source: `CalendarModel.ts:72, 204`
+</ParamField>
+
+<ParamField path="left" type="number | string" default="80">
+  Distance from the left side of the container.
+  
+  Source: `CalendarModel.ts:198`
+</ParamField>
+
+<ParamField path="top" type="number | string" default="60">
+  Distance from the top of the container.
+  
+  Source: `CalendarModel.ts:199`
+</ParamField>
+
+<ParamField path="splitLine" type="object">
+  Style for month separator lines.
+  
+  Source: `CalendarModel.ts:74-77, 207-214`
+  
+  <ParamField path="splitLine.show" type="boolean" default="true">
+    Whether to show split lines.
+  </ParamField>
+  
+  <ParamField path="splitLine.lineStyle" type="LineStyleOption">
+    Line style configuration:
+    - `color`: Line color (default: `tokens.color.axisLine`)
+    - `width`: Line width (default: 1)
+    - `type`: Line type (default: 'solid')
+  </ParamField>
+</ParamField>
+
+<ParamField path="itemStyle" type="ItemStyleOption">
+  Style for calendar cells (rectangles).
+  
+  Source: `CalendarModel.ts:79, 217-221`
+  
+  Default values:
+  - `color`: `tokens.color.neutral00`
+  - `borderWidth`: 1
+  - `borderColor`: `tokens.color.neutral10`
+</ParamField>
+
+<ParamField path="dayLabel" type="object">
+  Configuration for day-of-week labels.
+  
+  Source: `CalendarModel.ts:92-117, 224-233`
+  
+  <ParamField path="dayLabel.show" type="boolean" default="true">
+    Whether to show day labels.
+  </ParamField>
+  
+  <ParamField path="dayLabel.firstDay" type="number" default="0">
+    First day of the week. 0 = Sunday, 1 = Monday, etc.
+  </ParamField>
+  
+  <ParamField path="dayLabel.margin" type="number | string" default="tokens.size.s">
+    Margin between day label and axis line. Can be percent string of cell size.
+  </ParamField>
+  
+  <ParamField path="dayLabel.position" type="'start' | 'end'" default="'start'">
+    Position of week labels, at the beginning or end of the range.
+  </ParamField>
+  
+  <ParamField path="dayLabel.nameMap" type="string | string[]">
+    Week text content. Defaults to auto-detected locale or can be:
+    - A locale name (case-sensitive): `'en'`, `'zh'`
+    - Custom array: `['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']` (index 0 is Sunday)
+  </ParamField>
+  
+  <ParamField path="dayLabel.color" type="Color" default="tokens.color.secondary">
+    Text color for day labels.
+  </ParamField>
+</ParamField>
+
+<ParamField path="monthLabel" type="object">
+  Configuration for month labels.
+  
+  Source: `CalendarModel.ts:119-140, 236-248`
+  
+  <ParamField path="monthLabel.show" type="boolean" default="true">
+    Whether to show month labels.
+  </ParamField>
+  
+  <ParamField path="monthLabel.margin" type="number" default="tokens.size.s">
+    Margin between month label and axis line.
+  </ParamField>
+  
+  <ParamField path="monthLabel.position" type="'start' | 'end'" default="'start'">
+    Position of month labels.
+  </ParamField>
+  
+  <ParamField path="monthLabel.align" type="'center' | 'left'" default="'center'">
+    Alignment of month text.
+  </ParamField>
+  
+  <ParamField path="monthLabel.nameMap" type="string | string[]">
+    Month text content. Defaults to auto-detected locale or can be:
+    - A locale name: `'en'`, `'zh'`
+    - Custom array: `['Jan', 'Feb', ..., 'Dec']` (index 0 is January)
+  </ParamField>
+  
+  <ParamField path="monthLabel.formatter" type="string | function">
+    Month label formatter. Receives parameters:
+    - `nameMap`: Month name
+    - `yyyy`: Full year (4 digits)
+    - `yy`: Short year (2 digits)
+    - `MM`: Month number with 0 prefix
+    - `M`: Month number
+  </ParamField>
+  
+  <ParamField path="monthLabel.color" type="Color" default="tokens.color.secondary">
+    Text color for month labels.
+  </ParamField>
+</ParamField>
+
+<ParamField path="yearLabel" type="object">
+  Configuration for year labels.
+  
+  Source: `CalendarModel.ts:142-154, 251-262`
+  
+  <ParamField path="yearLabel.show" type="boolean" default="true">
+    Whether to show year labels.
+  </ParamField>
+  
+  <ParamField path="yearLabel.margin" type="number" default="tokens.size.xl">
+    Margin between year label and axis line.
+  </ParamField>
+  
+  <ParamField path="yearLabel.position" type="'top' | 'bottom' | 'left' | 'right'">
+    Position of year labels. Defaults to null (auto-positioned).
+  </ParamField>
+  
+  <ParamField path="yearLabel.formatter" type="string | function">
+    Year label formatter. Receives parameters:
+    - `nameMap`: Year name
+    - `start`: Start year
+    - `end`: End year
+  </ParamField>
+  
+  <ParamField path="yearLabel.color" type="Color" default="tokens.color.quaternary">
+    Text color for year labels.
+  </ParamField>
+  
+  <ParamField path="yearLabel.fontFamily" type="string" default="'sans-serif'">
+    Font family for year labels.
+  </ParamField>
+  
+  <ParamField path="yearLabel.fontWeight" type="string" default="'bolder'">
+    Font weight for year labels.
+  </ParamField>
+  
+  <ParamField path="yearLabel.fontSize" type="number" default="20">
+    Font size for year labels.
+  </ParamField>
+</ParamField>
+
+<ParamField path="z" type="number" default="2">
+  z-index of the component. Set to 2 to prevent series from appearing on top of borders.
+  
+  Source: `CalendarModel.ts:197`
+</ParamField>
+
+## Implementation Details
+
+The CalendarModel class extends ComponentModel and implements `CoordinateSystemHostModel`. Key implementation details from `CalendarModel.ts`:
+
+### Cell Size Normalization
+
+The `cellSize` property is normalized to always be an array of two values `[width, height]` (source: `CalendarModel.ts:267-281`):
+- Single values are duplicated: `20` → `[20, 20]`
+- If `width` or both `left` and `right` are set, cellSize width becomes `'auto'`
+- If `height` or both `top` and `bottom` are set, cellSize height becomes `'auto'`
+
+### Layout Mode
+
+The calendar uses box layout mode (source: `CalendarModel.ts:163`), which means it supports standard box layout parameters like `left`, `top`, `right`, `bottom`, `width`, and `height`.
+
+### Date Range Parsing
+
+The `range` option accepts flexible formats (source: `CalendarModel.ts:82-90`):
+- A single year is treated as the full year
+- A month string is treated as that full month
+- An array defines start and end dates
+- Month-only formats in arrays are normalized to the first day of each month
+
+## Related Components
+
+- [Heatmap Chart](/charts/heatmap) - Perfect for calendar-based heatmaps
+- [Scatter Chart](/charts/scatter) - Can be used with calendar coordinates
+- [Visual Map](/components/visual-map) - For mapping data values to colors in calendar heatmaps

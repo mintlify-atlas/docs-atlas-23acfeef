@@ -1,0 +1,179 @@
+---
+title: 'ECharts Instance'
+description: 'Overview of the ECharts instance API and its methods'
+---
+
+The ECharts instance is the core object returned by `echarts.init()`. It provides methods for chart configuration, interaction, and lifecycle management.
+
+## Getting an Instance
+
+Create an ECharts instance using the `init()` method:
+
+```javascript
+const chart = echarts.init(document.getElementById('main'));
+```
+
+See [echarts.init()](/api/init) for detailed initialization options.
+
+## Type Definition
+
+```typescript
+interface EChartsType extends ECharts {}
+```
+
+The `EChartsType` interface extends the `ECharts` class, providing access to all instance methods.
+
+## Core Instance Methods
+
+### Configuration
+
+- **setOption()** - Set chart option and render
+- **getOption()** - Get current chart option
+- **setTheme()** - Update theme and repaint
+
+### Dimensions
+
+- **getWidth()** - Get canvas width
+- **getHeight()** - Get canvas height
+- **getDom()** - Get the DOM container
+- **resize()** - Resize the chart
+
+### Interaction
+
+- **dispatchAction()** - Trigger chart action
+- **on()** - Bind event handler
+- **off()** - Unbind event handler
+
+### Coordinate Conversion
+
+- **convertToPixel()** - Convert logical coordinate to pixel coordinate
+- **convertFromPixel()** - Convert pixel coordinate to logical coordinate
+- **containPixel()** - Check if pixel point is in coordinate system
+
+### Export
+
+- **getDataURL()** - Export chart as image data URL
+- **getConnectedDataURL()** - Export connected charts as single image
+- **renderToCanvas()** - Render chart to canvas element
+- **renderToSVGString()** - Render chart to SVG string (SVG renderer only)
+
+### Loading State
+
+- **showLoading()** - Display loading animation
+- **hideLoading()** - Hide loading animation
+
+### Lifecycle
+
+- **clear()** - Clear the chart (sets empty option)
+- **dispose()** - Destroy the chart instance and release resources
+- **isDisposed()** - Check if instance has been disposed
+
+### Data Operations
+
+- **appendData()** - Append data for streaming (incremental rendering)
+
+### Advanced
+
+- **getVisual()** - Get visual encoding from series or data
+- **getZr()** - Get ZRender instance
+- **getId()** - Get chart instance ID
+- **isSSR()** - Check if in server-side rendering mode
+
+## Properties
+
+<ParamField path="id" type="string" readonly>
+  Unique identifier for the chart instance
+</ParamField>
+
+<ParamField path="group" type="string">
+  Group ID for connecting multiple charts. Charts with the same group ID will be synchronized.
+  
+  ```javascript
+  const chart1 = echarts.init(dom1);
+  const chart2 = echarts.init(dom2);
+  chart1.group = 'myGroup';
+  chart2.group = 'myGroup';
+  echarts.connect('myGroup');
+  ```
+</ParamField>
+
+## Example: Basic Instance Usage
+
+```javascript
+// Initialize instance
+const chart = echarts.init(document.getElementById('main'));
+
+// Configure chart
+chart.setOption({
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150] }]
+});
+
+// Bind event
+chart.on('click', function(params) {
+  console.log('Clicked:', params.name);
+});
+
+// Resize on window resize
+window.addEventListener('resize', () => {
+  chart.resize();
+});
+
+// Export as image
+const dataURL = chart.getDataURL({
+  type: 'png',
+  pixelRatio: 2,
+  backgroundColor: '#fff'
+});
+
+// Cleanup when done
+chart.dispose();
+```
+
+## Example: Connected Charts
+
+```javascript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+// Method 1: Set group property
+chart1.group = 'sales';
+chart2.group = 'sales';
+echarts.connect('sales');
+
+// Method 2: Pass array to connect
+echarts.connect([chart1, chart2]);
+
+// Now interactions on one chart will sync to the other
+```
+
+## Important Notes
+
+<Warning>
+  Always call `dispose()` when you no longer need the chart instance to prevent memory leaks:
+  
+  ```javascript
+  chart.dispose();
+  ```
+</Warning>
+
+<Note>
+  The instance methods should not be called during the main process (`setOption`, `resize`, or `dispatchAction` execution). Nested calls may cause unexpected behavior.
+</Note>
+
+<Info>
+  Use `isDisposed()` to check if an instance is still valid before calling other methods:
+  
+  ```javascript
+  if (!chart.isDisposed()) {
+    chart.setOption(newOption);
+  }
+  ```
+</Info>
+
+## See Also
+
+- [echarts.init()](/api/init) - Initialize an ECharts instance
+- [echarts.dispose()](/api/dispose) - Dispose an instance
+- [echarts.connect()](/api/connect) - Connect multiple instances

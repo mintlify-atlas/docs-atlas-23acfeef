@@ -1,0 +1,336 @@
+---
+title: Series Options
+description: Overview of all available series types and common series configuration options in Apache ECharts
+---
+
+# Series Options
+
+The `series` option is one of the most important configurations in ECharts. It defines what type of chart to display and how the data should be visualized.
+
+## Overview
+
+Each series has a `type` property that determines the chart type. You can use multiple series in a single chart to create combined visualizations.
+
+```javascript
+option = {
+  series: [
+    {
+      type: 'line',
+      data: [120, 200, 150, 80, 70, 110, 130]
+    },
+    {
+      type: 'bar',
+      data: [100, 180, 130, 60, 50, 90, 110]
+    }
+  ]
+};
+```
+
+## Available Series Types
+
+ECharts supports the following series types (defined in `~/workspace/source/src/export/option.ts:229-253`):
+
+### Cartesian Coordinate System
+
+- **line** - Line chart for showing trends over time or continuous data
+- **bar** - Bar chart for comparing values across categories
+- **scatter** - Scatter plot for showing correlation between variables
+- **effectScatter** - Scatter with ripple animation effects
+- **candlestick** - Candlestick chart for financial data
+- **boxplot** - Box plot for statistical analysis
+- **heatmap** - Heat map for visualizing matrix data
+- **pictorialBar** - Pictorial bar chart using custom symbols
+
+### Polar Coordinate System
+
+- **pie** - Pie chart for showing proportions
+- **radar** - Radar chart for multivariate data
+
+### Geographic Coordinate System
+
+- **map** - Geographic map visualization
+- **lines** - Lines on geographic or other coordinates
+
+### Graph & Tree
+
+- **graph** - Graph/network visualization with nodes and edges
+- **tree** - Tree diagram for hierarchical data
+- **treemap** - Treemap for hierarchical data with nested rectangles
+- **sunburst** - Sunburst chart for hierarchical proportions
+
+### Flow & Relationship
+
+- **sankey** - Sankey diagram for flow visualization
+- **chord** - Chord diagram for showing relationships
+- **themeRiver** - Theme river for temporal data
+
+### Other
+
+- **funnel** - Funnel chart for process stages
+- **gauge** - Gauge chart for KPI display
+- **parallel** - Parallel coordinates for multivariate data
+- **custom** - Custom series with user-defined rendering
+
+## Common Series Options
+
+All series types share these common configuration options (from `~/workspace/source/src/util/types.ts:1867-1943`):
+
+### Basic Options
+
+```typescript
+interface SeriesOption {
+  // Series type (required)
+  type?: string;
+  
+  // Series name for display in tooltip and legend
+  name?: string;
+  
+  // Series id for identification
+  id?: string;
+  
+  // Data array
+  data?: any[];
+  
+  // Color by strategy: 'series' | 'data'
+  colorBy?: string;
+}
+```
+
+### Interaction Options
+
+```typescript
+interface SeriesOption {
+  // Disable mouse events
+  silent?: boolean;
+  
+  // Cursor style when hovering
+  cursor?: string;
+  
+  // Link with legend hover events
+  legendHoverLink?: boolean;
+  
+  // Selection mode
+  selectedMode?: 'single' | 'multiple' | 'series' | boolean;
+  
+  // Pre-selected data items
+  selectedMap?: Record<string, boolean> | 'all';
+}
+```
+
+### Visual Options
+
+```typescript
+interface SeriesOption {
+  // Blend mode for compositing
+  blendMode?: string;
+  
+  // Color palette for the series
+  color?: string | string[];
+}
+```
+
+### Animation Options
+
+```typescript
+interface SeriesOption {
+  // Enable/disable animation
+  animation?: boolean;
+  
+  // Animation duration in ms
+  animationDuration?: number;
+  
+  // Animation easing function
+  animationEasing?: string;
+  
+  // Animation delay
+  animationDelay?: number;
+  
+  // State transition animation
+  stateAnimation?: AnimationOption;
+  
+  // Universal transition for morphing between series
+  universalTransition?: boolean | object;
+}
+```
+
+### Performance Options
+
+```typescript
+interface SeriesOption {
+  // Progressive rendering for large datasets
+  progressive?: number | false;
+  
+  // Threshold to enable progressive rendering
+  progressiveThreshold?: number;
+  
+  // Progressive chunk mode
+  progressiveChunkMode?: 'mod';
+  
+  // Hover layer threshold for performance
+  hoverLayerThreshold?: number;
+}
+```
+
+### Dataset Options
+
+```typescript
+interface SeriesOption {
+  // Reference to dataset by index
+  datasetIndex?: number;
+  
+  // Reference to dataset by id
+  datasetId?: string;
+  
+  // How series is laid out: by column or row
+  seriesLayoutBy?: 'column' | 'row';
+  
+  // Dimension encoding
+  encode?: object;
+}
+```
+
+### Label Options
+
+```typescript
+interface SeriesOption {
+  // Label configuration
+  label?: {
+    show?: boolean;
+    position?: string;
+    formatter?: string | Function;
+    // ... more label options
+  };
+  
+  // Label line for pie charts
+  labelLine?: object;
+  
+  // Label layout strategy
+  labelLayout?: object | Function;
+}
+```
+
+### State Options
+
+All series support different visual states (from `~/workspace/source/src/util/types.ts:1874`):
+
+```typescript
+interface SeriesOption {
+  // Emphasis state (hover)
+  emphasis?: {
+    focus?: 'none' | 'self' | 'series';
+    scale?: boolean | number;
+    // ... state-specific options
+  };
+  
+  // Blur state
+  blur?: {
+    // ... state-specific options  
+  };
+  
+  // Select state
+  select?: {
+    // ... state-specific options
+  };
+}
+```
+
+## Series-Specific Options
+
+Each series type has additional specific options. For example:
+
+### Line Series
+
+From `~/workspace/source/src/chart/line/LineSeries.ts:74-135`:
+
+```typescript
+interface LineSeriesOption {
+  type: 'line';
+  
+  // Smooth curve
+  smooth?: boolean | number;
+  
+  // Step line style
+  step?: false | 'start' | 'end' | 'middle';
+  
+  // Show symbols on data points
+  showSymbol?: boolean;
+  
+  // Symbol type
+  symbol?: string;
+  symbolSize?: number;
+  
+  // Area style
+  areaStyle?: object;
+  
+  // Line style
+  lineStyle?: {
+    width?: number;
+    type?: 'solid' | 'dashed' | 'dotted';
+  };
+  
+  // Connect null values
+  connectNulls?: boolean;
+  
+  // Coordinate system
+  coordinateSystem?: 'cartesian2d' | 'polar';
+}
+```
+
+### Bar Series
+
+From `~/workspace/source/src/chart/bar/BarSeries.ts:68-94`:
+
+```typescript
+interface BarSeriesOption {
+  type: 'bar';
+  
+  // Coordinate system
+  coordinateSystem?: 'cartesian2d' | 'polar';
+  
+  // Show background for bars
+  showBackground?: boolean;
+  backgroundStyle?: object;
+  
+  // Round caps for polar bars
+  roundCap?: boolean;
+  
+  // Item style with border radius
+  itemStyle?: {
+    borderRadius?: number | number[];
+  };
+  
+  // Realtime sorting
+  realtimeSort?: boolean;
+}
+```
+
+## Mark Components
+
+Series can be enhanced with mark components (from `~/workspace/source/src/export/option.ts:183-189`):
+
+```typescript
+interface SeriesOption {
+  // Mark point for highlighting specific data
+  markPoint?: MarkPointOption;
+  
+  // Mark line for reference lines
+  markLine?: MarkLineOption;
+  
+  // Mark area for highlighting regions
+  markArea?: MarkAreaOption;
+  
+  // Tooltip configuration
+  tooltip?: TooltipOption;
+}
+```
+
+## Related Documentation
+
+- [Global Options](/api/options/global) - Top-level chart configuration
+- [TypeScript Types](/api/options/types) - Type definitions for TypeScript users
+
+## Source Code References
+
+- Series type definitions: `~/workspace/source/src/export/option.ts:191-213`
+- Base series interface: `~/workspace/source/src/util/types.ts:1867-1943`
+- Series implementations: `~/workspace/source/src/chart/*/`

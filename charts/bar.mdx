@@ -1,0 +1,336 @@
+---
+title: Bar Chart
+description: Display categorical data with rectangular bars in Apache ECharts
+---
+
+## Overview
+
+Bar charts use rectangular bars to represent data values, with bar lengths proportional to the values they represent. They're one of the most common chart types for comparing data across categories.
+
+## When to Use
+
+Use bar charts when you need to:
+
+- Compare values across different categories
+- Show discrete data comparisons
+- Display rankings or frequency distributions
+- Visualize part-to-whole relationships with stacked bars
+- Make side-by-side comparisons with grouped bars
+
+## Basic Configuration
+
+The bar chart is configured through the `BarSeriesOption` interface, which extends base bar series options with bar-specific features.
+
+```typescript
+interface BarSeriesOption {
+  type: 'bar'
+  coordinateSystem?: 'cartesian2d' | 'polar'
+  data?: (BarDataItemOption | OptionDataValue | OptionDataValue[])[]
+  barWidth?: number | string
+  barMaxWidth?: number | string
+  barMinWidth?: number | string
+  barGap?: string | number
+  barCategoryGap?: string | number
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Quarterly Revenue by Region'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  legend: {
+    data: ['Q1', 'Q2', 'Q3', 'Q4']
+  },
+  xAxis: {
+    type: 'category',
+    data: ['North', 'South', 'East', 'West']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'Q1',
+      type: 'bar',
+      data: [120, 200, 150, 80],
+      itemStyle: {
+        borderRadius: [5, 5, 0, 0]
+      }
+    },
+    {
+      name: 'Q2',
+      type: 'bar',
+      data: [140, 220, 170, 90]
+    },
+    {
+      name: 'Q3',
+      type: 'bar',
+      data: [160, 240, 190, 100]
+    },
+    {
+      name: 'Q4',
+      type: 'bar',
+      data: [180, 260, 210, 110]
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="coordinateSystem" type="'cartesian2d' | 'polar'" default="'cartesian2d'">
+  The coordinate system for the bar chart. Supports Cartesian (standard bars) and polar (radial bars) systems.
+</ParamField>
+
+<ParamField path="barWidth" type="number | string">
+  Width of the bars. Can be an absolute pixel value or a percentage string.
+  
+  ```javascript
+  barWidth: 20      // 20 pixels
+  barWidth: '60%'   // 60% of available width
+  ```
+</ParamField>
+
+<ParamField path="barMaxWidth" type="number | string" default="1">
+  Maximum width of bars. Defaults to 1 on cartesian coordinate system.
+  
+  ```javascript
+  barMaxWidth: 50
+  ```
+</ParamField>
+
+<ParamField path="barMinWidth" type="number | string">
+  Minimum width of bars.
+  
+  ```javascript
+  barMinWidth: 5
+  ```
+</ParamField>
+
+<ParamField path="barMinHeight" type="number" default="0">
+  Minimum height of bars. Useful for ensuring very small values are still visible.
+  
+  ```javascript
+  barMinHeight: 2
+  ```
+</ParamField>
+
+<ParamField path="barGap" type="string | number" default="'10%'">
+  Gap between bars in the same category. Can be a percentage string or absolute pixel value. Use `'-100%'` for overlapping bars.
+  
+  ```javascript
+  barGap: '30%'     // 30% gap
+  barGap: 10        // 10 pixel gap
+  barGap: '-100%'   // Overlapping bars
+  ```
+</ParamField>
+
+<ParamField path="barCategoryGap" type="string | number" default="'20%'">
+  Gap between categories.
+  
+  ```javascript
+  barCategoryGap: '20%'
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="BarItemStyleOption">
+  Visual style of the bars, including border radius support.
+  
+  ```javascript
+  itemStyle: {
+    color: '#5470c6',
+    borderRadius: [5, 5, 0, 0],  // Top-left, top-right, bottom-right, bottom-left
+    borderColor: '#000',
+    borderWidth: 1
+  }
+  ```
+</ParamField>
+
+<ParamField path="showBackground" type="boolean" default="false">
+  Whether to show background behind bars.
+  
+  ```javascript
+  showBackground: true,
+  backgroundStyle: {
+    color: 'rgba(180, 180, 180, 0.2)'
+  }
+  ```
+</ParamField>
+
+<ParamField path="backgroundStyle" type="ItemStyleOption">
+  Style of the bar background when `showBackground` is enabled.
+  
+  ```javascript
+  backgroundStyle: {
+    color: 'rgba(180, 180, 180, 0.2)',
+    borderColor: null,
+    borderWidth: 0,
+    borderRadius: 0
+  }
+  ```
+</ParamField>
+
+<ParamField path="roundCap" type="boolean" default="false">
+  Whether to use rounded caps on both ends of bars. Only available for tangential polar bars.
+  
+  ```javascript
+  roundCap: true
+  ```
+</ParamField>
+
+<ParamField path="realtimeSort" type="boolean" default="false">
+  Enable real-time sorting of bars, useful for creating racing bar chart animations.
+  
+  ```javascript
+  realtimeSort: true
+  ```
+</ParamField>
+
+<ParamField path="stack" type="string">
+  Stack bars with the same stack value.
+  
+  ```javascript
+  stack: 'total'  // All series with stack: 'total' will be stacked
+  ```
+</ParamField>
+
+<ParamField path="sampling" type="string">
+  Sampling strategy for large datasets: `'average'`, `'max'`, `'min'`, `'sum'`, `'lttb'`.
+  
+  ```javascript
+  large: true,
+  largeThreshold: 400,
+  sampling: 'max'
+  ```
+</ParamField>
+
+<ParamField path="clip" type="boolean" default="true">
+  Whether to clip bars that overflow the coordinate system. Only available on cartesian2d.
+</ParamField>
+
+<ParamField path="label" type="BarSeriesLabelOption">
+  Label configuration for bars. Supports special positions for polar bars.
+  
+  ```javascript
+  label: {
+    show: true,
+    position: 'top',  // 'top' | 'inside' | 'insideTop' | 'bottom' | 'left' | 'right'
+    formatter: '{c}'
+  }
+  ```
+</ParamField>
+
+## Data Format
+
+Bar chart data supports multiple formats:
+
+```javascript
+// Simple array of values
+data: [120, 200, 150, 80, 70]
+
+// Array of value arrays
+data: [[0, 120], [1, 200], [2, 150]]
+
+// Array of data item objects
+data: [
+  {
+    value: 120,
+    name: 'North',
+    itemStyle: {
+      color: '#91cc75',
+      borderRadius: [10, 10, 0, 0]
+    }
+  },
+  { value: 200, name: 'South' },
+  { value: 150, name: 'East' }
+]
+```
+
+## Advanced Features
+
+### Stacked Bar Chart
+
+```javascript
+series: [
+  {
+    name: 'Product A',
+    type: 'bar',
+    stack: 'total',
+    data: [120, 132, 101, 134, 90]
+  },
+  {
+    name: 'Product B',
+    type: 'bar',
+    stack: 'total',
+    data: [220, 182, 191, 234, 290]
+  }
+]
+```
+
+### Horizontal Bar Chart
+
+Swap x and y axes:
+
+```javascript
+xAxis: {
+  type: 'value'
+},
+yAxis: {
+  type: 'category',
+  data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+},
+series: [{
+  type: 'bar',
+  data: [120, 200, 150, 80, 70]
+}]
+```
+
+### Bar Chart with Background
+
+```javascript
+series: [{
+  type: 'bar',
+  data: [120, 200, 150, 80, 70],
+  showBackground: true,
+  backgroundStyle: {
+    color: 'rgba(180, 180, 180, 0.2)',
+    borderRadius: [5, 5, 0, 0]
+  }
+}]
+```
+
+### Racing Bar Chart
+
+```javascript
+series: [{
+  type: 'bar',
+  realtimeSort: true,
+  data: [/* dynamic data */],
+  animationDuration: 300,
+  animationDurationUpdate: 300
+}]
+```
+
+## Source Reference
+
+The bar chart implementation can be found in:
+- Series model: `src/chart/bar/BarSeries.ts:96-169`
+- Base bar series: `src/chart/bar/BaseBarSeries.ts:84-215`
+- Default options: `src/chart/bar/BarSeries.ts:138-167`
+- Type definitions: `src/chart/bar/BarSeries.ts:49-94`

@@ -1,0 +1,465 @@
+---
+title: "Radius Axis"
+description: "Configure the radius axis for polar coordinate charts in Apache ECharts"
+---
+
+The radius axis is the radial component of polar coordinate charts. It works with the polar component and angle axis to create circular visualizations, controlling the distance from the center point.
+
+## Basic Configuration
+
+The radius axis supports the same four types as other axes: `value`, `category`, `time`, and `log`.
+
+```javascript
+option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['North', 'East', 'South', 'West']
+  },
+  radiusAxis: {
+    type: 'value',
+    min: 0,
+    max: 100
+  },
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30, 40],
+    coordinateSystem: 'polar'
+  }]
+}
+```
+
+## Axis Types
+
+### Value Axis
+
+Most common for radius axis. Maps numerical values to distances from the center.
+
+```javascript
+radiusAxis: {
+  type: 'value',
+  min: 0,
+  max: 100,
+  splitNumber: 5
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:207-217](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Category Axis
+
+Ordinal axis dividing the radius into discrete bands.
+
+```javascript
+radiusAxis: {
+  type: 'category',
+  data: ['Inner', 'Middle', 'Outer'],
+  boundaryGap: true
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:182-206](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Time Axis
+
+Temporal axis for time-based radial visualizations.
+
+```javascript
+radiusAxis: {
+  type: 'time',
+  splitNumber: 10
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:223-226](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Log Axis
+
+Logarithmic axis for exponential radial scaling.
+
+```javascript
+radiusAxis: {
+  type: 'log',
+  logBase: 10,
+  min: 1,
+  max: 10000
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:218-222](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+## Key Properties
+
+<ParamField path="type" type="'value' | 'category' | 'time' | 'log'" default="'value'">
+  Axis type determines the scale and data interpretation.
+  
+  Reference: [src/coord/axisCommonTypes.ts:34](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="polarIndex" type="number" default="0">
+  Index of the polar component that the radius axis belongs to.
+  
+  Reference: [src/coord/polar/AxisModel.ts:53](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="polarId" type="string">
+  ID of the polar component that the radius axis belongs to.
+  
+  Reference: [src/coord/polar/AxisModel.ts:57](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="name" type="string">
+  Axis name displayed on the chart.
+  
+  Reference: [src/coord/axisCommonTypes.ts:44](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="min" type="number | 'dataMin' | function">
+  Minimum value of the axis (innermost radius). Can be:
+  - A specific number
+  - `'dataMin'`: use the minimum value in data
+  - A function that returns the min value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:105](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="max" type="number | 'dataMax' | function">
+  Maximum value of the axis (outermost radius). Can be:
+  - A specific number
+  - `'dataMax'`: use the maximum value in data
+  - A function that returns the max value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:112](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="inverse" type="boolean" default="false">
+  Whether to inverse the axis direction. When `true`, larger values are closer to the center.
+  
+  Reference: [src/coord/axisCommonTypes.ts:42](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="boundaryGap" type="boolean | [string, string]">
+  For category axis: whether to add gap at both ends (default `true`).
+  For value/time/log axis: gap value at both ends.
+  
+  Reference: [src/coord/axisCommonTypes.ts:140](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitNumber" type="number" default="5">
+  Number of concentric circles. Only works for value, time, and log axes.
+  
+  Reference: [src/coord/axisCommonTypes.ts:145](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="interval" type="number">
+  Mandatory interval for axis ticks. Overrides automatic calculation.
+  
+  Reference: [src/coord/axisCommonTypes.ts:149](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minInterval" type="number">
+  Minimum interval when auto-calculating tick intervals.
+  
+  Reference: [src/coord/axisCommonTypes.ts:153](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="maxInterval" type="number">
+  Maximum interval when auto-calculating tick intervals.
+  
+  Reference: [src/coord/axisCommonTypes.ts:157](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="scale" type="boolean" default="false">
+  Only for value axis. If `false`, axis always includes zero. If `true`, the axis may not contain zero.
+  
+  Reference: [src/coord/axisCommonTypes.ts:216](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Label Configuration
+
+<ParamField path="axisLabel" type="object">
+  Configuration for axis labels displayed along the radius axis.
+  
+  Reference: [src/coord/axisCommonTypes.ts:89](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.show" type="boolean" default="true">
+  Whether to show axis labels.
+</ParamField>
+
+<ParamField path="axisLabel.margin" type="number" default="8">
+  Margin between label and axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:331](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.formatter" type="string | function">
+  Label formatter. Can be a template string or callback function.
+  
+  Reference: [src/coord/axisCommonTypes.ts:340](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.rotate" type="number">
+  Rotation angle of labels in degrees.
+  
+  Reference: [src/coord/axisCommonTypes.ts:316](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.showMinLabel" type="boolean">
+  Whether to show the minimum label (at center).
+  
+  Reference: [src/coord/axisCommonTypes.ts:319](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.showMaxLabel" type="boolean">
+  Whether to show the maximum label (at outer edge).
+  
+  Reference: [src/coord/axisCommonTypes.ts:321](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.hideOverlap" type="boolean" default="false">
+  Whether to hide overlapping labels automatically.
+  
+  Reference: [src/coord/axisCommonTypes.ts:335](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Line & Ticks
+
+<ParamField path="axisLine" type="object">
+  Configuration for the axis line (radial line).
+  
+  Reference: [src/coord/axisCommonTypes.ts:92](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLine.show" type="boolean | 'auto'" default="true">
+  Whether to show the axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:232](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick" type="object">
+  Configuration for axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:93](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.show" type="boolean | 'auto'" default="true">
+  Whether to show axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:245](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.length" type="number" default="5">
+  Length of axis ticks in pixels.
+  
+  Reference: [src/coord/axisCommonTypes.ts:249](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minorTick" type="object">
+  Configuration for minor ticks between major ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:94](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minorTick.show" type="boolean" default="false">
+  Whether to show minor ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:347](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minorTick.splitNumber" type="number" default="5">
+  Number of minor ticks between two major ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:348](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Split Lines & Areas
+
+<ParamField path="splitLine" type="object">
+  Configuration for split lines (concentric circles).
+  
+  Reference: [src/coord/axisCommonTypes.ts:95](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitLine.show" type="boolean" default="true">
+  Whether to show split lines (the circular grid lines).
+  
+  Reference: [src/coord/axisCommonTypes.ts:354](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minorSplitLine" type="object">
+  Configuration for minor split lines.
+  
+  Reference: [src/coord/axisCommonTypes.ts:96](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="minorSplitLine.show" type="boolean" default="false">
+  Whether to show minor split lines.
+  
+  Reference: [src/coord/axisCommonTypes.ts:365](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea" type="object">
+  Configuration for split areas (concentric ring areas).
+  
+  Reference: [src/coord/axisCommonTypes.ts:97](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea.show" type="boolean" default="false">
+  Whether to show split areas.
+  
+  Reference: [src/coord/axisCommonTypes.ts:370](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Advanced Examples
+
+### Radar Chart Style
+
+```javascript
+option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['Speed', 'Power', 'Defense', 'Health', 'Agility']
+  },
+  radiusAxis: {
+    type: 'value',
+    min: 0,
+    max: 100,
+    splitNumber: 4,
+    axisLabel: {
+      show: true,
+      formatter: '{value}%'
+    },
+    splitLine: {
+      show: true,
+      lineStyle: {
+        color: '#999',
+        type: 'dashed'
+      }
+    },
+    splitArea: {
+      show: true,
+      areaStyle: {
+        color: ['rgba(250,250,250,0.3)', 'rgba(200,200,200,0.3)']
+      }
+    }
+  },
+  series: [{
+    type: 'line',
+    data: [80, 70, 60, 85, 90],
+    coordinateSystem: 'polar'
+  }]
+}
+```
+
+### Logarithmic Radius
+
+```javascript
+radiusAxis: {
+  type: 'log',
+  logBase: 10,
+  min: 1,
+  max: 10000,
+  axisLabel: {
+    formatter: function(value) {
+      return '10^' + Math.log10(value);
+    }
+  }
+}
+```
+
+### Donut Chart Configuration
+
+```javascript
+radiusAxis: {
+  type: 'category',
+  data: ['Inner Ring', 'Outer Ring'],
+  boundaryGap: true,
+  axisLine: {
+    show: false
+  },
+  axisTick: {
+    show: false
+  },
+  axisLabel: {
+    show: false
+  }
+}
+```
+
+### Inverse Radius (Center is Max)
+
+```javascript
+radiusAxis: {
+  type: 'value',
+  min: 0,
+  max: 100,
+  inverse: true,
+  axisLabel: {
+    formatter: '{value}'
+  },
+  splitLine: {
+    show: true,
+    lineStyle: {
+      color: '#ddd'
+    }
+  }
+}
+```
+
+### Category Bands
+
+```javascript
+radiusAxis: {
+  type: 'category',
+  data: ['Level 1', 'Level 2', 'Level 3', 'Level 4'],
+  boundaryGap: true,
+  axisLabel: {
+    rotate: 45,
+    formatter: function(value, index) {
+      return value + '\n(' + (index + 1) + ')';
+    }
+  },
+  splitArea: {
+    show: true,
+    areaStyle: {
+      color: ['#f3f3f3', '#e6e6e6', '#d9d9d9', '#cccccc']
+    }
+  }
+}
+```
+
+## Implementation Details
+
+The radius axis converts data to radius coordinates using the base axis coordinate transformation methods.
+
+Reference: [src/coord/polar/RadiusAxis.ts:30-48](~/workspace/source/src/coord/polar/RadiusAxis.ts)
+
+```typescript
+// From RadiusAxis.ts
+class RadiusAxis extends Axis {
+    polar: Polar;
+    model: RadiusAxisModel;
+
+    constructor(scale?: Scale, radiusExtent?: [number, number]) {
+        super('radius', scale, radiusExtent);
+    }
+
+    pointToData(point: number[], clamp?: boolean) {
+        return this.polar.pointToData(point, clamp)[this.dim === 'radius' ? 0 : 1];
+    }
+}
+
+RadiusAxis.prototype.dataToRadius = Axis.prototype.dataToCoord;
+RadiusAxis.prototype.radiusToData = Axis.prototype.coordToData;
+```
+
+## Related Components
+
+- [Angle Axis](/components/angle-axis) - Angular component of polar charts
+- [Polar](/components/polar) - Polar coordinate system
+- [X-Axis](/components/x-axis) - Horizontal Cartesian axis
+- [Y-Axis](/components/y-axis) - Vertical Cartesian axis

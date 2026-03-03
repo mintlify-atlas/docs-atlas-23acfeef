@@ -1,0 +1,405 @@
+---
+title: Brush Component
+description: Interactive area selection for data filtering and highlighting
+---
+
+The Brush component enables users to select data ranges by drawing selection areas directly on the chart, supporting multiple selection shapes and interaction modes.
+
+## Purpose
+
+Based on the source implementation in `~/workspace/source/src/component/brush/BrushModel.ts`, the brush component:
+
+- Allows interactive selection of data regions
+- Supports multiple brush types: rectangle, polygon, line
+- Provides visual feedback for selected and unselected data
+- Enables linked brushing across multiple charts
+- Supports single or multiple selection areas
+- Can be used with toolbox for brush mode activation
+
+## Basic Usage
+
+```javascript
+option = {
+  brush: {
+    toolbox: ['rect', 'polygon', 'clear'],
+    xAxisIndex: 0
+  },
+  xAxis: { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'scatter',
+    data: [[0, 10], [1, 20], [2, 15], [3, 25], [4, 18]]
+  }]
+};
+```
+
+## Rectangle Brush
+
+```javascript
+option = {
+  brush: {
+    brushType: 'rect',
+    brushMode: 'single',
+    transformable: true
+  },
+  xAxis: { type: 'value' },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'scatter',
+    data: [[10, 20], [15, 25], [20, 30], [25, 35]]
+  }]
+};
+```
+
+## Multiple Selection Mode
+
+```javascript
+option = {
+  brush: {
+    brushType: 'rect',
+    brushMode: 'multiple',
+    brushStyle: {
+      borderWidth: 1,
+      color: 'rgba(120, 140, 180, 0.3)',
+      borderColor: 'rgba(120, 140, 180, 0.8)'
+    },
+    removeOnClick: true
+  },
+  series: [{
+    type: 'scatter',
+    data: [[1, 2], [2, 3], [3, 4], [4, 5]]
+  }]
+};
+```
+
+## Visual Encoding for Selection
+
+```javascript
+option = {
+  brush: {
+    brushType: 'rect',
+    inBrush: {
+      opacity: 1,
+      liftZ: 5
+    },
+    outOfBrush: {
+      color: '#ddd',
+      opacity: 0.4
+    }
+  },
+  series: [{
+    type: 'scatter',
+    data: [[10, 20], [15, 25], [20, 30]],
+    itemStyle: { color: '#c23531' }
+  }]
+};
+```
+
+## Linked Brushing
+
+```javascript
+option = {
+  brush: {
+    brushLink: 'all',  // Link all series
+    brushMode: 'single'
+  },
+  series: [
+    {
+      type: 'scatter',
+      data: [[1, 2], [2, 3], [3, 4]]
+    },
+    {
+      type: 'scatter',
+      data: [[5, 6], [6, 7], [7, 8]]
+    }
+  ]
+};
+```
+
+## Configuration Options
+
+From `~/workspace/source/src/component/brush/BrushModel.ts`:
+
+### Brush Type and Mode
+
+<ParamField path="brushType" type="'rect' | 'polygon' | 'lineX' | 'lineY'" default="'rect'">
+  Type of brush shape:
+  - `'rect'`: Rectangle selection
+  - `'polygon'`: Polygon selection (click to add points, double-click to complete)
+  - `'lineX'`: Horizontal line selection
+  - `'lineY'`: Vertical line selection
+  
+  From `BrushModel.ts:138`.
+</ParamField>
+
+<ParamField path="brushMode" type="'single' | 'multiple'" default="'single'">
+  Selection mode:
+  - `'single'`: Only one brush area allowed
+  - `'multiple'`: Multiple brush areas can coexist
+  
+  From `BrushModel.ts:139`.
+</ParamField>
+
+<ParamField path="transformable" type="boolean" default="true">
+  Whether brush areas can be transformed (moved, resized) after creation.
+  
+  From `BrushModel.ts:140`.
+</ParamField>
+
+<ParamField path="removeOnClick" type="boolean" default="true">
+  Whether to remove brush area on click when it's already selected.
+  
+  From `BrushModel.ts:148`.
+</ParamField>
+
+### Target Configuration
+
+<ParamField path="seriesIndex" type="number | number[] | 'all' | 'none'" default="'all'">
+  Indices of series to apply brush to:
+  - `'all'`: Apply to all series
+  - `'none'` / `null` / `undefined`: No series
+  - Number or array: Specific series indices
+  
+  From `BrushModel.ts:137`.
+</ParamField>
+
+<ParamField path="xAxisIndex" type="number | number[]">
+  X-axis indices for coordinate-based brushing.
+</ParamField>
+
+<ParamField path="yAxisIndex" type="number | number[]">
+  Y-axis indices for coordinate-based brushing.
+</ParamField>
+
+<ParamField path="geoIndex" type="number | number[]">
+  Geo component indices for geographic brushing.
+</ParamField>
+
+### Brush Styling
+
+<ParamField path="brushStyle" type="object">
+  Style configuration for brush selection areas. From `BrushModel.ts:141-145`:
+  
+  ```javascript
+  brushStyle: {
+    borderWidth: 1,
+    color: tokens.color.backgroundTint,
+    borderColor: tokens.color.borderTint
+  }
+  ```
+</ParamField>
+
+<ParamField path="brushStyle.borderWidth" type="number" default="1">
+  Width of brush area border.
+</ParamField>
+
+<ParamField path="brushStyle.color" type="ZRColor" default="tokens.color.backgroundTint">
+  Fill color of brush selection area. From `BrushModel.ts:143`.
+</ParamField>
+
+<ParamField path="brushStyle.borderColor" type="ZRColor" default="tokens.color.borderTint">
+  Border color of brush selection area. From `BrushModel.ts:144`.
+</ParamField>
+
+### Visual Encoding
+
+<ParamField path="inBrush" type="object">
+  Visual properties for data items inside brush selection.
+  
+  Default includes `liftZ: 5` to elevate selected items. From `BrushModel.ts:183-191`:
+  
+  ```javascript
+  inBrush: {
+    opacity: 1,
+    liftZ: 5,
+    color: '#c23531'
+  }
+  ```
+</ParamField>
+
+<ParamField path="outOfBrush" type="object">
+  Visual properties for data items outside brush selection.
+  
+  Default color from `BrushModel.ts:150` and initialization at `BrushModel.ts:185`:
+  
+  ```javascript
+  outOfBrush: {
+    color: tokens.color.disabled,
+    opacity: 0.4
+  }
+  ```
+</ParamField>
+
+### Throttling
+
+<ParamField path="throttleType" type="'fixRate' | 'debounce'" default="'fixRate'">
+  Throttle type for brush events:
+  - `'fixRate'`: Fixed rate throttling
+  - `'debounce'`: Debounced updates
+  
+  Only valid in the first brush component. From `BrushModel.ts:146`.
+</ParamField>
+
+<ParamField path="throttleDelay" type="number" default="0">
+  Throttle delay in milliseconds. 0 means every event is triggered.
+  
+  From `BrushModel.ts:147`.
+</ParamField>
+
+### Linked Brushing
+
+<ParamField path="brushLink" type="number[] | 'all' | 'none'">
+  Series indices to link together for coordinated brushing:
+  - `'all'`: All series are linked
+  - `'none'` / `null` / `undefined`: No linking
+  - Array: Specific series indices to link
+  
+  When series are linked, brushing one will highlight corresponding data in others.
+  
+  From `BrushModel.ts:100`.
+</ParamField>
+
+### Toolbox Integration
+
+<ParamField path="toolbox" type="array">
+  Brush types to show in toolbox:
+  
+  ```javascript
+  toolbox: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear']
+  ```
+  
+  Where:
+  - `'rect'`, `'polygon'`, `'lineX'`, `'lineY'`: Brush type buttons
+  - `'keep'`: Keep selection mode
+  - `'clear'`: Clear all selections
+  
+  From `BrushModel.ts:96`.
+</ParamField>
+
+### Z-Index
+
+<ParamField path="z" type="number" default="10000">
+  Z-index for brush components. High value ensures brush appears above other elements.
+  
+  From `BrushModel.ts:149`.
+</ParamField>
+
+## Brush Areas
+
+The brush component maintains an internal array of brush areas (from `BrushModel.ts:156`). Each area includes:
+
+- `brushType`: Shape of the selection
+- `range`: Selected range in pixel/data coordinates
+- `panelId`: ID of the coordinate system panel
+- Styling properties inherited from brush options
+
+## Methods
+
+The BrushModel provides methods for programmatic control:
+
+### setAreas(areas)
+
+Set brush selection areas programmatically. From `BrushModel.ts:197-215`:
+
+```javascript
+myChart.dispatchAction({
+  type: 'brush',
+  areas: [
+    {
+      brushType: 'rect',
+      coordRange: [[10, 20], [30, 40]],
+      xAxisIndex: 0
+    }
+  ]
+});
+```
+
+### setBrushOption(brushOption)
+
+Set current brush painting options. From `BrushModel.ts:220-223`.
+
+## Events
+
+Brush component triggers events that can be listened to:
+
+```javascript
+myChart.on('brushSelected', function(params) {
+  console.log('Brush areas:', params.areas);
+  console.log('Selected data:', params.batch);
+});
+
+myChart.on('brushEnd', function(params) {
+  console.log('Brush completed');
+});
+```
+
+## Advanced Example: Multi-Chart Linked Brushing
+
+```javascript
+option = {
+  brush: {
+    brushLink: [0, 1],
+    brushType: 'rect',
+    brushMode: 'single',
+    transformable: true,
+    brushStyle: {
+      borderWidth: 2,
+      color: 'rgba(120, 140, 180, 0.2)',
+      borderColor: 'rgba(120, 140, 180, 0.8)'
+    },
+    inBrush: {
+      opacity: 1,
+      liftZ: 5
+    },
+    outOfBrush: {
+      color: '#ddd',
+      opacity: 0.3
+    },
+    throttleType: 'fixRate',
+    throttleDelay: 0,
+    removeOnClick: true,
+    z: 10000
+  },
+  grid: [
+    { left: '5%', right: '50%', top: '10%', height: '35%' },
+    { left: '5%', right: '50%', top: '55%', height: '35%' }
+  ],
+  xAxis: [
+    { type: 'value', gridIndex: 0 },
+    { type: 'value', gridIndex: 1 }
+  ],
+  yAxis: [
+    { type: 'value', gridIndex: 0 },
+    { type: 'value', gridIndex: 1 }
+  ],
+  series: [
+    {
+      type: 'scatter',
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+      data: [[10, 20], [15, 25], [20, 30], [25, 35]],
+      itemStyle: { color: '#c23531' }
+    },
+    {
+      type: 'scatter',
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      data: [[10, 20], [15, 25], [20, 30], [25, 35]],
+      itemStyle: { color: '#2f4554' }
+    }
+  ]
+};
+
+myChart.on('brushSelected', function(params) {
+  const selected = params.batch[0].selected;
+  console.log('Selected data indices:', selected);
+});
+```
+
+## Use Cases
+
+1. **Data Exploration**: Select and highlight specific data ranges for detailed analysis
+2. **Outlier Detection**: Identify and select outlier data points
+3. **Cross-Filtering**: Link multiple charts to filter data across visualizations
+4. **Region Selection**: Select geographic regions on map charts
+5. **Time Range Selection**: Select time periods on time-series charts

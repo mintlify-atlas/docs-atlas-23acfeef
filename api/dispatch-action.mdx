@@ -1,0 +1,430 @@
+---
+title: 'dispatchAction()'
+description: 'Trigger chart actions and interactions programmatically'
+---
+
+## Method Signature
+
+```typescript
+dispatchAction(
+  payload: Payload,
+  opt?: boolean | {
+    silent?: boolean,
+    flush?: boolean | undefined
+  }
+): void
+```
+
+## Description
+
+The `dispatchAction()` method triggers chart actions programmatically, allowing you to simulate user interactions or perform chart operations through code. This is useful for creating custom controls, triggering highlights, tooltips, data zoom, and other interactive features.
+
+## Parameters
+
+<ParamField path="payload" type="Payload" required>
+  An action payload object that specifies the action type and parameters. The structure varies depending on the action type.
+  
+  <Expandable title="Common Payload Properties">
+    <ParamField path="payload.type" type="string" required>
+      The action type. Examples: `'highlight'`, `'downplay'`, `'showTip'`, `'hideTip'`, `'select'`, `'unselect'`, `'dataZoom'`, etc.
+    </ParamField>
+    
+    <ParamField path="payload.seriesIndex" type="number | number[]">
+      The index of the series to target. Can be a single index or an array of indices.
+    </ParamField>
+    
+    <ParamField path="payload.seriesName" type="string | string[]">
+      The name of the series to target. Can be a single name or an array of names.
+    </ParamField>
+    
+    <ParamField path="payload.dataIndex" type="number | number[]">
+      The index of the data item(s) within the series.
+    </ParamField>
+    
+    <ParamField path="payload.name" type="string | string[]">
+      The name of the data item(s).
+    </ParamField>
+    
+    <ParamField path="payload.batch" type="Payload[]">
+      An array of payload objects to execute multiple actions in a batch.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="opt" type="boolean | object">
+  Options controlling the action behavior. Can be a boolean (interpreted as `silent`) or an options object.
+  
+  <Expandable title="Action Options">
+    <ParamField path="opt.silent" type="boolean" default="false">
+      When `true`, events will not be triggered by this action.
+    </ParamField>
+    
+    <ParamField path="opt.flush" type="boolean | undefined">
+      Controls whether to flush the rendering immediately after the action.
+      - `true`: Flush immediately (slower, but pixels can be fetched right after)
+      - `false`: Don't flush
+      - `undefined`: Auto-decide (flushes in WeChat browser to work around animation issues)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Return Value
+
+`void` - This method does not return a value.
+
+## Common Action Types
+
+### Highlight and Downplay
+
+```typescript
+// Highlight a data item
+chart.dispatchAction({
+  type: 'highlight',
+  seriesIndex: 0,
+  dataIndex: 5
+});
+
+// Downplay (remove highlight)
+chart.dispatchAction({
+  type: 'downplay',
+  seriesIndex: 0,
+  dataIndex: 5
+});
+```
+
+### Tooltip
+
+```typescript
+// Show tooltip
+chart.dispatchAction({
+  type: 'showTip',
+  seriesIndex: 0,
+  dataIndex: 2
+});
+
+// Hide tooltip
+chart.dispatchAction({
+  type: 'hideTip'
+});
+
+// Show tooltip at specific position
+chart.dispatchAction({
+  type: 'showTip',
+  x: 100,
+  y: 100
+});
+```
+
+### Select and Unselect
+
+```typescript
+// Select a data item
+chart.dispatchAction({
+  type: 'select',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+
+// Unselect a data item
+chart.dispatchAction({
+  type: 'unselect',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+
+// Toggle selection
+chart.dispatchAction({
+  type: 'toggleSelected',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+```
+
+### Legend
+
+```typescript
+// Toggle legend selection
+chart.dispatchAction({
+  type: 'legendToggleSelect',
+  name: 'Sales'
+});
+
+// Select legend item
+chart.dispatchAction({
+  type: 'legendSelect',
+  name: 'Sales'
+});
+
+// Unselect legend item
+chart.dispatchAction({
+  type: 'legendUnSelect',
+  name: 'Sales'
+});
+
+// Select all legend items
+chart.dispatchAction({
+  type: 'legendAllSelect'
+});
+
+// Invert legend selection
+chart.dispatchAction({
+  type: 'legendInverseSelect'
+});
+```
+
+### Data Zoom
+
+```typescript
+// Zoom to a specific range
+chart.dispatchAction({
+  type: 'dataZoom',
+  start: 20,
+  end: 80
+});
+
+// Zoom specific data zoom component
+chart.dispatchAction({
+  type: 'dataZoom',
+  dataZoomIndex: 0,
+  startValue: '2020-01-01',
+  endValue: '2020-12-31'
+});
+```
+
+### Timeline
+
+```typescript
+// Change timeline
+chart.dispatchAction({
+  type: 'timelineChange',
+  currentIndex: 3
+});
+
+// Play timeline
+chart.dispatchAction({
+  type: 'timelinePlayChange',
+  playState: true
+});
+```
+
+## Examples
+
+### Batch Actions
+
+```typescript
+// Highlight multiple items at once
+chart.dispatchAction({
+  type: 'highlight',
+  batch: [
+    { seriesIndex: 0, dataIndex: 0 },
+    { seriesIndex: 0, dataIndex: 1 },
+    { seriesIndex: 1, dataIndex: 2 }
+  ]
+});
+```
+
+### Silent Action
+
+```typescript
+// Perform action without triggering events
+chart.dispatchAction({
+  type: 'highlight',
+  seriesIndex: 0,
+  dataIndex: 5
+}, {
+  silent: true
+});
+
+// Or using boolean shorthand
+chart.dispatchAction({
+  type: 'highlight',
+  seriesIndex: 0,
+  dataIndex: 5
+}, true);
+```
+
+### Immediate Flush
+
+```typescript
+// Flush rendering immediately to capture canvas pixels
+chart.dispatchAction({
+  type: 'showTip',
+  seriesIndex: 0,
+  dataIndex: 0
+}, {
+  flush: true
+});
+
+// Get canvas data after flush
+const dataURL = chart.getDataURL();
+```
+
+### Custom Interactive Controls
+
+```typescript
+// Create custom buttons for highlighting
+const nextButton = document.getElementById('next');
+let currentIndex = 0;
+
+nextButton.addEventListener('click', () => {
+  // Downplay current
+  chart.dispatchAction({
+    type: 'downplay',
+    seriesIndex: 0,
+    dataIndex: currentIndex
+  });
+  
+  // Highlight next
+  currentIndex = (currentIndex + 1) % dataLength;
+  chart.dispatchAction({
+    type: 'highlight',
+    seriesIndex: 0,
+    dataIndex: currentIndex
+  });
+  
+  // Show tooltip
+  chart.dispatchAction({
+    type: 'showTip',
+    seriesIndex: 0,
+    dataIndex: currentIndex
+  });
+});
+```
+
+### Programmatic Tour
+
+```typescript
+function startChartTour(interval = 2000) {
+  const seriesData = chart.getOption().series[0].data;
+  let index = 0;
+  
+  const tourInterval = setInterval(() => {
+    // Show tooltip and highlight current item
+    chart.dispatchAction({
+      type: 'showTip',
+      seriesIndex: 0,
+      dataIndex: index
+    });
+    
+    chart.dispatchAction({
+      type: 'highlight',
+      seriesIndex: 0,
+      dataIndex: index
+    });
+    
+    // Downplay previous item
+    if (index > 0) {
+      chart.dispatchAction({
+        type: 'downplay',
+        seriesIndex: 0,
+        dataIndex: index - 1
+      });
+    }
+    
+    index++;
+    if (index >= seriesData.length) {
+      clearInterval(tourInterval);
+      chart.dispatchAction({ type: 'hideTip' });
+      chart.dispatchAction({
+        type: 'downplay',
+        seriesIndex: 0,
+        dataIndex: index - 1
+      });
+    }
+  }, interval);
+  
+  return tourInterval;
+}
+
+// Start the tour
+const tour = startChartTour(1500);
+```
+
+### Synchronized Charts
+
+```typescript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+// Setup options for both charts
+chart1.setOption(option1);
+chart2.setOption(option2);
+
+// Synchronize tooltip
+chart1.on('mousemove', (params) => {
+  chart2.dispatchAction({
+    type: 'showTip',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+});
+
+chart2.on('mousemove', (params) => {
+  chart1.dispatchAction({
+    type: 'showTip',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+});
+```
+
+## Important Notes
+
+<Warning>
+  If `dispatchAction` is called during the main rendering process, the action will be queued and executed after the rendering is complete. This prevents issues with nested updates.
+</Warning>
+
+<Note>
+  When using `batch` to trigger multiple actions at once, all actions in the batch will be processed together, and only one combined event will be triggered (unless `silent` is true).
+</Note>
+
+<Info>
+  In WeChat embedded browser, `dispatchAction` automatically throttles flush operations to work around issues with `requestAnimationFrame` and `setInterval` hanging during page slides.
+</Info>
+
+<Tip>
+  Use `silent: true` when you want to update the visual state without triggering event handlers. This is useful for preventing infinite loops in synchronized charts or when responding to external state changes.
+</Tip>
+
+## Action Types Reference
+
+### Interaction Actions
+- `highlight` - Highlight data items
+- `downplay` - Remove highlight from data items
+- `select` - Select data items
+- `unselect` - Unselect data items
+- `toggleSelected` - Toggle selection state
+
+### Tooltip Actions
+- `showTip` - Display tooltip
+- `hideTip` - Hide tooltip
+
+### Legend Actions
+- `legendSelect` - Select legend item
+- `legendUnSelect` - Unselect legend item
+- `legendToggleSelect` - Toggle legend selection
+- `legendAllSelect` - Select all legend items
+- `legendInverseSelect` - Invert legend selection
+
+### Data Zoom Actions
+- `dataZoom` - Set data zoom range
+- `takeGlobalCursor` - Enable brush selection
+
+### Timeline Actions
+- `timelineChange` - Change timeline current index
+- `timelinePlayChange` - Play/pause timeline
+
+### Geo/Map Actions
+- `geoSelect` - Select map region
+- `geoUnSelect` - Unselect map region
+- `geoToggleSelect` - Toggle map region selection
+
+## Related Methods
+
+- [on()](/api/on-off) - Listen to chart events
+- [off()](/api/on-off) - Remove event listeners
+- [setOption()](/api/set-option) - Configure chart options
+
+## Source Reference
+
+Implementation: `src/core/echarts.ts:1479-1529`

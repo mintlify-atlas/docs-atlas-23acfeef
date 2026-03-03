@@ -1,0 +1,163 @@
+---
+title: 'getOption()'
+description: 'Retrieve the current chart configuration'
+---
+
+## Method Signature
+
+```typescript
+getOption(): ECBasicOption
+```
+
+## Description
+
+The `getOption()` method returns the current option object of the chart. This is useful for retrieving the current state of the chart configuration, including any modifications made through user interactions or programmatic updates.
+
+## Parameters
+
+This method takes no parameters.
+
+## Return Value
+
+<ResponseField name="return" type="ECBasicOption">
+  The complete current chart option object, including all configurations for series, axes, components, and other settings.
+</ResponseField>
+
+## Examples
+
+### Basic Usage
+
+```typescript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  title: {
+    text: 'My Chart'
+  },
+  series: [{
+    type: 'line',
+    data: [1, 2, 3, 4, 5]
+  }]
+});
+
+// Get the current option
+const currentOption = chart.getOption();
+console.log(currentOption);
+```
+
+### Modifying and Reapplying Options
+
+```typescript
+// Get the current option
+const option = chart.getOption();
+
+// Modify specific properties
+option.title.text = 'Updated Chart Title';
+option.series[0].data = [5, 4, 3, 2, 1];
+
+// Apply the modified option
+chart.setOption(option);
+```
+
+### Saving Chart State
+
+```typescript
+// Save the current chart configuration
+const saveChartState = () => {
+  const option = chart.getOption();
+  localStorage.setItem('chartState', JSON.stringify(option));
+};
+
+// Restore the chart configuration
+const restoreChartState = () => {
+  const savedOption = localStorage.getItem('chartState');
+  if (savedOption) {
+    chart.setOption(JSON.parse(savedOption));
+  }
+};
+```
+
+### Inspecting Series Data
+
+```typescript
+const option = chart.getOption();
+
+// Check if series exists
+if (option.series && option.series.length > 0) {
+  console.log('Number of series:', option.series.length);
+  
+  // Access first series data
+  const firstSeries = option.series[0];
+  console.log('First series type:', firstSeries.type);
+  console.log('First series data:', firstSeries.data);
+}
+```
+
+### Conditional Updates Based on Current State
+
+```typescript
+const option = chart.getOption();
+
+// Only update if certain conditions are met
+if (option.series[0].type === 'line') {
+  chart.setOption({
+    series: [{
+      type: 'bar',
+      data: option.series[0].data
+    }]
+  });
+}
+```
+
+### Debugging Chart Configuration
+
+```typescript
+// Log the entire configuration for debugging
+const debugChart = () => {
+  const option = chart.getOption();
+  console.log('Current Chart Configuration:');
+  console.log(JSON.stringify(option, null, 2));
+};
+
+// Call when needed
+debugChart();
+```
+
+## Important Notes
+
+<Note>
+  The returned option object is the processed and merged result of all `setOption` calls. It may differ from the original options you passed to `setOption` due to:
+  - Default values being applied
+  - Option normalization
+  - Dynamic calculations
+  - User interactions (if interactive features are enabled)
+</Note>
+
+<Warning>
+  Modifying the returned option object directly and then calling `setOption` with it may not always produce the expected results. It's generally safer to create a new option object or use deep cloning when making modifications.
+</Warning>
+
+<Info>
+  The `getOption()` method returns the option managed by the chart's internal model. This means it reflects the current state after all transformations, defaults, and preprocessing have been applied.
+</Info>
+
+## Use Cases
+
+1. **State Management** - Save and restore chart configurations
+2. **Configuration Inspection** - Debug or validate chart settings
+3. **Incremental Updates** - Retrieve current state before making targeted changes
+4. **Data Export** - Export chart configuration for later use
+5. **Feature Detection** - Check which features are currently enabled
+6. **User Preferences** - Store user customizations
+
+## Related Methods
+
+- [setOption()](/api/set-option) - Configure chart options and update the visualization
+- [resize()](/api/resize) - Resize the chart
+- [ECharts Instance](/api/echarts-instance) - Instance methods including clear()
+
+## Source Reference
+
+Implementation: `src/core/echarts.ts:799-801`

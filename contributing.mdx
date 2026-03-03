@@ -1,0 +1,310 @@
+---
+title: Contributing to Apache ECharts
+description: Guidelines for contributing to the Apache ECharts project
+---
+
+# Contributing to Apache ECharts
+
+First off, thanks for taking the time to contribute! The ECharts community welcomes contributions of all kinds.
+
+## Code of Conduct
+
+This project follows the [Apache Code of Conduct](https://www.apache.org/foundation/policies/conduct.html). Please review and follow these guidelines when participating in the community.
+
+## Ways to Contribute
+
+Contributions can be made in varied ways:
+
+### Help Others
+
+- Help solve problems in GitHub issues
+- Remind authors to provide demos when reporting bugs
+- Try to reproduce problems described in issues
+- Answer questions on Stack Overflow
+
+### Code Contributions
+
+- Fix bugs reported in issues
+- Implement new features
+- Improve performance
+- Write tests
+
+### Documentation
+
+- Improve existing documentation
+- Translate documentation to other languages
+- Write tutorials and guides
+- Add code examples
+
+### Community
+
+- Discuss in the [mailing list](https://echarts.apache.org/en/maillist.html)
+- Share your ECharts projects
+- Write blog posts about ECharts
+
+## Reporting Issues
+
+### Before Creating an Issue
+
+1. **Search existing issues** - Check if the issue has already been reported in the [issues list](https://github.com/apache/echarts/issues)
+2. **Read the documentation** - Review the [documentation](http://echarts.apache.org/option.html) carefully
+3. **Check Stack Overflow** - Questions like "how can I use echarts to..." belong on [Stack Overflow](http://stackoverflow.com), not in the issue tracker
+
+### Creating a Bug Report
+
+Use the bug report template when creating a new issue:
+
+1. Visit the [New Issue](https://github.com/apache/echarts/issues/new/choose) page
+2. Select the bug report template
+3. Provide a minimal reproducible demo
+4. Include:
+   - ECharts version
+   - Browser and version
+   - Operating system
+   - Steps to reproduce
+   - Expected vs actual behavior
+
+### Feature Requests
+
+1. Use the feature request template
+2. Clearly describe the use case
+3. Explain why this feature would be useful
+4. Provide examples if possible
+
+<Warning>
+  Issues without proper reproduction steps or that ask basic usage questions will be closed.
+</Warning>
+
+## Pull Requests
+
+### Development Workflow
+
+Follow the [How to make a pull request](https://github.com/apache/echarts/wiki/How-to-make-a-pull-request) guide on the wiki.
+
+### Setting Up Development Environment
+
+Refer to [How to setup the dev environment](https://github.com/apache/echarts/wiki/How-to-setup-the-dev-environment) on the wiki.
+
+**Quick start:**
+
+```bash
+# Clone the repository
+git clone https://github.com/apache/echarts.git
+cd echarts
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Check TypeScript types
+npm run checktype
+
+# Lint code
+npm run lint
+```
+
+### Development Commands
+
+```bash
+# Watch mode for rapid development
+npm run dev
+
+# Build all distribution files
+npm run release
+
+# Run unit tests
+npm test
+
+# Run visual regression tests
+npm run test:visual
+
+# Type checking
+npm run checktype
+
+# Lint and fix code
+npm run lint:fix
+
+# Check license headers
+npm run checkheader
+```
+
+### Pull Request Guidelines
+
+1. **Fork and clone** the repository
+2. **Create a branch** from `master`
+3. **Make your changes** with clear commit messages
+4. **Test thoroughly** - add tests for new features
+5. **Run linting** - ensure code passes all checks
+6. **Update documentation** if needed
+7. **Submit the PR** with a clear description
+
+### Code Quality
+
+Ensure your code:
+
+- Follows the existing code style
+- Passes ESLint checks (`npm run lint`)
+- Passes TypeScript checks (`npm run checktype`)
+- Includes appropriate tests
+- Has proper license headers (`npm run checkheader`)
+
+## Release Process
+
+### Release Schedule
+
+ECharts follows a monthly release cycle:
+
+1. **Beginning of month** - Start discussion for release two versions ahead (e.g., if current is 4.3.0, discuss 4.5.0)
+2. **Mid-month** - Begin development of next release (e.g., 4.4.0)
+3. **~22nd of month** - Freeze development and start testing
+4. **End of month** - Vote on release in mailing list
+
+### Milestone Discussions
+
+Release milestone discussions happen on the [mailing list](https://echarts.apache.org/en/maillist.html). Subscribe to participate in planning and give feedback.
+
+## Using Code from Other Authors
+
+### Algorithms and Ideas
+
+When using algorithms or being inspired by others' work:
+
+- ✅ **Be transparent** about implementing existing ideas
+- ✅ **Reference sources** where ideas came from
+- ✅ **Use clear language** - "inspired by", "learned from", "references"
+- ✅ **Include licensing** if copying copyrightable expression
+- ⚠️ **Check compatibility** - ensure licenses are compatible with Apache 2.0
+
+More discussion: [Legal mailing list archives](https://lists.apache.org/list.html?legal-discuss@apache.org:lte=36M:echarts)
+
+### Third-Party Code
+
+When adding third-party code:
+
+- Review [Apache header guidelines](https://www.apache.org/legal/src-headers.html#3party)
+- Check license compatibility at [Apache legal](https://apache.org/legal/resolved.html)
+
+### Compatible Licenses
+
+- ✅ **BSD** - Compatible with Apache License
+- ✅ **MIT** - Compatible with Apache License
+- ❌ **CC BY-SA** - NOT compatible ([details](https://apache.org/legal/resolved.html#cc-sa))
+
+### Stack Overflow Code
+
+Before copying code from Stack Overflow:
+
+- Review [Stack Overflow policy](https://apache.org/legal/resolved.html#stackoverflow)
+- Check [LEGAL-471](https://issues.apache.org/jira/browse/LEGAL-471)
+
+<Warning>
+  **Wikipedia Warning**: Wikipedia and most Wikimedia projects use CC 4.0 BY-SA (incompatible with Apache License). Do NOT copy code from Wikipedia.
+</Warning>
+
+## Testing
+
+### Unit Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test
+npm run test:single -- "test name"
+
+# Debug a test
+npm run test:single:debug -- "test name"
+```
+
+### Visual Tests
+
+```bash
+# Start visual test server
+npm run test:visual
+
+# Create a new test case
+npm run mktest
+
+# Get help on test creation
+npm run mktest:help
+```
+
+### Type Definition Tests
+
+```bash
+# Run TypeScript definition tests
+npm run test:dts
+
+# Fast mode (skip install)
+npm run test:dts:fast
+```
+
+## Commit Message Guidelines
+
+Use clear, descriptive commit messages:
+
+```
+feat(bar): add horizontal bar chart support
+fix(tooltip): correct position calculation for edge cases
+docs(api): update setOption documentation
+test(line): add test for gradient line charts
+chore: update dependencies
+```
+
+Prefixes:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `test`: Test additions or changes
+- `refactor`: Code refactoring
+- `chore`: Build process or auxiliary tool changes
+
+## Community Resources
+
+### Communication Channels
+
+- **GitHub Issues**: [Bug reports and features](https://github.com/apache/echarts/issues)
+- **Email**: [dev@echarts.apache.org](mailto:dev@echarts.apache.org)
+- **Mailing List**: [Subscribe here](https://echarts.apache.org/maillist.html)
+- **Stack Overflow**: Tag questions with `echarts`
+
+### Documentation
+
+- [Official Handbook](https://echarts.apache.org/handbook)
+- [API Documentation](https://echarts.apache.org/api.html)
+- [Option Manual](https://echarts.apache.org/option.html)
+- [Examples](https://echarts.apache.org/examples)
+
+### Development Wikis
+
+- [How to make a pull request](https://github.com/apache/echarts/wiki/How-to-make-a-pull-request)
+- [How to setup the dev environment](https://github.com/apache/echarts/wiki/How-to-setup-the-dev-environment)
+
+## Getting Started
+
+Ready to contribute? Here's how to get started:
+
+1. **Find an issue** - Look for [good first issues](https://github.com/apache/echarts/labels/good%20first%20issue)
+2. **Set up your environment** - Follow the dev setup guide
+3. **Make your changes** - Write code and tests
+4. **Submit a PR** - Follow the PR guidelines above
+5. **Respond to feedback** - Work with maintainers to refine your contribution
+
+## Questions?
+
+If you have questions about contributing:
+
+1. Check the [GitHub wiki](https://github.com/apache/echarts/wiki)
+2. Ask on the [mailing list](https://echarts.apache.org/maillist.html)
+3. Email [dev@echarts.apache.org](mailto:dev@echarts.apache.org)
+
+<Note>
+  Remember to be patient and respectful. All contributors are volunteers, and responses may take time.
+</Note>
+
+Thank you for contributing to Apache ECharts!

@@ -1,0 +1,398 @@
+---
+title: Tooltip Component
+description: Interactive tooltip for displaying detailed data information on hover or click
+---
+
+The Tooltip component displays contextual information when users interact with chart elements, providing detailed data values and descriptions.
+
+## Purpose
+
+Based on the source implementation in `~/workspace/source/src/component/tooltip/TooltipModel.ts`, the tooltip component:
+
+- Displays data details on mouse hover or click events
+- Supports multiple trigger modes (item-based or axis-based)
+- Can render in HTML or canvas/SVG (richText) mode
+- Provides customizable formatting and styling
+- Includes axis pointer indicators for better data reference
+
+## Basic Usage
+
+```javascript
+option = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'line'
+    }
+  },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'line',
+    data: [120, 200, 150]
+  }]
+};
+```
+
+## Item Trigger Tooltip
+
+```javascript
+option = {
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b}: {c} ({d}%)'
+  },
+  series: [{
+    type: 'pie',
+    data: [
+      { value: 335, name: 'Direct' },
+      { value: 310, name: 'Email' },
+      { value: 234, name: 'Ads' }
+    ]
+  }]
+};
+```
+
+## Custom Tooltip Content
+
+```javascript
+option = {
+  tooltip: {
+    trigger: 'axis',
+    formatter: function(params) {
+      let result = params[0].axisValue + '<br/>';
+      params.forEach(function(item) {
+        result += item.marker + ' ' + item.seriesName + ': ' + item.value + '<br/>';
+      });
+      return result;
+    },
+    backgroundColor: 'rgba(50,50,50,0.7)',
+    borderColor: '#333',
+    borderWidth: 1,
+    textStyle: {
+      color: '#fff'
+    }
+  }
+};
+```
+
+## Axis Pointer with Cross Style
+
+```javascript
+option = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999',
+        width: 1,
+        type: 'dashed'
+      }
+    }
+  },
+  xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [10, 20, 30] }]
+};
+```
+
+## Configuration Options
+
+### Core Properties
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the tooltip component. From `TooltipModel.ts:99`.
+</ParamField>
+
+<ParamField path="trigger" type="'item' | 'axis' | 'none'" default="'item'">
+  Trigger type for tooltip:
+  - `'item'`: Triggered by data items (default)
+  - `'axis'`: Triggered by axes, shows all series at the same axis value
+  - `'none'`: No automatic trigger
+  
+  Implementation in `TooltipModel.ts:106`.
+</ParamField>
+
+<ParamField path="triggerOn" type="string" default="'mousemove|click'">
+  Conditions to trigger tooltip. Can be:
+  - `'mousemove'`: Trigger on mouse movement
+  - `'click'`: Trigger on click
+  - `'mousemove|click'`: Trigger on either event
+  - `'none'`: Manual trigger only
+  
+  From `TooltipModel.ts:109`.
+</ParamField>
+
+<ParamField path="showContent" type="boolean" default="true">
+  Whether to show tooltip content. Set to false to only show axis pointer without content box.
+  
+  See `TooltipModel.ts:102`.
+</ParamField>
+
+### Rendering Mode
+
+<ParamField path="renderMode" type="'auto' | 'html' | 'richText'" default="'auto'">
+  Rendering mode for tooltip:
+  - `'auto'`: Use HTML by default, falls back to richText if document is unavailable
+  - `'html'`: Render tooltip as HTML DOM element
+  - `'richText'`: Render using canvas/SVG graphics
+  
+  Implementation in `TooltipModel.ts:113`.
+</ParamField>
+
+<ParamField path="appendTo" type="function | string | HTMLElement">
+  Specify where to append the tooltip DOM element. Only works when `renderMode` is 'html'.
+  
+  ```javascript
+  appendTo: document.body
+  // or
+  appendTo: 'body'
+  // or
+  appendTo: (chartContainer) => chartContainer.parentNode
+  ```
+  
+  From `TooltipModel.ts:72`.
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS class name for the tooltip element. Only available when `renderMode` is 'html'.
+  
+  See `TooltipModel.ts:78`.
+</ParamField>
+
+### Timing and Animation
+
+<ParamField path="showDelay" type="number" default="0">
+  Delay in milliseconds before showing the tooltip. From `TooltipModel.ts:120`.
+</ParamField>
+
+<ParamField path="hideDelay" type="number" default="100">
+  Delay in milliseconds before hiding the tooltip. From `TooltipModel.ts:122`.
+</ParamField>
+
+<ParamField path="transitionDuration" type="number" default="0.4">
+  Animation transition duration in seconds. From `TooltipModel.ts:125`.
+</ParamField>
+
+<ParamField path="alwaysShowContent" type="boolean" default="false">
+  Whether to always show tooltip content without hiding on mouse out.
+  
+  From `TooltipModel.ts:111`.
+</ParamField>
+
+<ParamField path="enterable" type="boolean" default="false">
+  Whether the mouse can enter the tooltip area. Useful for interactive tooltips with links.
+  
+  Implementation in `TooltipModel.ts:129`.
+</ParamField>
+
+### Positioning
+
+<ParamField path="confine" type="boolean" default="null">
+  Whether to confine tooltip within the chart area:
+  - For `renderMode: 'richText'`: defaults to `true`
+  - For `renderMode: 'html'`: defaults to `false` (for backward compatibility)
+  
+  From `TooltipModel.ts:118`.
+</ParamField>
+
+### Styling
+
+<ParamField path="backgroundColor" type="ColorString" default="tokens.color.neutral00">
+  Background color of the tooltip. Default from `TooltipModel.ts:131`.
+</ParamField>
+
+<ParamField path="borderColor" type="ColorString">
+  Border color of the tooltip. Can use `defaultBorderColor` for multi-series scenarios.
+</ParamField>
+
+<ParamField path="borderWidth" type="number" default="1">
+  Border width of the tooltip in pixels. From `TooltipModel.ts:143`.
+</ParamField>
+
+<ParamField path="borderRadius" type="number" default="4">
+  Border radius of the tooltip in pixels. From `TooltipModel.ts:140`.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]" default="null">
+  Padding inside the tooltip. Can be:
+  - Single number for all sides
+  - Array `[top, right, bottom, left]`
+  
+  See `TooltipModel.ts:150`.
+</ParamField>
+
+<ParamField path="shadowBlur" type="number" default="10">
+  Shadow blur size for the tooltip box. From `TooltipModel.ts:134`.
+</ParamField>
+
+<ParamField path="shadowColor" type="string" default="'rgba(0, 0, 0, .2)'">
+  Shadow color for the tooltip box. From `TooltipModel.ts:135`.
+</ParamField>
+
+<ParamField path="shadowOffsetX" type="number" default="1">
+  Horizontal shadow offset. From `TooltipModel.ts:136`.
+</ParamField>
+
+<ParamField path="shadowOffsetY" type="number" default="2">
+  Vertical shadow offset. From `TooltipModel.ts:137`.
+</ParamField>
+
+<ParamField path="textStyle" type="object">
+  Text style configuration. Default from `TooltipModel.ts:183-186`:
+  
+  ```javascript
+  textStyle: {
+    color: tokens.color.tertiary,
+    fontSize: 14
+  }
+  ```
+</ParamField>
+
+<ParamField path="extraCssText" type="string" default="''">
+  Extra CSS text to apply to the tooltip. Only works in HTML render mode.
+  
+  ```javascript
+  extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);'
+  ```
+  
+  From `TooltipModel.ts:153`.
+</ParamField>
+
+### Content Formatting
+
+<ParamField path="formatter" type="string | function">
+  Tooltip content formatter. Can be:
+  
+  **String template** with variables:
+  - `{a}`: series name
+  - `{b}`: data name / category
+  - `{c}`: data value
+  - `{d}`: percentage (for pie charts)
+  
+  ```javascript
+  formatter: '{b}: {c}'
+  ```
+  
+  **Function** for custom formatting:
+  ```javascript
+  formatter: function(params) {
+    return params.name + ': ' + params.value;
+  }
+  ```
+</ParamField>
+
+<ParamField path="order" type="TooltipOrderMode">
+  Order of items in tooltip when `trigger: 'axis'`. Controls how multiple series are sorted.
+</ParamField>
+
+### Axis Pointer
+
+<ParamField path="axisPointer" type="object">
+  Axis pointer configuration. Used when `trigger: 'axis'`. From `TooltipModel.ts:156-182`:
+</ParamField>
+
+<ParamField path="axisPointer.type" type="'line' | 'shadow' | 'cross'" default="'line'">
+  Type of axis pointer indicator. From `TooltipModel.ts:159`.
+</ParamField>
+
+<ParamField path="axisPointer.axis" type="'auto' | 'x' | 'y' | 'angle' | 'radius'" default="'auto'">
+  Which axis the pointer should follow. 'auto' selects category axis by default.
+  
+  Implementation in `TooltipModel.ts:165`.
+</ParamField>
+
+<ParamField path="axisPointer.animation" type="boolean | 'auto'" default="'auto'">
+  Whether to enable animation for axis pointer movement. From `TooltipModel.ts:167`.
+</ParamField>
+
+<ParamField path="axisPointer.animationDurationUpdate" type="number" default="200">
+  Animation duration for pointer updates in milliseconds. From `TooltipModel.ts:168`.
+</ParamField>
+
+<ParamField path="axisPointer.animationEasingUpdate" type="string" default="'exponentialOut'">
+  Easing function for pointer animation. From `TooltipModel.ts:169`.
+</ParamField>
+
+<ParamField path="axisPointer.crossStyle" type="object">
+  Style for cross pointer. From `TooltipModel.ts:171-178`:
+  
+  ```javascript
+  crossStyle: {
+    color: tokens.color.borderShade,
+    width: 1,
+    type: 'dashed',
+    textStyle: {}
+  }
+  ```
+</ParamField>
+
+## Advanced Features
+
+### Multi-Series Default Border
+
+<ParamField path="defaultBorderColor" type="string">
+  Default border color when there are multiple series. Useful for maintaining visual consistency.
+  
+  From `TooltipModel.ts:145`.
+</ParamField>
+
+### Rich Text Rendering
+
+When using `renderMode: 'richText'`, tooltips are rendered using canvas/SVG, which provides:
+- Better performance with large datasets
+- No DOM manipulation overhead
+- Consistent rendering across environments
+- Automatic confinement to chart bounds
+
+## Example: Complete Tooltip Configuration
+
+```javascript
+option = {
+  tooltip: {
+    trigger: 'axis',
+    showContent: true,
+    renderMode: 'html',
+    triggerOn: 'mousemove',
+    showDelay: 0,
+    hideDelay: 100,
+    transitionDuration: 0.4,
+    enterable: false,
+    confine: false,
+    backgroundColor: 'rgba(50, 50, 50, 0.9)',
+    borderColor: '#333',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: [10, 15],
+    textStyle: {
+      color: '#fff',
+      fontSize: 14
+    },
+    formatter: function(params) {
+      let html = '<div style="font-weight: bold;">' + params[0].axisValue + '</div>';
+      params.forEach(function(item) {
+        html += '<div>' + item.marker + ' ' + item.seriesName + ': ' + item.value + '</div>';
+      });
+      return html;
+    },
+    axisPointer: {
+      type: 'cross',
+      axis: 'auto',
+      animation: true,
+      animationDurationUpdate: 200,
+      crossStyle: {
+        color: '#999',
+        width: 1,
+        type: 'dashed'
+      }
+    }
+  },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+  yAxis: { type: 'value' },
+  series: [
+    { name: 'Sales', type: 'line', data: [120, 200, 150, 80, 70] },
+    { name: 'Revenue', type: 'line', data: [100, 180, 130, 90, 60] }
+  ]
+};
+```

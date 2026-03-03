@@ -1,0 +1,196 @@
+---
+title: Theming System Overview
+description: Learn how to use themes in Apache ECharts to customize the appearance of your charts
+---
+
+# Theming System Overview
+
+ECharts provides a powerful theming system that allows you to customize the visual appearance of your charts. Themes can control colors, fonts, backgrounds, and styling for all chart components.
+
+## How Themes Work
+
+A theme in ECharts is a JavaScript object that defines default styling options for various chart components. When you apply a theme to a chart instance, it sets the default appearance for:
+
+- Color palettes for data series
+- Background colors
+- Axis styling (lines, labels, grid)
+- Component styles (legend, tooltip, toolbox, etc.)
+- Chart-specific styles (line, bar, candlestick, etc.)
+
+## Registering Themes
+
+Before using a custom theme, you must register it with ECharts using the `registerTheme` function:
+
+```javascript
+import * as echarts from 'echarts';
+
+// Define your theme
+const myTheme = {
+  color: [
+    '#4992ff',
+    '#7cffb2',
+    '#fddd60',
+    '#ff6e76',
+    '#58d9f9'
+  ],
+  backgroundColor: '#ffffff',
+  textStyle: {
+    color: '#333333'
+  },
+  title: {
+    textStyle: {
+      color: '#000000'
+    }
+  }
+};
+
+// Register the theme
+echarts.registerTheme('my-theme', myTheme);
+```
+
+Source reference: `/workspace/source/src/core/echarts.ts:2912`
+
+## Using Themes
+
+Once a theme is registered, apply it when initializing a chart instance:
+
+```javascript
+// Initialize chart with a theme
+const chart = echarts.init(dom, 'my-theme');
+```
+
+The `init` function accepts three parameters:
+
+```typescript
+echarts.init(
+  dom?: HTMLElement | null,
+  theme?: string | object | null,
+  opts?: EChartsInitOpts
+)
+```
+
+Source reference: `/workspace/source/src/core/echarts.ts:2788`
+
+### Using a Named Theme
+
+```javascript
+// Use a registered theme by name
+const chart = echarts.init(document.getElementById('chart'), 'dark');
+```
+
+### Using an Inline Theme Object
+
+You can also pass a theme object directly without registering it:
+
+```javascript
+const chart = echarts.init(document.getElementById('chart'), {
+  color: ['#c23531', '#2f4554', '#61a0a8'],
+  backgroundColor: '#f4f4f4'
+});
+```
+
+## Theme Structure
+
+A complete theme object can include the following properties:
+
+```javascript
+{
+  // Color palette for series data
+  color: ['#color1', '#color2', ...],
+  
+  // Background color
+  backgroundColor: '#ffffff',
+  
+  // Global text style
+  textStyle: { color: '#333' },
+  
+  // Component styles
+  title: { /* title options */ },
+  legend: { /* legend options */ },
+  tooltip: { /* tooltip options */ },
+  toolbox: { /* toolbox options */ },
+  dataZoom: { /* data zoom options */ },
+  visualMap: { /* visual map options */ },
+  timeline: { /* timeline options */ },
+  
+  // Axis styles
+  categoryAxis: { /* category axis options */ },
+  valueAxis: { /* value axis options */ },
+  logAxis: { /* log axis options */ },
+  timeAxis: { /* time axis options */ },
+  
+  // Series styles
+  line: { /* line series options */ },
+  bar: { /* bar series options */ },
+  pie: { /* pie series options */ },
+  scatter: { /* scatter series options */ },
+  candlestick: { /* candlestick options */ },
+  graph: { /* graph options */ },
+  gauge: { /* gauge options */ },
+  map: { /* map options */ }
+}
+```
+
+## Dark Mode
+
+ECharts themes can include a `darkMode` property to indicate they are designed for dark backgrounds:
+
+```javascript
+const darkTheme = {
+  darkMode: true,
+  backgroundColor: '#100C2A',
+  color: ['#4992ff', '#7cffb2', '#fddd60'],
+  // ... other dark theme settings
+};
+```
+
+Source: `/workspace/source/theme/dark.js:82-86`
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+// Register a custom theme
+echarts.registerTheme('custom', {
+  color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80'],
+  backgroundColor: '#ffffff',
+  textStyle: {
+    color: '#333333'
+  },
+  title: {
+    textStyle: {
+      color: '#008acd',
+      fontWeight: 'normal'
+    }
+  },
+  line: {
+    smooth: true,
+    symbol: 'emptyCircle',
+    symbolSize: 3
+  }
+});
+
+// Initialize chart with the theme
+const chart = echarts.init(document.getElementById('chart'), 'custom');
+
+// Set chart option
+chart.setOption({
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    data: [820, 932, 901, 934, 1290, 1330, 1320],
+    type: 'line'
+  }]
+});
+```
+
+## Next Steps
+
+- [Built-in Themes](/themes/built-in-themes) - Explore the available built-in themes
+- [Custom Themes](/themes/custom-themes) - Learn how to create your own themes

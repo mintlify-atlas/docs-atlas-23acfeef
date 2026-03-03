@@ -1,0 +1,566 @@
+---
+title: "Large Dataset Optimization"
+description: "Handle millions of data points with progressive rendering and sampling"
+---
+
+Learn techniques to render and interact with large datasets efficiently using ECharts' built-in optimization features.
+
+## Progressive Rendering
+
+Render large datasets in chunks to keep UI responsive:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Progressive Rendering</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="main" style="width: 900px; height: 600px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+
+    // Generate large dataset
+    var data = [];
+    for (var i = 0; i < 50000; i++) {
+      data.push([
+        Math.random() * 1000,
+        Math.random() * 1000
+      ]);
+    }
+
+    var option = {
+      title: {
+        text: '50,000 Points with Progressive Rendering'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: 'X: {c0}<br/>Y: {c1}'
+      },
+      xAxis: {
+        type: 'value',
+        scale: true
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          xAxisIndex: 0
+        },
+        {
+          type: 'inside',
+          yAxisIndex: 0
+        },
+        {
+          type: 'slider',
+          xAxisIndex: 0,
+          bottom: 10
+        }
+      ],
+      series: [{
+        type: 'scatter',
+        data: data,
+        // Enable progressive rendering
+        progressive: 1000,           // Render 1000 points per frame
+        progressiveThreshold: 3000,  // Enable when > 3000 points
+        symbolSize: 4,
+        itemStyle: {
+          opacity: 0.6
+        }
+      }]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Large Mode for Bar Charts
+
+Optimize bar charts for large datasets:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Large Bar Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="bar-chart" style="width: 100%; height: 600px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('bar-chart'));
+
+    // Generate large dataset
+    var xAxisData = [];
+    var data1 = [];
+    var data2 = [];
+
+    for (var i = 0; i < 10000; i++) {
+      xAxisData.push('Category ' + i);
+      data1.push((Math.random() * 5).toFixed(2));
+      data2.push((Math.random() * 3).toFixed(2));
+    }
+
+    var option = {
+      title: {
+        text: '10,000 Categories - Large Mode'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: ['Series 1', 'Series 2']
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 10
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 10
+        }
+      ],
+      xAxis: {
+        type: 'category',
+        data: xAxisData,
+        axisLabel: {
+          interval: 100  // Show fewer labels
+        }
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Series 1',
+          type: 'bar',
+          data: data1,
+          // Enable large mode
+          large: true,
+          largeThreshold: 100  // Enable when > 100 points visible
+        },
+        {
+          name: 'Series 2',
+          type: 'bar',
+          data: data2,
+          large: true,
+          largeThreshold: 100
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Data Sampling
+
+Downsample data for better performance while preserving visual accuracy:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Data Sampling</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="sampling-chart" style="width: 900px; height: 500px;"></div>
+  <button onclick="setSampling('none')">No Sampling</button>
+  <button onclick="setSampling('average')">Average</button>
+  <button onclick="setSampling('lttb')">LTTB</button>
+  <button onclick="setSampling('max')">Max</button>
+  <button onclick="setSampling('min')">Min</button>
+  
+  <script>
+    var chart = echarts.init(document.getElementById('sampling-chart'));
+
+    // Generate dense time series data
+    var data = [];
+    var baseTime = Date.now();
+    for (var i = 0; i < 100000; i++) {
+      data.push([
+        baseTime + i * 1000,  // Every second
+        Math.sin(i / 1000) * 50 + Math.random() * 20
+      ]);
+    }
+
+    var option = {
+      title: {
+        text: '100,000 Time Series Points'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross'
+        }
+      },
+      xAxis: {
+        type: 'time'
+      },
+      yAxis: {
+        type: 'value'
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 10
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 10
+        }
+      ],
+      series: [{
+        name: 'Data',
+        type: 'line',
+        data: data,
+        symbol: 'none',
+        // Sampling strategy
+        sampling: 'lttb',  // Largest Triangle Three Buckets
+        lineStyle: {
+          width: 1
+        }
+      }]
+    };
+
+    chart.setOption(option);
+
+    function setSampling(method) {
+      chart.setOption({
+        title: {
+          text: '100,000 Points - Sampling: ' + method
+        },
+        series: [{
+          sampling: method === 'none' ? null : method
+        }]
+      });
+    }
+  </script>
+</body>
+</html>
+```
+
+## Append Data for Streaming
+
+Efficiently add data to existing large datasets:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Streaming Large Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="stream-chart" style="width: 900px; height: 500px;"></div>
+  <button onclick="startStreaming()">Start Streaming</button>
+  <button onclick="stopStreaming()">Stop Streaming</button>
+  
+  <script>
+    var chart = echarts.init(document.getElementById('stream-chart'));
+    var streamInterval = null;
+    var dataIndex = 0;
+
+    var option = {
+      title: {
+        text: 'Streaming Data (appendData API)'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'value',
+        scale: true
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      dataZoom: [
+        {
+          type: 'inside'
+        },
+        {
+          type: 'slider',
+          bottom: 10
+        }
+      ],
+      series: [{
+        type: 'scatter',
+        data: [[0, 0]],
+        progressiveThreshold: 5000,
+        progressive: 2000,
+        symbolSize: 6
+      }]
+    };
+
+    chart.setOption(option);
+
+    function startStreaming() {
+      if (streamInterval) return;
+      
+      streamInterval = setInterval(function() {
+        var batchData = [];
+        // Append 1000 points at a time
+        for (var i = 0; i < 1000; i++) {
+          batchData.push([
+            dataIndex + i,
+            Math.random() * 1000
+          ]);
+        }
+
+        // Use appendData API - more efficient than setOption
+        chart.appendData({
+          seriesIndex: 0,
+          data: batchData
+        });
+
+        dataIndex += 1000;
+      }, 1000);
+    }
+
+    function stopStreaming() {
+      if (streamInterval) {
+        clearInterval(streamInterval);
+        streamInterval = null;
+      }
+    }
+  </script>
+</body>
+</html>
+```
+
+## Virtual Scrolling with DataZoom
+
+Combine dataZoom with large datasets for smooth interaction:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Virtual Scrolling</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="virtual-chart" style="width: 100%; height: 600px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('virtual-chart'));
+
+    // Generate 1 million data points
+    var data = [];
+    for (var i = 0; i < 1000000; i++) {
+      data.push([
+        i,
+        Math.sin(i / 10000) * 100 + Math.random() * 50
+      ]);
+    }
+
+    var option = {
+      title: {
+        text: '1,000,000 Points - Virtual Scrolling'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'value'
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      // DataZoom provides virtual scrolling
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 0.1,  // Show only 0.1% initially
+          minValueSpan: 1000  // Minimum visible range
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 0.1,
+          minValueSpan: 1000,
+          bottom: 20,
+          height: 20
+        }
+      ],
+      series: [{
+        type: 'line',
+        data: data,
+        symbol: 'none',
+        sampling: 'lttb',
+        lineStyle: {
+          width: 1
+        },
+        // Large mode optimizations
+        large: true,
+        largeThreshold: 500
+      }]
+    };
+
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+## Performance Configuration Options
+
+### Progressive Rendering
+
+```javascript
+series: [{
+  type: 'scatter',
+  progressive: 1000,           // Points per rendering frame
+  progressiveThreshold: 3000,  // Enable when dataset > threshold
+  progressiveChunkMode: 'sequential'  // or 'mod'
+}]
+```
+
+### Large Mode
+
+```javascript
+series: [{
+  type: 'bar',  // or 'line'
+  large: true,           // Enable large mode
+  largeThreshold: 100    // Activate when visible points > 100
+}]
+```
+
+### Sampling Strategies
+
+```javascript
+series: [{
+  type: 'line',
+  sampling: 'lttb'  // Options: 'lttb', 'average', 'max', 'min', 'sum'
+}]
+```
+
+- **lttb** (Largest Triangle Three Buckets): Best for preserving visual shape
+- **average**: Average value in each bucket
+- **max**: Maximum value in each bucket
+- **min**: Minimum value in each bucket
+- **sum**: Sum of values in each bucket
+
+### Animation Control
+
+```javascript
+// Disable animation for large datasets
+var option = {
+  animation: false,
+  // Or limit animation duration
+  animationDuration: 300,
+  animationEasing: 'linear'
+};
+```
+
+## Best Practices
+
+### Memory Management
+
+1. **Limit loaded data**: Load only necessary time ranges
+2. **Use appendData**: More efficient than setOption for adding data
+3. **Remove old data**: Implement sliding window for streaming
+
+```javascript
+// Sliding window example
+const MAX_POINTS = 100000;
+if (allData.length > MAX_POINTS) {
+  allData = allData.slice(-MAX_POINTS);
+}
+```
+
+### Rendering Optimization
+
+1. **Disable symbols**: Use `symbol: 'none'` for line charts
+2. **Reduce line width**: Thinner lines render faster
+3. **Simplify styles**: Avoid shadows, gradients on large datasets
+
+```javascript
+series: [{
+  symbol: 'none',
+  lineStyle: { width: 1 },
+  itemStyle: { opacity: 0.7 }
+}]
+```
+
+### DataZoom Strategy
+
+```javascript
+dataZoom: [
+  {
+    type: 'inside',
+    start: 90,    // Show last 10%
+    end: 100,
+    minSpan: 1,   // Minimum zoom span
+    maxSpan: 20   // Maximum zoom span
+  },
+  {
+    type: 'slider',
+    realtime: true,  // Update while dragging
+    filterMode: 'none'  // Don't filter data, just window
+  }
+]
+```
+
+## Performance Comparison
+
+| Dataset Size | Without Optimization | With Progressive | With Sampling |
+|--------------|---------------------|------------------|---------------|
+| 10,000       | Smooth              | Smooth           | Smooth        |
+| 100,000      | Laggy               | Smooth           | Smooth        |
+| 1,000,000    | Frozen              | Usable           | Smooth        |
+
+## Troubleshooting
+
+### Chart is slow to render
+
+- Enable `progressive` rendering
+- Increase `progressiveThreshold`
+- Use `sampling` for line charts
+- Disable `animation`
+
+### Interactions are laggy
+
+- Enable `large` mode
+- Reduce visible data with `dataZoom`
+- Use `symbol: 'none'`
+- Set `silent: true` to disable interactions
+
+### Memory issues
+
+- Implement data pagination
+- Use `appendData` with cleanup
+- Reduce precision of data values
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Real-time Updates" icon="chart-line" href="/examples/real-time-data">
+    Combine large datasets with live data streaming
+  </Card>
+  <Card title="Mobile Optimization" icon="mobile" href="/examples/mobile">
+    Optimize large datasets for mobile devices
+  </Card>
+</CardGroup>

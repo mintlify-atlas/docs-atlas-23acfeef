@@ -1,0 +1,497 @@
+---
+title: 'Performance Optimization'
+description: 'Techniques for optimizing Apache ECharts performance with large datasets and complex visualizations'
+---
+
+## Overview
+
+Apache ECharts provides several built-in mechanisms for handling large datasets efficiently, including progressive rendering, data sampling, and large mode rendering. This guide covers performance optimization techniques extracted from the ECharts source code.
+
+## Progressive Rendering
+
+Progressive (incremental) rendering allows charts to render large datasets in chunks, improving initial render time and perceived performance.
+
+### Configuration
+
+Progressive rendering is configured globally in `src/model/globalDefault.ts:116-118`:
+
+```javascript
+var option = {
+    // Number of graphic elements after which progressive rendering starts
+    progressiveThreshold: 3000,
+    
+    // Number of graphic elements to render in each frame
+    progressive: 400,
+    
+    // Progressive chunk mode
+    progressiveChunkMode: 'mod'
+};
+```
+
+### Per-Series Configuration
+
+```javascript
+series: [{
+    type: 'scatter',
+    progressive: 500,  // Render 500 points per frame
+    progressiveThreshold: 2000,  // Start progressive render at 2000 points
+    data: largeDataArray
+}]
+```
+
+### How Progressive Rendering Works
+
+From `src/view/Chart.ts:48-69`, chart views implement two methods for progressive rendering:
+
+```typescript
+interface ChartView {
+    /**
+     * Rendering preparation in progressive mode.
+     * Implement it if needed.
+     */
+    incrementalPrepareRender(
+        seriesModel: SeriesModel,
+        ecModel: GlobalModel,
+        api: ExtensionAPI,
+        payload: Payload
+    ): void;
+
+    /**
+     * Render in progressive mode.
+     * Implement it if needed.
+     * @param params See taskParams in `stream/task.js`
+     */
+    incrementalRender(
+        params: StageHandlerProgressParams,
+        seriesModel: SeriesModel,
+        ecModel: GlobalModel,
+        api: ExtensionAPI,
+        payload: Payload
+    ): void;
+}
+```
+
+### Progressive Rendering Example
+
+```javascript
+// Generate large dataset
+var data = [];
+for (var i = 0; i < 100000; i++) {
+    data.push([
+        Math.random() * 100,
+        Math.random() * 100,
+        Math.random() * 100
+    ]);
+}
+
+var option = {
+    // Global progressive settings
+    progressive: 1000,
+    progressiveThreshold: 5000,
+    
+    xAxis: { type: 'value' },
+    yAxis: { type: 'value' },
+    
+    series: [{
+        type: 'scatter',
+        symbolSize: 3,
+        data: data,
+        
+        // Override global settings for this series
+        progressive: 500,
+        progressiveThreshold: 3000
+    }]
+};
+
+myChart.setOption(option);
+```
+
+<Note>
+  The `hoverLayerThreshold` should be equivalent to or less than `progressiveThreshold` to avoid hover interactions restarting the progressive render. See `src/model/globalDefault.ts:121-124`.
+</Note>
+
+## Data Sampling
+
+Data sampling reduces the number of data points rendered while preserving the visual characteristics of the data. Available in `src/processor/dataSample.ts`.
+
+### Sampling Methods
+
+From `src/processor/dataSample.ts:85-117`, ECharts supports multiple sampling strategies:
+
+- `'average'` - Average of sampled points
+- `'min'` - Minimum value in sample
+- `'max'` - Maximum value in sample  
+- `'minmax'` - Both min and max values (preserves range)
+- `'sum'` - Sum of sampled points
+- `'lttb'` - Largest Triangle Three Buckets algorithm (best for line charts)
+- Custom function - Implement your own sampler
+
+### Sampling Configuration
+
+```javascript
+series: [{
+    type: 'line',
+    sampling: 'lttb',  // Best for line charts
+    data: largeDataArray
+}]
+```
+
+### Sampling Implementation Details
+
+From `src/processor/dataSample.ts:83-119`:
+
+```javascript
+reset: function (seriesModel, ecModel, api) {
+    const data = seriesModel.getData();
+    const sampling = seriesModel.get('sampling');
+    const coordSys = seriesModel.coordinateSystem;
+    const count = data.count();
+    
+    // Only cartesian2d supports down sampling
+    // Disable it when there are few data points
+    if (count > 10 && coordSys.type === 'cartesian2d' && sampling) {
+        const baseAxis = coordSys.getBaseAxis();
+        const valueAxis = coordSys.getOtherAxis(baseAxis);
+        const extent = baseAxis.getExtent();
+        const dpr = api.getDevicePixelRatio();
+        
+        // Calculate pixel size
+        const size = Math.abs(extent[1] - extent[0]) * (dpr || 1);
+        const rate = Math.round(count / size);
+
+        if (isFinite(rate) && rate > 1) {
+            if (sampling === 'lttb') {
+                seriesModel.setData(
+                    data.lttbDownSample(
+                        data.mapDimension(valueAxis.dim), 
+                        1 / rate
+                    )
+                );
+            }
+            else if (sampling === 'minmax') {
+                seriesModel.setData(
+                    data.minmaxDownSample(
+                        data.mapDimension(valueAxis.dim),
+                        1 / rate
+                    )
+                );
+            }
+            // ... other sampling methods
+        }
+    }
+}
+```
+
+### LTTB Sampling Example
+
+```javascript
+// Best for preserving visual shape of line charts
+var data = [];
+for (var i = 0; i < 50000; i++) {
+    data.push([i, Math.sin(i / 100) * 100 + Math.random() * 10]);
+}
+
+var option = {
+    xAxis: { type: 'value' },
+    yAxis: { type: 'value' },
+    series: [{
+        type: 'line',
+        sampling: 'lttb',  // Largest Triangle Three Buckets
+        data: data,
+        showSymbol: false  // Don't show symbols for better performance
+    }]
+};
+```
+
+### MinMax Sampling Example
+
+```javascript
+// Best for preserving peaks and valleys
+series: [{
+    type: 'line',
+    sampling: 'minmax',
+    data: volatileData,
+    showSymbol: false
+}]
+```
+
+### Custom Sampling Function
+
+```javascript
+series: [{
+    type: 'line',
+    sampling: function(frame) {
+        // frame is an array of data indices to sample
+        // Return the index you want to keep
+        return frame[Math.floor(frame.length / 2)]; // Middle value
+    },
+    data: data
+}]
+```
+
+## Large Mode Rendering
+
+Large mode uses optimized rendering techniques for datasets exceeding certain thresholds.
+
+### Configuration
+
+```javascript
+series: [{
+    type: 'scatter',
+    large: true,
+    largeThreshold: 2000,  // Enable large mode when > 2000 points
+    data: largeDataArray
+}]
+
+// Also available for line and bar charts
+series: [{
+    type: 'line',
+    large: true,
+    largeThreshold: 1000,
+    data: largeDataArray
+}]
+```
+
+### Large Mode Implementation
+
+From `src/layout/barGrid.ts:467-603`, large mode uses typed arrays for efficient rendering:
+
+```javascript
+const largePoints = isLarge && createFloat32Array(count * 3);
+const largeBackgroundPoints = isLarge && drawBackground && createFloat32Array(count * 3);
+const largeDataIndices = isLarge && createFloat32Array(count);
+
+// Store points in typed array for better performance
+largePoints[idxOffset] = x;
+largePoints[idxOffset + 1] = y;
+largePoints[idxOffset + 2] = isValueAxisH ? width : height;
+```
+
+### Large Mode Example
+
+```javascript
+var data = [];
+for (var i = 0; i < 1000000; i++) {
+    data.push([Math.random() * 1000, Math.random() * 1000]);
+}
+
+var option = {
+    xAxis: { type: 'value' },
+    yAxis: { type: 'value' },
+    series: [{
+        type: 'scatter',
+        large: true,
+        largeThreshold: 2000,
+        symbolSize: 2,
+        data: data,
+        
+        // Large mode uses simpler styling
+        itemStyle: {
+            opacity: 0.6
+        }
+    }]
+};
+```
+
+<Warning>
+  In large mode, some features like individual item styling and interactions may be limited. Stack mode is not supported in large mode (see `src/layout/barGrid.ts:467`).
+</Warning>
+
+## Animation Optimization
+
+### Disable Animation for Large Datasets
+
+```javascript
+var option = {
+    animation: false,  // Disable all animations
+    
+    series: [{
+        type: 'bar',
+        data: largeDataArray
+    }]
+};
+
+// Or disable selectively
+var option = {
+    series: [{
+        type: 'bar',
+        animation: false,  // Disable for this series only
+        data: largeDataArray
+    }]
+};
+```
+
+### Animation Threshold
+
+From `src/model/globalDefault.ts:114`, animation is automatically disabled above a threshold:
+
+```javascript
+var option = {
+    // Disable animation when element count exceeds 2000
+    animationThreshold: 2000,
+    
+    // Animation settings (when enabled)
+    animationDuration: 1000,
+    animationEasing: 'cubicInOut',
+    animationDurationUpdate: 300,
+    animationEasingUpdate: 'cubicInOut'
+};
+```
+
+## Hover Layer Optimization
+
+From `src/model/globalDefault.ts:120-125`:
+
+```javascript
+var option = {
+    // Use single hover layer when element count > 3000
+    hoverLayerThreshold: 3000,
+    
+    // Should be <= progressiveThreshold to avoid issues
+    progressiveThreshold: 3000
+};
+```
+
+## Memory Management
+
+### Typed Arrays
+
+Use typed arrays for storing large numeric datasets:
+
+```javascript
+// Instead of regular array
+var data = new Float32Array(1000000);
+for (var i = 0; i < data.length; i++) {
+    data[i] = Math.random() * 100;
+}
+
+// Convert to ECharts format
+var chartData = [];
+for (var i = 0; i < data.length; i++) {
+    chartData.push([i, data[i]]);
+}
+```
+
+### Data Disposal
+
+Properly dispose of charts when no longer needed:
+
+```javascript
+// Dispose chart instance
+myChart.dispose();
+myChart = null;
+```
+
+## DataZoom Performance
+
+DataZoom components automatically handle performance optimization by limiting the visible data range:
+
+```javascript
+var option = {
+    dataZoom: [
+        {
+            type: 'slider',
+            start: 0,
+            end: 10,  // Show only 10% initially
+            filterMode: 'weakFilter'  // Better performance
+        },
+        {
+            type: 'inside',
+            start: 0,
+            end: 10
+        }
+    ],
+    series: [{
+        type: 'line',
+        data: verylLargeDataArray
+    }]
+};
+```
+
+## Performance Checklist
+
+<Steps>
+  <Step title="Enable Progressive Rendering">
+    Set `progressive` and `progressiveThreshold` for datasets with >3000 elements
+  </Step>
+  <Step title="Use Data Sampling">
+    Apply `sampling: 'lttb'` for line charts with >10000 points
+  </Step>
+  <Step title="Enable Large Mode">
+    Use `large: true` for scatter/line charts with >100000 points
+  </Step>
+  <Step title="Disable Animations">
+    Set `animation: false` for very large datasets
+  </Step>
+  <Step title="Optimize Hover">
+    Ensure `hoverLayerThreshold` matches your dataset size
+  </Step>
+  <Step title="Use DataZoom">
+    Limit visible data range for million+ point datasets
+  </Step>
+</Steps>
+
+## Benchmarking Example
+
+```javascript
+// Measure render performance
+var startTime = performance.now();
+
+myChart.setOption({
+    series: [{
+        type: 'scatter',
+        progressive: 1000,
+        progressiveThreshold: 5000,
+        large: true,
+        largeThreshold: 10000,
+        symbolSize: 2,
+        data: generateLargeDataset(1000000)
+    }]
+});
+
+// Wait for render complete
+setTimeout(() => {
+    var endTime = performance.now();
+    console.log('Render time:', endTime - startTime, 'ms');
+}, 100);
+
+function generateLargeDataset(count) {
+    var data = [];
+    for (var i = 0; i < count; i++) {
+        data.push([Math.random() * 1000, Math.random() * 1000]);
+    }
+    return data;
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Progressive Rendering" icon="layer-group">
+    Use for datasets with 3000-100000 elements. Renders in chunks for smooth initial display.
+  </Card>
+  <Card title="Data Sampling" icon="filter">
+    Best for line charts with dense data. LTTB preserves visual shape while reducing points.
+  </Card>
+  <Card title="Large Mode" icon="database">
+    Essential for 100000+ elements. Uses typed arrays and simplified rendering.
+  </Card>
+  <Card title="Lazy Loading" icon="clock">
+    Load data in batches using DataZoom to show initial subset, then allow user navigation.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Combine techniques! Use progressive rendering + data sampling + large mode for optimal performance with massive datasets.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Responsive Design" icon="mobile" href="/guides/responsive-design">
+    Make your optimized charts work across all devices
+  </Card>
+  <Card title="Accessibility" icon="universal-access" href="/guides/accessibility">
+    Ensure large datasets remain accessible
+  </Card>
+</CardGroup>

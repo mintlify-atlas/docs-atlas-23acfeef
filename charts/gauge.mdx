@@ -1,0 +1,464 @@
+---
+title: "Gauge Chart"
+description: "Create circular gauge visualizations to display metrics, progress, and KPI dashboards"
+---
+
+## When to Use Gauge Charts
+
+Gauge charts are ideal for displaying single values within a defined range, similar to a speedometer or dashboard meter. Common use cases include:
+
+- **KPI dashboards**: Displaying key performance indicators with targets and ranges
+- **Progress tracking**: Showing completion percentages or goal achievement
+- **Real-time monitoring**: Displaying current values like temperature, speed, or system load
+- **Score visualization**: Presenting ratings, satisfaction scores, or performance metrics
+
+The gauge provides an intuitive visual representation of where a value falls within a defined range, making it easy to assess status at a glance.
+
+## Basic Configuration
+
+A gauge chart uses the `type: 'gauge'` series option. Here's the basic structure:
+
+```typescript
+type GaugeSeriesOption = {
+  type: 'gauge'
+  data: (number | GaugeDataItemOption)[]
+  min?: number
+  max?: number
+  startAngle?: number
+  endAngle?: number
+  clockwise?: boolean
+  splitNumber?: number
+  radius?: number | string
+  center?: [string | number, string | number]
+  axisLine?: AxisLineOption
+  splitLine?: SplitLineOption
+  axisTick?: AxisTickOption
+  axisLabel?: AxisLabelOption
+  pointer?: PointerOption
+  anchor?: AnchorOption
+  progress?: ProgressOption
+  title?: TitleOption
+  detail?: DetailOption
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:126-189
+
+## Complete Working Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  series: [
+    {
+      type: 'gauge',
+      center: ['50%', '60%'],
+      radius: '75%',
+      startAngle: 225,
+      endAngle: -45,
+      min: 0,
+      max: 100,
+      splitNumber: 10,
+      axisLine: {
+        lineStyle: {
+          width: 10,
+          color: [
+            [0.3, '#67e0e3'],
+            [0.7, '#37a2da'],
+            [1, '#fd666d']
+          ]
+        }
+      },
+      pointer: {
+        itemStyle: {
+          color: 'auto'
+        },
+        length: '60%',
+        width: 6
+      },
+      axisTick: {
+        distance: 10,
+        length: 6,
+        lineStyle: {
+          color: '#999',
+          width: 1
+        }
+      },
+      splitLine: {
+        distance: 10,
+        length: 10,
+        lineStyle: {
+          color: '#999',
+          width: 2
+        }
+      },
+      axisLabel: {
+        distance: 15,
+        color: '#999',
+        fontSize: 12
+      },
+      title: {
+        show: true,
+        offsetCenter: [0, '20%'],
+        fontSize: 16,
+        color: '#999'
+      },
+      detail: {
+        valueAnimation: true,
+        formatter: '{value}%',
+        fontSize: 30,
+        fontWeight: 'bold',
+        offsetCenter: [0, '40%'],
+        color: 'auto'
+      },
+      data: [
+        {
+          value: 68,
+          name: 'Completion Rate'
+        }
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Key Options and Properties
+
+### Gauge Range
+
+#### `min` / `max`
+Type: `number`  
+Default: `0` / `100`
+
+Minimum and maximum values of the gauge.
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:139-140
+
+#### `startAngle` / `endAngle`
+Type: `number`  
+Default: `225` / `-45`
+
+Start and end angles of the gauge in degrees. 0 degrees is at the 3 o'clock position, with positive angles going counter-clockwise.
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:135-136
+
+#### `clockwise`
+Type: `boolean`  
+Default: `true`
+
+Whether the gauge grows clockwise.
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:137
+
+### Axis Line
+
+The axis line represents the background arc of the gauge.
+
+```typescript
+interface AxisLineOption {
+  show?: boolean
+  roundCap?: boolean
+  lineStyle?: {
+    width?: number
+    color?: [number, ColorString][]  // [percent, color] pairs
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:146-152
+
+Example with colored segments:
+
+```javascript
+axisLine: {
+  lineStyle: {
+    width: 10,
+    color: [
+      [0.3, '#67e0e3'],   // 0-30%: green
+      [0.7, '#37a2da'],   // 30-70%: blue
+      [1, '#fd666d']      // 70-100%: red
+    ]
+  }
+}
+```
+
+### Progress Bar
+
+The progress option creates a filled arc showing the current value:
+
+```typescript
+interface ProgressOption {
+  show?: boolean
+  overlap?: boolean
+  width?: number
+  roundCap?: boolean
+  clip?: boolean
+  itemStyle?: ItemStyleOption
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:75-82
+
+```javascript
+progress: {
+  show: true,
+  width: 10,
+  roundCap: true
+}
+```
+
+### Pointer
+
+The pointer indicates the current value:
+
+```typescript
+interface PointerOption {
+  show?: boolean
+  showAbove?: boolean
+  icon?: string  // SVG path or symbol type
+  length?: number | string  // Percentage or absolute
+  width?: number
+  offsetCenter?: [number | string, number | string]
+  itemStyle?: ItemStyleOption
+  keepAspect?: boolean
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:48-63
+
+```javascript
+pointer: {
+  length: '60%',
+  width: 6,
+  offsetCenter: [0, 0],
+  itemStyle: {
+    color: 'auto'  // Auto matches axis line color
+  }
+}
+```
+
+### Anchor
+
+The anchor is the center point of the gauge:
+
+```typescript
+interface AnchorOption {
+  show?: boolean
+  showAbove?: boolean
+  size?: number
+  icon?: string
+  offsetCenter?: [number | string, number | string]
+  keepAspect?: boolean
+  itemStyle?: ItemStyleOption
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:65-73
+
+### Scale Marks
+
+#### Split Lines
+```javascript
+splitLine: {
+  show: true,
+  length: 10,      // Length of tick marks
+  distance: 10,    // Distance from axis line
+  lineStyle: {
+    color: '#999',
+    width: 3
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:156-164
+
+#### Axis Ticks
+```javascript
+axisTick: {
+  show: true,
+  splitNumber: 5,  // Number of sub-ticks between split lines
+  length: 6,
+  distance: 10,
+  lineStyle: {
+    color: '#999',
+    width: 1
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:166-175
+
+#### Axis Labels
+```javascript
+axisLabel: {
+  show: true,
+  distance: 15,
+  color: '#999',
+  fontSize: 12,
+  formatter: '{value}',  // Or function
+  rotate: 0  // Or 'tangential' | 'radial'
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:177-180
+
+### Title and Detail
+
+#### Title
+Displays a label for the gauge (typically the metric name):
+
+```typescript
+interface TitleOption extends LabelOption {
+  offsetCenter?: [number | string, number | string]
+  formatter?: string | ((value: number) => string)
+  valueAnimation?: boolean
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:84-95
+
+```javascript
+title: {
+  show: true,
+  offsetCenter: [0, '20%'],
+  fontSize: 16,
+  color: '#999'
+}
+```
+
+#### Detail
+Displays the numeric value:
+
+```typescript
+interface DetailOption extends LabelOption {
+  offsetCenter?: [number | string, number | string]
+  formatter?: string | ((value: number) => string)
+  valueAnimation?: boolean
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:97-108
+
+```javascript
+detail: {
+  show: true,
+  offsetCenter: [0, '40%'],
+  formatter: '{value}%',
+  fontSize: 30,
+  fontWeight: 'bold',
+  valueAnimation: true,  // Animate value changes
+  color: 'auto'  // Auto matches pointer color
+}
+```
+
+### Data Item Options
+
+Each gauge data item can override series-level settings:
+
+```typescript
+interface GaugeDataItemOption {
+  name?: string
+  value: number
+  title?: TitleOption
+  detail?: DetailOption
+  pointer?: PointerOption
+  progress?: ProgressOption
+  itemStyle?: ItemStyleOption
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:117-125
+
+## Multiple Gauges
+
+You can display multiple values in a single gauge by providing multiple data items:
+
+```javascript
+{
+  type: 'gauge',
+  data: [
+    { value: 68, name: 'CPU' },
+    { value: 45, name: 'Memory' },
+    { value: 82, name: 'Disk' }
+  ],
+  pointer: {
+    show: true
+  }
+}
+```
+
+## Default Options
+
+```javascript
+{
+  center: ['50%', '50%'],
+  radius: '75%',
+  startAngle: 225,
+  endAngle: -45,
+  clockwise: true,
+  min: 0,
+  max: 100,
+  splitNumber: 10,
+  axisLine: {
+    show: true,
+    roundCap: false,
+    lineStyle: {
+      width: 10
+    }
+  },
+  progress: {
+    show: false,
+    overlap: true,
+    width: 10,
+    roundCap: false,
+    clip: true
+  },
+  splitLine: {
+    show: true,
+    length: 10,
+    distance: 10,
+    lineStyle: {
+      width: 3
+    }
+  },
+  axisTick: {
+    show: true,
+    splitNumber: 5,
+    length: 6,
+    distance: 10,
+    lineStyle: {
+      width: 1
+    }
+  },
+  axisLabel: {
+    show: true,
+    distance: 15,
+    fontSize: 12,
+    rotate: 0
+  },
+  pointer: {
+    show: true,
+    showAbove: true,
+    length: '60%',
+    width: 6
+  },
+  title: {
+    show: true,
+    offsetCenter: [0, '20%'],
+    fontSize: 16
+  },
+  detail: {
+    show: true,
+    offsetCenter: [0, '40%'],
+    fontSize: 30,
+    fontWeight: 'bold',
+    lineHeight: 30
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/gauge/GaugeSeries.ts:202-326

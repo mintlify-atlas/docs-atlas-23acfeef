@@ -1,0 +1,386 @@
+---
+title: Scatter Chart
+description: Visualize relationships and distributions with scatter plots in Apache ECharts
+---
+
+## Overview
+
+Scatter charts display data as individual points plotted on a coordinate system, making them ideal for showing correlations, distributions, and outliers in datasets with two or more variables.
+
+## When to Use
+
+Use scatter charts when you need to:
+
+- Show correlations or relationships between two variables
+- Identify patterns, clusters, or outliers in data
+- Display distributions across multiple dimensions
+- Visualize large datasets with many data points
+- Compare multiple data series on the same plot
+
+## Basic Configuration
+
+The scatter chart is configured through the `ScatterSeriesOption` interface, supporting multiple coordinate systems.
+
+```typescript
+interface ScatterSeriesOption {
+  type: 'scatter'
+  coordinateSystem?: string
+  data?: (ScatterDataItemOption | OptionDataValue | OptionDataValue[])[]
+  symbolSize?: number | Function
+  large?: boolean
+  largeThreshold?: number
+  // ... more options
+}
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  title: {
+    text: 'Height vs Weight Distribution'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: 'Height: {c0}cm<br/>Weight: {c1}kg'
+  },
+  legend: {
+    data: ['Male', 'Female']
+  },
+  xAxis: {
+    type: 'value',
+    name: 'Height (cm)',
+    nameLocation: 'center',
+    nameGap: 30
+  },
+  yAxis: {
+    type: 'value',
+    name: 'Weight (kg)',
+    nameLocation: 'center',
+    nameGap: 30
+  },
+  series: [
+    {
+      name: 'Male',
+      type: 'scatter',
+      data: [
+        [170, 75], [165, 68], [180, 82], [175, 78], [172, 73],
+        [168, 70], [185, 88], [177, 80], [169, 71], [183, 85]
+      ],
+      symbolSize: 10,
+      itemStyle: {
+        opacity: 0.8,
+        color: '#5470c6'
+      },
+      emphasis: {
+        scale: true
+      }
+    },
+    {
+      name: 'Female',
+      type: 'scatter',
+      data: [
+        [160, 55], [155, 50], [165, 58], [158, 53], [162, 56],
+        [157, 52], [168, 60], [163, 57], [156, 51], [167, 59]
+      ],
+      symbolSize: 10,
+      itemStyle: {
+        opacity: 0.8,
+        color: '#91cc75'
+      },
+      emphasis: {
+        scale: true
+      }
+    }
+  ]
+};
+
+chart.setOption(option);
+```
+
+## Key Options
+
+<ParamField path="coordinateSystem" type="string" default="'cartesian2d'">
+  The coordinate system to use. Scatter charts support multiple systems including:
+  - `'cartesian2d'`: 2D rectangular coordinate system (default)
+  - `'polar'`: Polar coordinate system
+  - `'geo'`: Geographic coordinate system
+  - `'calendar'`: Calendar coordinate system
+  - `'singleAxis'`: Single axis
+  
+  ```javascript
+  coordinateSystem: 'cartesian2d'
+  ```
+</ParamField>
+
+<ParamField path="symbol" type="string" default="'circle'">
+  Symbol type for data points. Options: `'circle'`, `'rect'`, `'roundRect'`, `'triangle'`, `'diamond'`, `'pin'`, `'arrow'`, `'none'`, or a custom SVG path.
+  
+  ```javascript
+  symbol: 'circle'
+  ```
+</ParamField>
+
+<ParamField path="symbolSize" type="number | Function" default="10">
+  Size of symbols. Can be a fixed number or a function that returns size based on data.
+  
+  ```javascript
+  symbolSize: 15
+  
+  // Dynamic sizing based on value
+  symbolSize: function(data) {
+    return Math.sqrt(data[2]) * 5;  // Size based on third dimension
+  }
+  ```
+</ParamField>
+
+<ParamField path="symbolRotate" type="number">
+  Rotation angle of symbols in degrees.
+  
+  ```javascript
+  symbolRotate: 45
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="ItemStyleOption">
+  Visual style of scatter points.
+  
+  ```javascript
+  itemStyle: {
+    color: '#5470c6',
+    opacity: 0.8,
+    borderColor: '#fff',
+    borderWidth: 1,
+    shadowBlur: 10,
+    shadowColor: 'rgba(0, 0, 0, 0.3)'
+  }
+  ```
+</ParamField>
+
+<ParamField path="large" type="boolean" default="false">
+  Enable optimization for large-scale scatter data. When enabled, uses a more efficient rendering mode.
+  
+  ```javascript
+  large: true,
+  largeThreshold: 2000
+  ```
+</ParamField>
+
+<ParamField path="largeThreshold" type="number" default="2000">
+  Threshold for switching to large mode. When data count exceeds this value, large mode is activated automatically.
+  
+  ```javascript
+  largeThreshold: 5000
+  ```
+</ParamField>
+
+<ParamField path="clip" type="boolean" default="true">
+  Whether to clip overflow points outside the coordinate system. Works on cartesian and polar systems.
+  
+  ```javascript
+  clip: true
+  ```
+</ParamField>
+
+<ParamField path="label" type="SeriesLabelOption">
+  Label configuration for data points.
+  
+  ```javascript
+  label: {
+    show: false,
+    position: 'top',
+    formatter: '{b}'
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Visual emphasis when hovering over points.
+  
+  ```javascript
+  emphasis: {
+    focus: 'self',      // 'none' | 'self' | 'series'
+    scale: true         // Scale up point on hover
+  }
+  ```
+</ParamField>
+
+<ParamField path="stack" type="string">
+  Stack scatter points with the same stack value. Useful for accumulative scatter plots.
+  
+  ```javascript
+  stack: 'total'
+  ```
+</ParamField>
+
+## Data Format
+
+Scatter chart data supports multiple formats:
+
+```javascript
+// Array of coordinate pairs [x, y]
+data: [
+  [10, 20],
+  [15, 25],
+  [20, 30]
+]
+
+// Array of coordinate pairs with extra dimensions [x, y, size, ...]
+data: [
+  [10, 20, 5],   // x, y, size
+  [15, 25, 8],
+  [20, 30, 3]
+]
+
+// Array of data item objects
+data: [
+  {
+    value: [10, 20],
+    name: 'Point A',
+    symbolSize: 15,
+    itemStyle: {
+      color: '#f00'
+    }
+  },
+  {
+    value: [15, 25],
+    name: 'Point B',
+    symbol: 'triangle'
+  }
+]
+
+// Flattened array (for large datasets)
+data: [10, 20, 15, 25, 20, 30]  // [x1, y1, x2, y2, x3, y3, ...]
+```
+
+## Advanced Features
+
+### Bubble Chart (Variable Size)
+
+```javascript
+series: [{
+  type: 'scatter',
+  symbolSize: function(data) {
+    return Math.sqrt(data[2]) * 5;
+  },
+  data: [
+    [10, 20, 100],  // x, y, size value
+    [15, 25, 200],
+    [20, 30, 50]
+  ],
+  itemStyle: {
+    opacity: 0.6
+  }
+}]
+```
+
+### Color-Coded Scatter
+
+```javascript
+series: [{
+  type: 'scatter',
+  data: [
+    {
+      value: [10, 20],
+      itemStyle: { color: '#f00' }
+    },
+    {
+      value: [15, 25],
+      itemStyle: { color: '#0f0' }
+    }
+  ]
+}]
+```
+
+### Large-Scale Scatter (Performance Optimization)
+
+```javascript
+series: [{
+  type: 'scatter',
+  large: true,
+  largeThreshold: 2000,
+  symbolSize: 3,
+  data: generateLargeData()  // Thousands of points
+}]
+
+function generateLargeData() {
+  const data = [];
+  for (let i = 0; i < 10000; i++) {
+    data.push([Math.random() * 100, Math.random() * 100]);
+  }
+  return data;
+}
+```
+
+### Scatter on Polar Coordinates
+
+```javascript
+const option = {
+  polar: {},
+  angleAxis: {
+    type: 'value',
+    startAngle: 0
+  },
+  radiusAxis: {},
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'polar',
+    data: [
+      [0, 1], [45, 2], [90, 3], [135, 2], [180, 1]
+    ]
+  }]
+};
+```
+
+### Multi-Dimensional Scatter
+
+```javascript
+series: [{
+  type: 'scatter',
+  symbolSize: function(data) {
+    return data[2] * 2;  // Size from 3rd dimension
+  },
+  data: [
+    [10, 20, 5, 'A'],   // x, y, size, category
+    [15, 25, 8, 'B'],
+    [20, 30, 3, 'A']
+  ],
+  itemStyle: {
+    color: function(params) {
+      return params.data[3] === 'A' ? '#5470c6' : '#91cc75';
+    }
+  }
+}]
+```
+
+## Performance Tips
+
+1. **Enable large mode** for datasets with more than 2,000 points:
+   ```javascript
+   large: true,
+   largeThreshold: 2000
+   ```
+
+2. **Use progressive rendering** for very large datasets:
+   ```javascript
+   progressive: 500,
+   progressiveThreshold: 1000
+   ```
+
+3. **Reduce symbol complexity** for better performance:
+   ```javascript
+   symbol: 'circle',  // Simpler than 'path://...'
+   symbolSize: 5      // Smaller sizes render faster
+   ```
+
+## Source Reference
+
+The scatter chart implementation can be found in:
+- Series model: `src/chart/scatter/ScatterSeries.ts:84-169`
+- Default options: `src/chart/scatter/ScatterSeries.ts:128-165`
+- Type definitions: `src/chart/scatter/ScatterSeries.ts:47-81`
+- Dependencies: `src/chart/scatter/ScatterSeries.ts:88`

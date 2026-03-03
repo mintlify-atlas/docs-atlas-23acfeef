@@ -1,0 +1,215 @@
+---
+title: Migrating from v5 to v6
+description: Complete guide to upgrading Apache ECharts from version 5 to version 6
+---
+
+# Migrating from v5 to v6
+
+Apache ECharts v6.0.0 is a major release that includes several breaking changes and new features. This guide will help you migrate your existing v5 applications to v6.
+
+## Overview
+
+ECharts v6.0.0 focuses on improved TypeScript support, ESM compatibility, and modernized module system. The current stable version is **6.0.0**.
+
+## Breaking Changes
+
+### TypeScript and Module System
+
+#### Export Assignments Removed
+
+To support modern TypeScript ESM compatibility, export assignments have been removed from the type definitions.
+
+**Before (v5):**
+```typescript
+import echarts = require('echarts');
+```
+
+**After (v6):**
+```typescript
+import * as echarts from 'echarts';
+// or
+import { init, use } from 'echarts';
+```
+
+This change ensures better compatibility with TypeScript's `moduleResolution: "node16"` and `module: "ES2022"` settings.
+
+#### Package.json Type Module
+
+The package now uses `"type": "module"` in package.json, making it a proper ESM package. Update your imports accordingly:
+
+```typescript
+// Named imports are now preferred
+import { init, use } from 'echarts';
+import { BarChart } from 'echarts/charts';
+import { GridComponent } from 'echarts/components';
+```
+
+### Coordinate System Changes
+
+#### View Coordinate System Center
+
+The legacy center implementation was fixed in v6.0.0. If you were relying on the previous behavior, you may need to adjust your coordinate configurations.
+
+```javascript
+// Review your viewCoordSys configurations
+option = {
+  // Ensure center calculations align with new implementation
+};
+```
+
+### Candlestick Chart States
+
+Non-normal states support that was missing since v5.0.0 has been restored in v6. You can now use emphasis and other states properly:
+
+```javascript
+option = {
+  series: [{
+    type: 'candlestick',
+    emphasis: {
+      itemStyle: {
+        color: '#c23531',
+        borderColor: '#c23531'
+      }
+    },
+    blur: {
+      itemStyle: {
+        opacity: 0.5
+      }
+    }
+  }]
+};
+```
+
+## Dependency Updates
+
+### ZRender 6.0.0
+
+ECharts v6 requires ZRender 6.0.0. Ensure your dependencies are updated:
+
+```json
+{
+  "dependencies": {
+    "echarts": "^6.0.0",
+    "zrender": "^6.0.0"
+  }
+}
+```
+
+### TypeScript Version
+
+The package is built with TypeScript 4.4.3. For best compatibility:
+
+```json
+{
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
+```
+
+## New Features
+
+### Improved Type Definitions
+
+Type definitions have been refactored to:
+- Support modern TypeScript ESM usage
+- Eliminate duplicated type definitions
+- Work with recent TypeScript versions (4.4+)
+- Support both import and require patterns
+
+### Enhanced Export Paths
+
+More granular type exports are now available:
+
+```typescript
+import type { EChartsOption } from 'echarts/types/dist/all';
+import type { BarSeriesOption } from 'echarts/types/dist/charts';
+import type { GridComponentOption } from 'echarts/types/dist/components';
+```
+
+## Migration Steps
+
+### Step 1: Update Dependencies
+
+```bash
+npm install echarts@6.0.0 zrender@6.0.0
+```
+
+### Step 2: Update Imports
+
+Replace CommonJS-style imports with ES modules:
+
+```typescript
+// Before
+import echarts = require('echarts');
+
+// After
+import * as echarts from 'echarts';
+```
+
+### Step 3: Update TypeScript Configuration
+
+If using TypeScript with modern module resolution:
+
+```json
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "node16",
+    "esModuleInterop": true
+  }
+}
+```
+
+### Step 4: Test Coordinate Systems
+
+If you're using custom coordinate systems, test thoroughly as the view coordinate system implementation has been fixed.
+
+### Step 5: Review Candlestick Charts
+
+If you have candlestick charts, you can now properly utilize all interaction states (emphasis, blur, etc.).
+
+## Common Issues
+
+### TypeScript Import Errors
+
+If you encounter TypeScript errors with imports:
+
+```typescript
+// ❌ Old style (may cause errors)
+import echarts = require('echarts');
+
+// ✅ New style
+import * as echarts from 'echarts';
+```
+
+### Module Resolution Issues
+
+Ensure your bundler supports ESM packages. For webpack:
+
+```javascript
+module.exports = {
+  resolve: {
+    extensions: ['.ts', '.js', '.mjs']
+  }
+};
+```
+
+## Resources
+
+- [GitHub Releases](https://github.com/apache/echarts/releases/tag/6.0.0-rc.1)
+- [GitHub Repository](https://github.com/apache/echarts)
+- [Report Issues](https://github.com/apache/echarts/issues)
+- [Mailing List](https://echarts.apache.org/en/maillist.html)
+
+## Getting Help
+
+If you encounter issues during migration:
+
+1. Check the [GitHub issues](https://github.com/apache/echarts/issues) for similar problems
+2. Email [dev@echarts.apache.org](mailto:dev@echarts.apache.org)
+3. Subscribe to the [mailing list](https://echarts.apache.org/maillist.html)
+
+<Note>
+  Version 6.0.0 was released as a major update focusing on TypeScript and ESM modernization. While breaking changes are minimal, proper testing is recommended before deploying to production.
+</Note>

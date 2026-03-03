@@ -1,0 +1,745 @@
+---
+title: "Mobile-Responsive Charts"
+description: "Create touch-friendly, responsive charts for mobile devices"
+---
+
+Learn how to build ECharts that work perfectly on mobile devices with responsive sizing, touch interactions, and optimized performance.
+
+## Basic Responsive Chart
+
+Create a chart that adapts to screen size:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Responsive Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    #main {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+
+    var option = {
+      title: {
+        text: 'Mobile Sales',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 16
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        // Touch-friendly tooltip
+        confine: true,
+        backgroundColor: 'rgba(50, 50, 50, 0.9)',
+        borderWidth: 0,
+        textStyle: {
+          fontSize: 14
+        }
+      },
+      legend: {
+        data: ['Sales'],
+        bottom: 10,
+        itemWidth: 20,
+        itemHeight: 12,
+        textStyle: {
+          fontSize: 12
+        }
+      },
+      grid: {
+        left: 40,
+        right: 20,
+        top: 60,
+        bottom: 50,
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        axisLabel: {
+          fontSize: 11,
+          rotate: 0
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 11
+        }
+      },
+      series: [{
+        name: 'Sales',
+        type: 'line',
+        data: [120, 200, 150, 80, 70, 110, 130],
+        smooth: true,
+        symbolSize: 8,
+        lineStyle: {
+          width: 3
+        },
+        areaStyle: {
+          opacity: 0.3
+        }
+      }]
+    };
+
+    chart.setOption(option);
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      chart.resize();
+    });
+
+    // Handle orientation change
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        chart.resize();
+      }, 300);
+    });
+  </script>
+</body>
+</html>
+```
+
+## Touch-Enabled DataZoom
+
+Implement pinch-to-zoom and swipe interactions:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Touch DataZoom</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #chart {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('chart'));
+
+    // Generate time series data
+    var data = [];
+    var baseTime = new Date().getTime();
+    for (var i = 0; i < 100; i++) {
+      data.push([
+        new Date(baseTime + i * 3600000),
+        Math.random() * 100 + 50
+      ]);
+    }
+
+    var option = {
+      title: {
+        text: 'Touch to Zoom',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 14
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        confine: true,
+        axisPointer: {
+          type: 'cross'
+        }
+      },
+      grid: {
+        left: 50,
+        right: 20,
+        top: 50,
+        bottom: 80
+      },
+      xAxis: {
+        type: 'time',
+        axisLabel: {
+          fontSize: 10
+        }
+      },
+      yAxis: {
+        type: 'value',
+        scale: true,
+        axisLabel: {
+          fontSize: 10
+        }
+      },
+      // Touch-friendly dataZoom
+      dataZoom: [
+        {
+          type: 'inside',  // Enable pinch and swipe
+          start: 0,
+          end: 100,
+          zoomOnMouseWheel: false,
+          moveOnMouseMove: true,
+          moveOnMouseWheel: false
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 100,
+          bottom: 10,
+          height: 20,
+          handleSize: 30,  // Larger handle for touch
+          textStyle: {
+            fontSize: 10
+          }
+        }
+      ],
+      series: [{
+        type: 'line',
+        data: data,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: {
+          width: 2
+        },
+        smooth: true
+      }]
+    };
+
+    chart.setOption(option);
+
+    // Responsive resize
+    window.addEventListener('resize', function() {
+      chart.resize();
+    });
+  </script>
+</body>
+</html>
+```
+
+## Responsive Grid Layout
+
+Adjust chart layout based on screen orientation:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adaptive Layout</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: sans-serif;
+    }
+    #main {
+      width: 100%;
+      height: 400px;
+    }
+    @media (orientation: landscape) {
+      #main {
+        height: 60vh;
+      }
+    }
+    @media (max-width: 600px) {
+      #main {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+
+    function getResponsiveOption() {
+      var width = window.innerWidth;
+      var isPortrait = window.innerHeight > window.innerWidth;
+
+      // Adjust based on screen size
+      var fontSize = width < 400 ? 10 : (width < 600 ? 12 : 14);
+      var legendOrient = isPortrait ? 'horizontal' : 'vertical';
+      var legendPosition = isPortrait ? 
+        { bottom: 5, left: 'center' } : 
+        { right: 10, top: 'middle' };
+
+      return {
+        title: {
+          text: 'Product Distribution',
+          left: 'center',
+          top: 10,
+          textStyle: {
+            fontSize: fontSize + 2
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          confine: true,
+          formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+          orient: legendOrient,
+          ...legendPosition,
+          itemWidth: 15,
+          itemHeight: 10,
+          textStyle: {
+            fontSize: fontSize - 2
+          },
+          data: ['Category A', 'Category B', 'Category C', 'Category D']
+        },
+        series: [
+          {
+            name: 'Products',
+            type: 'pie',
+            radius: isPortrait ? '50%' : '60%',
+            center: isPortrait ? ['50%', '45%'] : ['40%', '50%'],
+            label: {
+              fontSize: fontSize - 1
+            },
+            data: [
+              { value: 335, name: 'Category A' },
+              { value: 310, name: 'Category B' },
+              { value: 234, name: 'Category C' },
+              { value: 135, name: 'Category D' }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+    }
+
+    // Initial render
+    chart.setOption(getResponsiveOption());
+
+    // Update on resize and orientation change
+    function handleResize() {
+      chart.resize();
+      chart.setOption(getResponsiveOption());
+    }
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(handleResize, 300);
+    });
+  </script>
+</body>
+</html>
+```
+
+## Touch-Optimized Tooltip
+
+Create touch-friendly tooltips with proper positioning:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Touch Tooltip</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #main {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+
+    var option = {
+      title: {
+        text: 'Touch for Details',
+        left: 'center',
+        top: 15
+      },
+      tooltip: {
+        trigger: 'axis',
+        // Keep tooltip within chart bounds
+        confine: true,
+        // Custom position for touch
+        position: function(point, params, dom, rect, size) {
+          // Calculate position to keep tooltip visible
+          var x = point[0];
+          var y = point[1];
+          var viewWidth = size.viewSize[0];
+          var viewHeight = size.viewSize[1];
+          var boxWidth = size.contentSize[0];
+          var boxHeight = size.contentSize[1];
+
+          // Position tooltip above touch point on mobile
+          var posX = x - boxWidth / 2;
+          var posY = y - boxHeight - 20;
+
+          // Keep within bounds
+          if (posX < 0) posX = 0;
+          if (posX + boxWidth > viewWidth) posX = viewWidth - boxWidth;
+          if (posY < 0) posY = y + 20;
+
+          return [posX, posY];
+        },
+        backgroundColor: 'rgba(50, 50, 50, 0.95)',
+        borderWidth: 0,
+        textStyle: {
+          fontSize: 13,
+          color: '#fff'
+        },
+        padding: 10
+      },
+      grid: {
+        left: 45,
+        right: 20,
+        top: 60,
+        bottom: 40
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        axisLabel: {
+          fontSize: 11
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 11
+        }
+      },
+      series: [
+        {
+          name: 'Value',
+          type: 'bar',
+          data: [120, 200, 150, 80, 70, 110, 130],
+          itemStyle: {
+            borderRadius: [4, 4, 0, 0]
+          },
+          barWidth: '60%'
+        }
+      ]
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener('resize', function() {
+      chart.resize();
+    });
+  </script>
+</body>
+</html>
+```
+
+## Performance Optimization for Mobile
+
+Optimize chart performance on mobile devices:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mobile Optimized</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #chart {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('chart'));
+
+    // Generate large dataset
+    var data = [];
+    for (var i = 0; i < 10000; i++) {
+      data.push([
+        i,
+        Math.sin(i / 100) * 50 + Math.random() * 20
+      ]);
+    }
+
+    var option = {
+      // Reduce animation for better performance
+      animation: false,
+      title: {
+        text: 'Optimized for Mobile',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 14
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        confine: true,
+        // Reduce tooltip complexity
+        formatter: '{c}'
+      },
+      grid: {
+        left: 40,
+        right: 15,
+        top: 50,
+        bottom: 60
+      },
+      xAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 10
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: 10
+        }
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 10,
+          // Optimize touch interactions
+          throttle: 50
+        },
+        {
+          type: 'slider',
+          start: 0,
+          end: 10,
+          bottom: 10,
+          height: 15,
+          handleSize: 25,
+          // Optimize slider performance
+          realtime: false
+        }
+      ],
+      series: [{
+        type: 'line',
+        data: data,
+        // No symbols for better performance
+        symbol: 'none',
+        // Enable sampling
+        sampling: 'lttb',
+        lineStyle: {
+          width: 1
+        },
+        // Enable large mode
+        large: true,
+        largeThreshold: 500
+      }]
+    };
+
+    chart.setOption(option);
+
+    // Debounced resize
+    var resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        chart.resize();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
+```
+
+## Responsive Font Sizes
+
+Dynamically adjust text sizes based on viewport:
+
+```javascript
+function getResponsiveFontSize() {
+  var width = window.innerWidth;
+  return {
+    title: width < 400 ? 12 : (width < 600 ? 14 : 16),
+    axis: width < 400 ? 9 : (width < 600 ? 10 : 12),
+    legend: width < 400 ? 10 : (width < 600 ? 11 : 12),
+    label: width < 400 ? 9 : (width < 600 ? 10 : 11)
+  };
+}
+
+var fontSize = getResponsiveFontSize();
+
+var option = {
+  title: {
+    textStyle: { fontSize: fontSize.title }
+  },
+  xAxis: {
+    axisLabel: { fontSize: fontSize.axis }
+  },
+  yAxis: {
+    axisLabel: { fontSize: fontSize.axis }
+  },
+  legend: {
+    textStyle: { fontSize: fontSize.legend }
+  }
+};
+```
+
+## Best Practices
+
+### Viewport Configuration
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+```
+
+### Grid Spacing
+
+Adjust grid spacing for mobile screens:
+
+```javascript
+grid: {
+  left: 40,    // Minimal left padding
+  right: 15,   // Minimal right padding
+  top: 60,     // Space for title
+  bottom: 80,  // Space for legend/dataZoom
+  containLabel: true  // Keep labels within grid
+}
+```
+
+### Touch Interactions
+
+Optimize for touch:
+
+```javascript
+// Larger touch targets
+handleSize: 30,
+symbolSize: 8,
+
+// Touch-friendly dataZoom
+dataZoom: [{
+  type: 'inside',
+  throttle: 50  // Smooth touch response
+}]
+```
+
+### Performance Tips
+
+1. **Disable animations**: Set `animation: false` for complex charts
+2. **Reduce data**: Show fewer data points on mobile
+3. **Simplify styles**: Avoid gradients, shadows
+4. **Use sampling**: Enable `sampling: 'lttb'` for line charts
+5. **Debounce resize**: Prevent excessive redraws
+
+### Responsive Patterns
+
+```javascript
+// Adjust chart based on viewport
+function isMobile() {
+  return window.innerWidth < 768;
+}
+
+if (isMobile()) {
+  option.legend.orient = 'horizontal';
+  option.legend.bottom = 0;
+  option.grid.bottom = 60;
+} else {
+  option.legend.orient = 'vertical';
+  option.legend.right = 10;
+  option.grid.right = 120;
+}
+```
+
+## Resize Handler Pattern
+
+```javascript
+var chart = echarts.init(dom);
+var resizeTimeout;
+
+// Debounced resize
+function handleResize() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(function() {
+    chart.resize();
+    // Optionally update options
+    chart.setOption(getResponsiveOption());
+  }, 100);
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', function() {
+  setTimeout(handleResize, 300);
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+  chart.dispose();
+});
+```
+
+## Testing on Mobile
+
+### Browser DevTools
+
+1. Open Chrome DevTools (F12)
+2. Click device toolbar (Ctrl+Shift+M)
+3. Select device or custom dimensions
+4. Test touch interactions and orientations
+
+### Real Device Testing
+
+- Test on actual iOS and Android devices
+- Verify touch interactions (pinch, swipe)
+- Check performance with large datasets
+- Test in both portrait and landscape
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Large Datasets" icon="database" href="/examples/large-datasets">
+    Optimize mobile charts for large data
+  </Card>
+  <Card title="Getting Started" icon="rocket" href="/examples/getting-started">
+    Learn basic chart types and setup
+  </Card>
+</CardGroup>

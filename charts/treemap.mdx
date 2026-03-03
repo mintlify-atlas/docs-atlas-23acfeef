@@ -1,0 +1,480 @@
+---
+title: "Treemap Chart"
+description: "Visualize hierarchical data using nested rectangles with size-based encoding"
+icon: "table-cells"
+---
+
+Treemap charts display hierarchical data as nested rectangles, where the area of each rectangle represents a quantitative value. They efficiently show part-to-whole relationships within hierarchies.
+
+## When to Use
+
+Use treemap charts when you need to:
+
+- Show hierarchical data with proportional sizes
+- Display disk usage and file system structures
+- Visualize budget allocations and resource distributions
+- Compare market shares or sales by category
+- Analyze nested data with multiple levels
+- Represent part-to-whole relationships in hierarchies
+
+## Basic Configuration
+
+A treemap chart requires hierarchical data with numeric values that determine rectangle sizes.
+
+```javascript
+option = {
+  series: [{
+    type: 'treemap',
+    data: [
+      {
+        name: 'Category A',
+        value: 100,
+        children: [
+          { name: 'A-1', value: 40 },
+          { name: 'A-2', value: 60 }
+        ]
+      },
+      {
+        name: 'Category B',
+        value: 80,
+        children: [
+          { name: 'B-1', value: 30 },
+          { name: 'B-2', value: 50 }
+        ]
+      }
+    ]
+  }]
+};
+```
+
+## Complete Example
+
+Here's a comprehensive example showing disk space usage:
+
+```javascript
+option = {
+  title: {
+    text: 'Disk Usage Analysis',
+    left: 'center'
+  },
+  tooltip: {
+    formatter: function(info) {
+      const value = info.value;
+      const treePathInfo = info.treeAncestors;
+      const treePath = [];
+      
+      for (let i = 1; i < treePathInfo.length; i++) {
+        treePath.push(treePathInfo[i].name);
+      }
+      
+      return [
+        '<div class="tooltip-title">' + treePath.join(' / ') + '</div>',
+        'Size: ' + (value / 1024).toFixed(2) + ' GB'
+      ].join('');
+    }
+  },
+  series: [{
+    type: 'treemap',
+    
+    // Data with hierarchical structure
+    data: [
+      {
+        name: 'Documents',
+        value: 51200,  // 50 GB
+        children: [
+          { 
+            name: 'Work', 
+            value: 30720,
+            children: [
+              { name: 'Projects', value: 20480 },
+              { name: 'Reports', value: 10240 }
+            ]
+          },
+          { 
+            name: 'Personal', 
+            value: 20480,
+            children: [
+              { name: 'Photos', value: 15360 },
+              { name: 'Videos', value: 5120 }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Applications',
+        value: 40960,
+        children: [
+          { name: 'Development', value: 25600 },
+          { name: 'Graphics', value: 15360 }
+        ]
+      },
+      {
+        name: 'System',
+        value: 30720,
+        children: [
+          { name: 'Libraries', value: 20480 },
+          { name: 'Logs', value: 10240 }
+        ]
+      }
+    ],
+    
+    // Layout position
+    left: '5%',
+    right: '5%',
+    top: '15%',
+    bottom: '10%',
+    
+    // Enable roam (zoom and pan)
+    roam: true,
+    
+    // Node click behavior
+    nodeClick: 'zoomToNode',
+    
+    // Breadcrumb navigation
+    breadcrumb: {
+      show: true,
+      height: 22,
+      bottom: '5%',
+      left: 'center',
+      itemStyle: {
+        color: '#f5f5f5',
+        textStyle: {
+          color: '#333'
+        }
+      },
+      emphasis: {
+        itemStyle: {
+          color: '#e0e0e0'
+        }
+      }
+    },
+    
+    // Label for parent nodes
+    label: {
+      show: true,
+      formatter: '{b}',
+      color: '#fff',
+      fontSize: 14
+    },
+    
+    // Label when node has children (upper label)
+    upperLabel: {
+      show: true,
+      height: 30,
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold'
+    },
+    
+    // Item style
+    itemStyle: {
+      borderColor: '#fff',
+      borderWidth: 2,
+      gapWidth: 2
+    },
+    
+    // Visual mapping
+    visualDimension: 0,
+    colorSaturation: [0.3, 0.7],
+    
+    // Emphasis state
+    emphasis: {
+      focus: 'descendant',
+      upperLabel: {
+        show: true,
+        fontSize: 18
+      },
+      itemStyle: {
+        borderColor: '#555'
+      }
+    },
+    
+    // Level-specific configurations
+    levels: [
+      {
+        itemStyle: {
+          borderWidth: 0,
+          gapWidth: 5
+        }
+      },
+      {
+        itemStyle: {
+          gapWidth: 1
+        }
+      },
+      {
+        colorSaturation: [0.35, 0.5],
+        itemStyle: {
+          gapWidth: 1,
+          borderColorSaturation: 0.6
+        }
+      }
+    ]
+  }]
+};
+```
+
+## Key Options
+
+### Data Structure
+
+<ParamField path="series.data" type="TreemapSeriesNodeItemOption[]">
+  Hierarchical data nodes. From TreemapSeries.ts:139-153, 222
+  
+  <Expandable title="node properties">
+    <ParamField path="name" type="string">
+      Node name displayed in label.
+    </ParamField>
+    
+    <ParamField path="value" type="number | number[]">
+      Node value determining rectangle size. Required.
+    </ParamField>
+    
+    <ParamField path="children" type="TreemapSeriesNodeItemOption[]">
+      Child nodes array.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="TreemapSeriesItemStyleOption">
+      Visual style for this node.
+    </ParamField>
+    
+    <ParamField path="label" type="TreemapSeriesLabelOption">
+      Label configuration.
+    </ParamField>
+    
+    <ParamField path="upperLabel" type="TreemapSeriesLabelOption">
+      Label shown when node is a parent.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Node Click Behavior
+
+<ParamField path="series.nodeClick" type="'zoomToNode' | 'link' | false" default="'zoomToNode'">
+  Behavior when clicking a node. From TreemapSeries.ts:203, 280
+  
+  - `'zoomToNode'`: Zoom into the clicked node
+  - `'link'`: Navigate to URL specified in node data
+  - `false`: No action
+</ParamField>
+
+### Layout Configuration
+
+<ParamField path="series.squareRatio" type="number" default="0.5 * (1 + Math.sqrt(5))">
+  The golden ratio for rectangle layout. From TreemapSeries.ts:183, 265
+  
+  Controls the aspect ratio preference for rectangles.
+</ParamField>
+
+<ParamField path="series.leafDepth" type="number">
+  Nodes at this depth from root are treated as leaves. From TreemapSeries.ts:188, 266
+  
+  Useful for limiting visible hierarchy levels.
+</ParamField>
+
+<ParamField path="series.sort" type="boolean | 'asc' | 'desc'" default="true">
+  Sort order for nodes at same level. From TreemapSeries.ts:176, 262
+  
+  - `true` or `'desc'`: Descending by value
+  - `'asc'`: Ascending by value
+  - `false`: No sorting
+</ParamField>
+
+### Breadcrumb Navigation
+
+<ParamField path="series.breadcrumb" type="object">
+  Breadcrumb navigation configuration. From TreemapSeries.ts:205-218, 284-302
+  
+  <Expandable title="properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show breadcrumb.
+    </ParamField>
+    
+    <ParamField path="height" type="number" default="22">
+      Height of breadcrumb bar.
+    </ParamField>
+    
+    <ParamField path="left" type="string | number" default="'center'">
+      Horizontal position.
+    </ParamField>
+    
+    <ParamField path="bottom" type="string | number">
+      Distance from bottom.
+    </ParamField>
+    
+    <ParamField path="emptyItemWidth" type="number" default="25">
+      Width of empty item.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="object">
+      Style of breadcrumb items.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Visual Mapping
+
+<ParamField path="series.visualDimension" type="number | string" default="0">
+  Which dimension to use for visual mapping. From TreemapSeries.ts:106, 346
+</ParamField>
+
+<ParamField path="series.colorSaturation" type="number[] | 'none'">
+  Color saturation range for visual mapping. From TreemapSeries.ts:117, 361
+  
+  Array of two numbers defining min/max saturation (e.g., [0.3, 0.7]).
+</ParamField>
+
+<ParamField path="series.colorAlpha" type="number[] | 'none'">
+  Color alpha (opacity) range for visual mapping. From TreemapSeries.ts:116, 360
+</ParamField>
+
+<ParamField path="series.visualMin" type="number">
+  Minimum value for visual mapping. From TreemapSeries.ts:113, 347
+</ParamField>
+
+<ParamField path="series.visualMax" type="number">
+  Maximum value for visual mapping. From TreemapSeries.ts:114, 348
+</ParamField>
+
+### Visibility Control
+
+<ParamField path="series.visibleMin" type="number" default="10">
+  Minimum area (px²) for a node to be visible. From TreemapSeries.ts:125, 363
+  
+  Nodes smaller than this won't be rendered.
+</ParamField>
+
+<ParamField path="series.childrenVisibleMin" type="number">
+  Minimum parent area (px²) for children to be visible. From TreemapSeries.ts:129, 365
+  
+  If a parent node's area is smaller than this, its children won't be shown.
+</ParamField>
+
+### Item Style
+
+<ParamField path="series.itemStyle" type="TreemapSeriesItemStyleOption">
+  Node rectangle styling. From TreemapSeries.ts:64-73, 326-335
+  
+  <Expandable title="properties">
+    <ParamField path="borderWidth" type="number" default="0">
+      Border width.
+    </ParamField>
+    
+    <ParamField path="borderColor" type="string" default="'#fff'">
+      Border color.
+    </ParamField>
+    
+    <ParamField path="gapWidth" type="number" default="0">
+      Gap between rectangles.
+    </ParamField>
+    
+    <ParamField path="borderRadius" type="number | number[]">
+      Corner radius.
+    </ParamField>
+    
+    <ParamField path="colorAlpha" type="number">
+      Color opacity.
+    </ParamField>
+    
+    <ParamField path="colorSaturation" type="number">
+      Color saturation.
+    </ParamField>
+    
+    <ParamField path="borderColorSaturation" type="number">
+      Border color saturation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Labels
+
+<ParamField path="series.label" type="object">
+  Label for regular nodes. From TreemapSeries.ts:304-314
+  
+  <Expandable title="properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show label.
+    </ParamField>
+    
+    <ParamField path="position" type="string" default="'inside'">
+      Label position.
+    </ParamField>
+    
+    <ParamField path="distance" type="number" default="0">
+      Distance from node.
+    </ParamField>
+    
+    <ParamField path="padding" type="number" default="5">
+      Label padding.
+    </ParamField>
+    
+    <ParamField path="overflow" type="string" default="'truncate'">
+      How to handle overflow text.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="series.upperLabel" type="object">
+  Label shown for parent nodes. From TreemapSeries.ts:316-325
+  
+  Displayed when a node has children and is being viewed.
+</ParamField>
+
+### Levels
+
+<ParamField path="series.levels" type="TreemapSeriesLevelOption[]">
+  Level-specific configurations. From TreemapSeries.ts:132-137, 220, 370
+  
+  Each array element configures a specific depth level. Level 0 is the root, level 1 is its children, etc.
+  
+  Each level can have its own `itemStyle`, `label`, `upperLabel`, `color`, and visual mapping settings.
+</ParamField>
+
+### Interaction
+
+<ParamField path="series.roam" type="boolean | 'scale' | 'move'" default="true">
+  Whether to enable zoom and pan. From TreemapSeries.ts:278
+</ParamField>
+
+<ParamField path="series.zoomToNodeRatio" type="number" default="0.32 * 0.32">
+  Target node area ratio when zooming. From TreemapSeries.ts:196, 271
+</ParamField>
+
+### Emphasis
+
+<ParamField path="series.emphasis.focus" type="'self' | 'descendant' | 'ancestor'">
+  What to highlight on hover. From TreemapSeries.ts:92
+  
+  - `'self'`: Only the hovered node
+  - `'descendant'`: The node and all descendants
+  - `'ancestor'`: The node and all ancestors
+</ParamField>
+
+## Layout Box
+
+<ParamField path="series.left" type="string | number">
+  Distance from left edge. From TreemapSeries.ts:257
+</ParamField>
+
+<ParamField path="series.top" type="string | number">
+  Distance from top edge. From TreemapSeries.ts:258
+</ParamField>
+
+<ParamField path="series.right" type="string | number">
+  Distance from right edge. From TreemapSeries.ts:259
+</ParamField>
+
+<ParamField path="series.bottom" type="string | number">
+  Distance from bottom edge. From TreemapSeries.ts:260
+</ParamField>
+
+## Best Practices
+
+- Use meaningful color schemes to encode additional dimensions
+- Set `gapWidth` to visually separate sibling nodes
+- Configure `levels` for different visual styles at each hierarchy depth
+- Use `upperLabel` to show parent names when zoomed in
+- Enable breadcrumb navigation for easy hierarchy navigation
+- Set appropriate `visibleMin` to hide very small rectangles
+- Use `nodeClick: 'zoomToNode'` for interactive drill-down exploration
+- Consider using `colorSaturation` or `colorAlpha` ranges for value encoding

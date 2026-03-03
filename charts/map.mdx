@@ -1,0 +1,413 @@
+---
+title: "Map Chart"
+description: "Visualize geographic data on interactive maps with regions, markers, and data overlays"
+---
+
+## When to Use Map Charts
+
+Map charts are ideal for visualizing geographic or spatial data. Common use cases include:
+
+- **Regional data**: Displaying metrics by country, state, province, or custom regions
+- **Heat maps**: Showing data density or intensity across geographic areas
+- **Location markers**: Plotting points of interest, store locations, or event locations
+- **Choropleth maps**: Using color to represent data values across regions
+- **Geographic analysis**: Comparing metrics across different territories
+
+Map charts require GeoJSON data defining the geographic regions to display.
+
+## Basic Configuration
+
+A map chart uses the `type: 'map'` series option. Here's the basic structure:
+
+```typescript
+type MapSeriesOption = {
+  type: 'map'
+  map: string  // Name of registered GeoJSON map
+  data: (number | MapDataItemOption)[]
+  roam?: boolean | 'scale' | 'move'
+  center?: [number, number]
+  zoom?: number
+  scaleLimit?: { min?: number, max?: number }
+  selectedMode?: boolean | 'single' | 'multiple'
+  label?: SeriesLabelOption
+  itemStyle?: GeoItemStyleOption
+  emphasis?: MapStateOption
+  select?: MapStateOption
+  mapValueCalculation?: 'sum' | 'average' | 'min' | 'max'
+  nameProperty?: string
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:67-100
+
+## Complete Working Example
+
+First, you need to register a GeoJSON map. Here's an example using a USA map:
+
+```javascript
+import * as echarts from 'echarts';
+import usaJSON from './usa.json';  // GeoJSON data
+
+// Register the map
+echarts.registerMap('USA', usaJSON);
+
+const option = {
+  title: {
+    text: 'USA Population by State',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b}: {c}'
+  },
+  visualMap: {
+    min: 0,
+    max: 40000000,
+    text: ['High', 'Low'],
+    realtime: false,
+    calculable: true,
+    inRange: {
+      color: ['lightskyblue', 'yellow', 'orangered']
+    }
+  },
+  series: [
+    {
+      type: 'map',
+      map: 'USA',
+      roam: true,
+      label: {
+        show: false,
+        emphasis: {
+          show: true
+        }
+      },
+      itemStyle: {
+        areaColor: '#eee',
+        borderColor: '#444',
+        borderWidth: 0.5
+      },
+      emphasis: {
+        label: {
+          show: true,
+          color: '#000'
+        },
+        itemStyle: {
+          areaColor: '#ffd700'
+        }
+      },
+      data: [
+        { name: 'California', value: 39538223 },
+        { name: 'Texas', value: 29145505 },
+        { name: 'Florida', value: 21538187 },
+        { name: 'New York', value: 20201249 },
+        // ... more states
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Registering Maps
+
+Before using a map, you must register it with ECharts:
+
+```javascript
+// Register a map from GeoJSON
+echarts.registerMap('mapName', geoJsonData, specialAreas);
+
+// Example with special areas (for irregular regions)
+echarts.registerMap('USA', usaJson, {
+  'Alaska': {
+    left: -131,
+    top: 25,
+    width: 15
+  },
+  'Hawaii': {
+    left: -110,
+    top: 28,
+    width: 5
+  }
+});
+```
+
+The `map` option in the series must match the registered map name.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:136
+
+## Key Options and Properties
+
+### Map Selection
+
+#### `map`
+Type: `string`  
+Required: Yes
+
+Name of the registered map. This must match a map previously registered with `echarts.registerMap()`.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:289
+
+#### `nameProperty`
+Type: `string`  
+Default: `'name'`
+
+Property name in GeoJSON features used to match with data items. By default, ECharts looks for a `name` property in the GeoJSON.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:99, 365
+
+### View Control
+
+#### `center`
+Type: `[number, number]`  
+Default: Auto-calculated
+
+Center coordinates `[longitude, latitude]` for the map view.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:326
+
+#### `zoom`
+Type: `number`  
+Default: `1`
+
+Initial zoom level of the map.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:328
+
+#### `roam`
+Type: `boolean | 'scale' | 'move'`  
+Default: Controlled by series
+
+Enables map roaming (pan and zoom). Set to `true` for both, `'scale'` for zoom only, or `'move'` for pan only.
+
+#### `scaleLimit`
+Type: `{ min?: number, max?: number }`
+
+Limits for the zoom scale.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:330
+
+#### `boundingCoords`
+Type: `[[number, number], [number, number]]`
+
+Defines the bounding box as `[[leftTop], [rightBottom]]` coordinates. Takes higher priority than `center` and `zoom`.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:323
+
+### Selection Mode
+
+#### `selectedMode`
+Type: `boolean | 'single' | 'multiple'`  
+Default: `true`
+
+Controls how regions can be selected:
+- `false`: No selection allowed
+- `true` or `'multiple'`: Multiple regions can be selected
+- `'single'`: Only one region can be selected at a time
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:332
+
+### Data Processing
+
+#### `mapValueCalculation`
+Type: `'sum' | 'average' | 'min' | 'max'`
+
+When multiple series use the same map, this determines how values are calculated for each region.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:89
+
+### Styling
+
+#### `itemStyle`
+```javascript
+itemStyle: {
+  areaColor: '#eee',      // Fill color for regions
+  borderColor: '#444',    // Border color
+  borderWidth: 0.5,       // Border width
+  borderType: 'solid',    // Border style
+  shadowBlur: 10,         // Shadow effect
+  shadowColor: 'rgba(0, 0, 0, 0.5)',
+  shadowOffsetX: 0,
+  shadowOffsetY: 0
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:339-343
+
+#### `label`
+```javascript
+label: {
+  show: false,
+  color: '#000',
+  fontSize: 12,
+  formatter: '{b}'  // {b} is region name
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:334-337
+
+### State Options
+
+#### `emphasis`
+Style when hovering over a region:
+
+```javascript
+emphasis: {
+  label: {
+    show: true,
+    color: '#000'
+  },
+  itemStyle: {
+    areaColor: '#ffd700'
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:345-353
+
+#### `select`
+Style when a region is selected:
+
+```javascript
+select: {
+  label: {
+    show: true,
+    color: '#000'
+  },
+  itemStyle: {
+    areaColor: '#87ceeb'
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:355-363
+
+### Data Item Options
+
+Each data item represents a region on the map:
+
+```typescript
+interface MapDataItemOption {
+  name: string      // Must match region name in GeoJSON
+  value?: number    // Value to display
+  label?: SeriesLabelOption
+  itemStyle?: GeoItemStyleOption
+  emphasis?: MapStateOption
+  select?: MapStateOption
+  silent?: boolean
+  cursor?: string
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:58-63
+
+Example:
+
+```javascript
+data: [
+  {
+    name: 'California',
+    value: 39538223,
+    itemStyle: {
+      areaColor: '#ff6b6b'
+    },
+    emphasis: {
+      itemStyle: {
+        areaColor: '#ff5252'
+      }
+    }
+  },
+  { name: 'Texas', value: 29145505 },
+  { name: 'Florida', value: 21538187 }
+]
+```
+
+## Using with Geo Component
+
+Map series can be used with a separate `geo` component for more advanced layouts:
+
+```javascript
+option = {
+  geo: {
+    map: 'USA',
+    roam: true,
+    itemStyle: {
+      areaColor: '#eee',
+      borderColor: '#444'
+    }
+  },
+  series: [
+    {
+      type: 'map',
+      geoIndex: 0,  // Use the geo component defined above
+      data: [/* ... */]
+    }
+  ]
+}
+```
+
+When `geoIndex` is specified, the series uses the referenced geo component instead of creating its own.
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:166-176
+
+## Coordinate System
+
+Map series uses the `'geo'` coordinate system by default:
+
+```javascript
+{
+  type: 'map',
+  coordinateSystem: 'geo',  // Default value
+  // ...
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:286
+
+## Tooltip Formatting
+
+The map series provides custom tooltip formatting that displays all series with data for a region:
+
+```javascript
+tooltip: {
+  trigger: 'item',
+  formatter: function(params) {
+    return params.name + ': ' + params.value;
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:209-236
+
+## Default Options
+
+```javascript
+{
+  coordinateSystem: 'geo',
+  map: '',  // Must be specified
+  left: 'center',
+  top: 'center',
+  aspectScale: null,
+  showLegendSymbol: true,
+  boundingCoords: null,
+  center: null,
+  zoom: 1,
+  scaleLimit: null,
+  selectedMode: true,
+  label: {
+    show: false
+  },
+  itemStyle: {
+    borderWidth: 0.5
+  },
+  emphasis: {
+    label: {
+      show: true
+    }
+  },
+  nameProperty: 'name'
+}
+```
+
+Source: ~/workspace/source/src/chart/map/MapSeries.ts:280-366

@@ -1,0 +1,450 @@
+---
+title: Baidu Map Extension
+description: Integrate Baidu Maps with Apache ECharts for geographic visualizations
+---
+
+# Baidu Map Extension
+
+The Baidu Map extension for Apache ECharts enables you to create geographic visualizations using Baidu Maps as the base layer. You can display scatter plots, line charts, heatmaps, and other visualizations on top of Baidu Maps.
+
+## Overview
+
+The Baidu Map extension provides a coordinate system and rendering layer that integrates seamlessly with ECharts, allowing you to visualize geographic data on Baidu Maps with all the power of ECharts charts.
+
+## Supported Visualizations
+
+You can use the following chart types with the Baidu Map coordinate system:
+
+- **Scatter plots** (`series-scatter`) - Display points on the map
+- **Line charts** (`series-lines`) - Show routes and connections
+- **Heatmaps** (`series-heatmap`) - Visualize density and intensity
+- **Custom series** - Create custom geographic visualizations
+
+## Installation
+
+### Using Script Tags
+
+Include the Baidu Map JS SDK and the ECharts extension:
+
+```html
+<!-- Baidu Map JS SDK (use your own API key) -->
+<!-- For Baidu Map 3.0, use v=3.0. For 2.0, use v=2.0 -->
+<script src="https://api.map.baidu.com/api?v=3.0&ak=YOUR_API_KEY"></script>
+
+<!-- ECharts -->
+<script src="dist/echarts.min.js"></script>
+
+<!-- Baidu Map Extension -->
+<script src="dist/extension/bmap.min.js"></script>
+```
+
+**Note**: You need to obtain an API key from [Baidu Maps Open Platform](https://lbsyun.baidu.com/).
+
+### Using Webpack/Module Bundlers
+
+If you're using a module bundler:
+
+```javascript
+require('echarts');
+require('echarts/extension/bmap/bmap');
+```
+
+The extension will automatically register the `bmap` component.
+
+## Basic Usage
+
+### Simple Scatter Plot
+
+```javascript
+const option = {
+  // Configure the bmap component
+  bmap: {
+    center: [120.13066322374, 30.240018034923],
+    zoom: 14,
+    roam: true
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'bmap',
+    data: [
+      [120, 30, 1],
+      [120.1, 30.1, 2],
+      [120.2, 30.2, 3]
+    ],
+    encode: {
+      value: 2
+    }
+  }]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Configuration Options
+
+### BMap Component
+
+The `bmap` component accepts the following configuration options:
+
+#### center
+
+Map center coordinates in `[longitude, latitude]` format.
+
+- **Type**: `Array<number>`
+- **Default**: `[104.114129, 37.550339]`
+
+```javascript
+bmap: {
+  center: [120.13066322374, 30.240018034923]
+}
+```
+
+#### zoom
+
+Map zoom level.
+
+- **Type**: `number`
+- **Default**: `5`
+- **Range**: Typically 3-19 (depends on map configuration)
+
+```javascript
+bmap: {
+  zoom: 14
+}
+```
+
+#### roam
+
+Enable dragging and zooming.
+
+- **Type**: `boolean | string`
+- **Default**: `false`
+- **Options**: 
+  - `false`: Disable all interactions
+  - `true`: Enable both dragging and zooming
+  - `'scale'`: Enable zooming only
+  - `'move'`: Enable dragging only
+
+```javascript
+bmap: {
+  roam: true
+}
+```
+
+#### mapStyle
+
+Baidu Map 2.0 custom style configuration.
+
+- **Type**: `Object`
+- **Default**: `{}`
+- **Reference**: [Baidu Map Style Editor (v2.0)](https://lbsyun.baidu.com/custom/index.htm)
+
+```javascript
+bmap: {
+  mapStyle: {
+    styleJson: [
+      {
+        featureType: 'water',
+        elementType: 'all',
+        stylers: {
+          color: '#d1d1d1'
+        }
+      }
+    ]
+  }
+}
+```
+
+#### mapStyleV2
+
+Baidu Map 3.0 custom style configuration.
+
+- **Type**: `Object`
+- **Default**: `{}`
+- **Reference**: [Baidu Map Custom Styling (v3.0)](https://lbsyun.baidu.com/index.php?title=open/custom)
+
+```javascript
+bmap: {
+  mapStyleV2: {
+    styleId: 'YOUR_STYLE_ID'
+  }
+}
+```
+
+#### mapOptions
+
+Baidu Map initialization options.
+
+- **Type**: `Object`
+- **Default**: `{}`
+- **Reference**: [Baidu Map API Reference](https://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference.html#a0b1)
+
+```javascript
+bmap: {
+  mapOptions: {
+    enableMapClick: false // Disable default map click behavior
+  }
+}
+```
+
+## Using Series with BMap
+
+### Scatter Series
+
+Display points on the map:
+
+```javascript
+const option = {
+  bmap: {
+    center: [104.114129, 37.550339],
+    zoom: 5,
+    roam: true
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'bmap',
+    data: [
+      [116.405285, 39.904989, 100], // Beijing
+      [121.472644, 31.231706, 200], // Shanghai
+      [113.264385, 23.129112, 150]  // Guangzhou
+    ],
+    symbolSize: function (val) {
+      return val[2] / 10;
+    },
+    encode: {
+      value: 2
+    },
+    label: {
+      formatter: '{b}',
+      position: 'right'
+    },
+    itemStyle: {
+      color: '#1E90FF'
+    },
+    emphasis: {
+      label: {
+        show: true
+      }
+    }
+  }]
+};
+```
+
+### Lines Series
+
+Draw lines between points (e.g., routes, connections):
+
+```javascript
+const option = {
+  bmap: {
+    center: [116.405285, 39.904989],
+    zoom: 5,
+    roam: true
+  },
+  series: [{
+    type: 'lines',
+    coordinateSystem: 'bmap',
+    data: [
+      {
+        coords: [
+          [116.405285, 39.904989], // Beijing
+          [121.472644, 31.231706]  // Shanghai
+        ]
+      },
+      {
+        coords: [
+          [121.472644, 31.231706], // Shanghai
+          [113.264385, 23.129112]  // Guangzhou
+        ]
+      }
+    ],
+    lineStyle: {
+      color: '#FF6347',
+      width: 2,
+      curveness: 0.2
+    },
+    effect: {
+      show: true,
+      period: 6,
+      trailLength: 0.1,
+      symbol: 'arrow',
+      symbolSize: 8
+    }
+  }]
+};
+```
+
+### Heatmap Series
+
+Create density heatmaps:
+
+```javascript
+const option = {
+  bmap: {
+    center: [120.13066322374, 30.240018034923],
+    zoom: 14,
+    roam: true
+  },
+  visualMap: {
+    show: false,
+    top: 'top',
+    min: 0,
+    max: 5,
+    seriesIndex: 0,
+    calculable: true,
+    inRange: {
+      color: ['blue', 'green', 'yellow', 'red']
+    }
+  },
+  series: [{
+    type: 'heatmap',
+    coordinateSystem: 'bmap',
+    data: heatmapData, // [[lng, lat, value], ...]
+    pointSize: 5,
+    blurSize: 6
+  }]
+};
+```
+
+## Accessing the Baidu Map Instance
+
+You can access the underlying Baidu Map instance to use Baidu Map's native controls and features:
+
+```javascript
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+
+// Get the Baidu Map instance
+const bmap = chart.getModel().getComponent('bmap').getBMap();
+
+// Add Baidu Map controls
+bmap.addControl(new BMap.MapTypeControl());
+bmap.addControl(new BMap.NavigationControl());
+bmap.addControl(new BMap.ScaleControl());
+bmap.addControl(new BMap.OverviewMapControl());
+
+// Listen to Baidu Map events
+bmap.addEventListener('click', function(e) {
+  console.log('Map clicked at:', e.point.lng, e.point.lat);
+});
+```
+
+## Complete Example
+
+Here's a complete example showing air quality data for major Chinese cities:
+
+```javascript
+const cities = [
+  { name: 'Beijing', coord: [116.405285, 39.904989], value: 95 },
+  { name: 'Shanghai', coord: [121.472644, 31.231706], value: 85 },
+  { name: 'Guangzhou', coord: [113.264385, 23.129112], value: 78 },
+  { name: 'Shenzhen', coord: [114.057868, 22.543099], value: 72 },
+  { name: 'Hangzhou', coord: [120.153576, 30.287459], value: 68 }
+];
+
+const option = {
+  title: {
+    text: 'Air Quality Index',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      return params.name + '<br/>AQI: ' + params.value[2];
+    }
+  },
+  bmap: {
+    center: [104.114129, 37.550339],
+    zoom: 5,
+    roam: true,
+    mapOptions: {
+      enableMapClick: false
+    }
+  },
+  series: [{
+    name: 'AQI',
+    type: 'effectScatter',
+    coordinateSystem: 'bmap',
+    data: cities.map(city => ({
+      name: city.name,
+      value: [...city.coord, city.value]
+    })),
+    symbolSize: function (val) {
+      return val[2] / 5;
+    },
+    encode: {
+      value: 2
+    },
+    showEffectOn: 'render',
+    rippleEffect: {
+      brushType: 'stroke'
+    },
+    label: {
+      formatter: '{b}',
+      position: 'right',
+      show: true
+    },
+    itemStyle: {
+      color: '#1E90FF',
+      shadowBlur: 10,
+      shadowColor: '#333'
+    },
+    emphasis: {
+      scale: true
+    }
+  }]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+
+// Add map controls
+const bmap = chart.getModel().getComponent('bmap').getBMap();
+bmap.addControl(new BMap.MapTypeControl());
+```
+
+## Examples
+
+Official examples from the ECharts gallery:
+
+- [Air Quality in Major Cities](https://echarts.apache.org/examples/en/editor.html?c=effectScatter-bmap)
+- [Beijing Bus Routes](https://echarts.apache.org/examples/en/editor.html?c=lines-bmap-bus)
+- [Beijing Bus Routes with Effect](https://echarts.apache.org/examples/en/editor.html?c=lines-bmap-effect)
+- [Hangzhou Popular Walking Routes (Heatmap)](https://echarts.apache.org/examples/en/editor.html?c=heatmap-bmap)
+
+## API Reference
+
+### getBMap()
+
+Get the Baidu Map instance.
+
+```javascript
+const bmap = chart.getModel().getComponent('bmap').getBMap();
+```
+
+**Returns**: `BMap.Map` - The Baidu Map instance
+
+### Event: bmapRoam
+
+Triggered when the map is panned or zoomed.
+
+```javascript
+chart.on('bmapRoam', function(params) {
+  console.log('Map moved or zoomed');
+});
+```
+
+## Browser Support
+
+The Baidu Map extension works in all modern browsers that support:
+- ECharts 5.0+
+- Baidu Maps JavaScript API v2.0 or v3.0
+
+## Notes
+
+- You must include the Baidu Map JS SDK before the extension
+- An API key is required from Baidu Maps Open Platform
+- Data coordinates should be in `[longitude, latitude]` format
+- The `encode` option can be used to specify which dimension represents the value
+- Only one `bmap` component is allowed per chart instance

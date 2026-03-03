@@ -1,0 +1,454 @@
+---
+title: Toolbox Component
+description: Collection of utility tools for chart interaction and data operations
+---
+
+The Toolbox component provides a set of built-in utility tools that enhance user interaction with charts, including data zoom, download, view switching, and more.
+
+## Purpose
+
+Based on the source implementation in `~/workspace/source/src/component/toolbox/ToolboxModel.ts`, the toolbox component:
+
+- Provides interactive tools as clickable icons
+- Supports built-in features like save as image, data view, data zoom, restore, and magic type
+- Allows custom tool creation and configuration
+- Positioned flexibly within the chart container
+- Displays tooltips for tool descriptions
+
+## Basic Usage
+
+```javascript
+option = {
+  toolbox: {
+    feature: {
+      saveAsImage: {},
+      dataZoom: {},
+      restore: {}
+    }
+  },
+  xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [10, 20, 30] }]
+};
+```
+
+## Save as Image Feature
+
+From `~/workspace/source/src/component/toolbox/feature/SaveAsImage.ts`:
+
+```javascript
+option = {
+  toolbox: {
+    feature: {
+      saveAsImage: {
+        type: 'png',
+        name: 'chart-export',
+        backgroundColor: '#fff',
+        pixelRatio: 2,
+        title: 'Save as Image',
+        excludeComponents: ['toolbox']
+      }
+    }
+  }
+};
+```
+
+## Data Zoom Feature
+
+From `~/workspace/source/src/component/toolbox/feature/DataZoom.ts`:
+
+```javascript
+option = {
+  toolbox: {
+    feature: {
+      dataZoom: {
+        yAxisIndex: 'none',
+        xAxisIndex: [0],
+        filterMode: 'filter',
+        title: {
+          zoom: 'Area Zoom',
+          back: 'Restore Zoom'
+        },
+        brushStyle: {
+          borderWidth: 0,
+          color: 'rgba(135,175,274,0.15)'
+        }
+      }
+    }
+  },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150, 80, 70] }]
+};
+```
+
+## Magic Type Feature
+
+```javascript
+option = {
+  toolbox: {
+    feature: {
+      magicType: {
+        type: ['line', 'bar', 'stack'],
+        title: {
+          line: 'Line Chart',
+          bar: 'Bar Chart',
+          stack: 'Stacked Chart'
+        }
+      }
+    }
+  },
+  series: [{ type: 'bar', data: [10, 20, 30] }]
+};
+```
+
+## Styled Toolbox
+
+```javascript
+option = {
+  toolbox: {
+    show: true,
+    orient: 'vertical',
+    left: 'right',
+    top: 'center',
+    itemSize: 20,
+    itemGap: 15,
+    showTitle: true,
+    feature: {
+      saveAsImage: {},
+      restore: {},
+      dataView: { readOnly: false }
+    },
+    iconStyle: {
+      borderColor: '#1890ff',
+      borderWidth: 2
+    },
+    emphasis: {
+      iconStyle: {
+        borderColor: '#096dd9',
+        borderWidth: 3
+      }
+    }
+  }
+};
+```
+
+## Configuration Options
+
+### Core Properties
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the toolbox component. From `ToolboxModel.ts:113`.
+</ParamField>
+
+<ParamField path="orient" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Layout orientation of toolbox items. From `ToolboxModel.ts:119`.
+</ParamField>
+
+<ParamField path="left" type="string | number" default="'right'">
+  Distance from the left side of the container. Default positions toolbox on the right.
+  
+  From `ToolboxModel.ts:121`.
+</ParamField>
+
+<ParamField path="top" type="string | number" default="'top'">
+  Distance from the top of the container. From `ToolboxModel.ts:123`.
+</ParamField>
+
+<ParamField path="right" type="string | number">
+  Distance from the right side of the container.
+</ParamField>
+
+<ParamField path="bottom" type="string | number">
+  Distance from the bottom of the container.
+</ParamField>
+
+### Item Layout
+
+<ParamField path="itemSize" type="number" default="15">
+  Size of toolbox icons in pixels. From `ToolboxModel.ts:138`.
+</ParamField>
+
+<ParamField path="itemGap" type="number" default="tokens.size.s">
+  Gap between toolbox items. From `ToolboxModel.ts:140`.
+</ParamField>
+
+<ParamField path="showTitle" type="boolean" default="true">
+  Whether to show title (tooltip) when hovering over tools. From `ToolboxModel.ts:142`.
+</ParamField>
+
+### Background and Border
+
+<ParamField path="backgroundColor" type="ZRColor" default="'transparent'">
+  Background color of the toolbox. From `ToolboxModel.ts:128`.
+</ParamField>
+
+<ParamField path="borderColor" type="ColorString" default="tokens.color.border">
+  Border color of the toolbox container. From `ToolboxModel.ts:130`.
+</ParamField>
+
+<ParamField path="borderWidth" type="number" default="0">
+  Border width of the toolbox in pixels. From `ToolboxModel.ts:134`.
+</ParamField>
+
+<ParamField path="borderRadius" type="number | number[]" default="0">
+  Border radius of the toolbox container. From `ToolboxModel.ts:132`.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]" default="tokens.size.m">
+  Padding inside the toolbox. Can be single number or array [top, right, bottom, left].
+  
+  From `ToolboxModel.ts:136`.
+</ParamField>
+
+### Icon Styling
+
+<ParamField path="iconStyle" type="object">
+  Style configuration for toolbox icons. From `ToolboxModel.ts:144-147`:
+  
+  ```javascript
+  iconStyle: {
+    borderColor: tokens.color.accent50,
+    color: 'none'
+  }
+  ```
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Style configuration for hovered/emphasized icons. From `ToolboxModel.ts:148-152`:
+  
+  ```javascript
+  emphasis: {
+    iconStyle: {
+      borderColor: tokens.color.accent70
+    }
+  }
+  ```
+</ParamField>
+
+### Tooltip
+
+<ParamField path="tooltip" type="object">
+  Tooltip configuration for toolbox items. From `ToolboxModel.ts:157-160`:
+  
+  ```javascript
+  tooltip: {
+    show: false,
+    position: 'bottom'
+  }
+  ```
+</ParamField>
+
+## Built-in Features
+
+<ParamField path="feature" type="object">
+  Dictionary of toolbox features to enable. Each feature has its own configuration.
+  
+  See `ToolboxModel.ts:83` for the feature type definition.
+</ParamField>
+
+### Save as Image
+
+From `~/workspace/source/src/component/toolbox/feature/SaveAsImage.ts`:
+
+<ParamField path="feature.saveAsImage.type" type="'png' | 'jpeg'" default="'png'">
+  Image format for export. SVG is automatically used if chart uses SVG renderer.
+</ParamField>
+
+<ParamField path="feature.saveAsImage.name" type="string" default="''">
+  Filename for the downloaded image (without extension).
+  
+  Falls back to chart title or 'echarts'. See `SaveAsImage.ts:49`.
+</ParamField>
+
+<ParamField path="feature.saveAsImage.backgroundColor" type="ZRColor">
+  Background color for the exported image. Defaults to chart background.
+  
+  From `SaveAsImage.ts:54-55`.
+</ParamField>
+
+<ParamField path="feature.saveAsImage.excludeComponents" type="string[]" default="['toolbox']">
+  Array of component types to exclude from the export. Default excludes toolbox.
+  
+  See `SaveAsImage.ts:138`.
+</ParamField>
+
+<ParamField path="feature.saveAsImage.pixelRatio" type="number">
+  Pixel ratio for the exported image. Higher values create higher resolution images.
+  
+  From `SaveAsImage.ts:58`.
+</ParamField>
+
+### Data Zoom
+
+From `~/workspace/source/src/component/toolbox/feature/DataZoom.ts`:
+
+<ParamField path="feature.dataZoom.filterMode" type="'filter' | 'weakFilter' | 'empty' | 'none'" default="'filter'">
+  Data filtering mode when zooming. From `DataZoom.ts:207`.
+</ParamField>
+
+<ParamField path="feature.dataZoom.xAxisIndex" type="number | number[] | 'all' | 'none'">
+  X-axis indices to control with data zoom. 'all' controls all x-axes.
+</ParamField>
+
+<ParamField path="feature.dataZoom.yAxisIndex" type="number | number[] | 'all' | 'none'">
+  Y-axis indices to control with data zoom.
+</ParamField>
+
+<ParamField path="feature.dataZoom.brushStyle" type="object">
+  Style for the brush selection area. From `DataZoom.ts:215-218`:
+  
+  ```javascript
+  brushStyle: {
+    borderWidth: 0,
+    color: tokens.color.backgroundTint
+  }
+  ```
+</ParamField>
+
+<ParamField path="feature.dataZoom.icon" type="object">
+  Custom icons for zoom and back buttons. From `DataZoom.ts:209-212`:
+  
+  ```javascript
+  icon: {
+    zoom: 'path://...',
+    back: 'path://...'
+  }
+  ```
+</ParamField>
+
+<ParamField path="feature.dataZoom.title" type="object">
+  Custom titles for zoom and back buttons:
+  
+  ```javascript
+  title: {
+    zoom: 'Area Zoom',
+    back: 'Restore'
+  }
+  ```
+</ParamField>
+
+### Other Features
+
+<ParamField path="feature.dataView" type="object">
+  Data view feature for displaying raw data in a table format:
+  
+  ```javascript
+  feature: {
+    dataView: {
+      show: true,
+      readOnly: false,
+      title: 'Data View',
+      lang: ['Data View', 'Close', 'Refresh']
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="feature.restore" type="object">
+  Restore feature to reset chart to initial state:
+  
+  ```javascript
+  feature: {
+    restore: {
+      show: true,
+      title: 'Restore'
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="feature.magicType" type="object">
+  Magic type feature for switching between chart types:
+  
+  ```javascript
+  feature: {
+    magicType: {
+      show: true,
+      type: ['line', 'bar'],
+      title: {
+        line: 'Switch to Line Chart',
+        bar: 'Switch to Bar Chart'
+      }
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="feature.brush" type="object">
+  Brush selection feature for selecting data regions:
+  
+  ```javascript
+  feature: {
+    brush: {
+      type: ['rect', 'polygon', 'clear']
+    }
+  }
+  ```
+</ParamField>
+
+## Feature Management
+
+The toolbox uses a feature manager system (from `ToolboxModel.ts:100-108`) that:
+- Automatically merges default options for each feature
+- Supports custom feature registration
+- Handles feature initialization and option updates
+
+## Example: Complete Toolbox Configuration
+
+```javascript
+option = {
+  toolbox: {
+    show: true,
+    orient: 'horizontal',
+    left: 'right',
+    top: 'top',
+    itemSize: 18,
+    itemGap: 12,
+    showTitle: true,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 10,
+    iconStyle: {
+      borderColor: '#1890ff',
+      borderWidth: 1.5
+    },
+    emphasis: {
+      iconStyle: {
+        borderColor: '#096dd9',
+        borderWidth: 2
+      }
+    },
+    feature: {
+      saveAsImage: {
+        type: 'png',
+        name: 'chart-download',
+        backgroundColor: '#fff',
+        pixelRatio: 2,
+        title: 'Download as PNG'
+      },
+      dataZoom: {
+        yAxisIndex: false,
+        xAxisIndex: 0,
+        title: {
+          zoom: 'Zoom',
+          back: 'Reset Zoom'
+        }
+      },
+      restore: {
+        title: 'Restore'
+      },
+      dataView: {
+        readOnly: true,
+        title: 'View Data'
+      }
+    },
+    tooltip: {
+      show: true,
+      position: 'bottom'
+    }
+  }
+};
+```

@@ -1,0 +1,228 @@
+---
+title: Installation
+description: Learn how to install Apache ECharts in your project
+---
+
+# Installation
+
+There are multiple ways to install Apache ECharts in your project. Choose the method that best fits your development workflow.
+
+## Package Manager
+
+Install ECharts using your preferred package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install echarts --save
+```
+
+```bash yarn
+yarn add echarts
+```
+
+```bash pnpm
+pnpm add echarts
+```
+
+</CodeGroup>
+
+The package name is `echarts` and the current version is `6.0.0`.
+
+### Import ECharts
+
+After installation, import ECharts in your JavaScript/TypeScript files:
+
+<CodeGroup>
+
+```javascript ES Modules
+import * as echarts from 'echarts';
+
+// Initialize chart
+const chart = echarts.init(document.getElementById('main'));
+```
+
+```javascript CommonJS
+const echarts = require('echarts');
+
+// Initialize chart
+const chart = echarts.init(document.getElementById('main'));
+```
+
+</CodeGroup>
+
+<Tip>
+  For TypeScript users, ECharts includes complete type definitions out of the box. No need to install additional `@types` packages.
+</Tip>
+
+## CDN
+
+For quick prototyping or simple projects, you can include ECharts directly from a CDN:
+
+### jsDelivr CDN
+
+<CodeGroup>
+
+```html Full Bundle
+<!-- Latest version -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+```
+
+```html ESM
+<!-- ES Module version -->
+<script type="module">
+  import * as echarts from 'https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.esm.min.mjs';
+</script>
+```
+
+```html Common Bundle
+<!-- Common bundle (smaller, includes most used features) -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.common.min.js"></script>
+```
+
+</CodeGroup>
+
+<Note>
+  The jsDelivr CDN is specified in the package.json (`jsdelivr` field) and points to `dist/echarts.min.js`.
+</Note>
+
+### Bundle Variations
+
+ECharts provides several pre-built bundles:
+
+| Bundle | File | Description |
+|--------|------|-------------|
+| **Full** | `echarts.min.js` | Includes all charts and components |
+| **Common** | `echarts.common.min.js` | Includes commonly used charts (smaller size) |
+| **Simple** | `echarts.simple.min.js` | Minimal bundle with basic charts |
+| **ESM** | `echarts.esm.min.mjs` | ES Module format for modern browsers |
+
+## Basic HTML Setup
+
+Here's a complete HTML example using the CDN:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ECharts Example</title>
+  <style>
+    #main {
+      width: 100%;
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Container for the chart -->
+  <div id="main"></div>
+  
+  <!-- Include ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+  
+  <script>
+    // Initialize chart instance
+    var chart = echarts.init(document.getElementById('main'));
+    
+    // Specify chart configuration
+    var option = {
+      title: {
+        text: 'My First ECharts'
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        type: 'bar',
+        data: [120, 200, 150, 80, 70, 110, 130]
+      }]
+    };
+    
+    // Set the configuration
+    chart.setOption(option);
+  </script>
+</body>
+</html>
+```
+
+<Tip>
+  Always set explicit dimensions (width and height) on the container element. ECharts needs a sized container to render properly.
+</Tip>
+
+## Custom Build (Tree Shaking)
+
+For production applications, you can create a custom build that includes only the components you need:
+
+```javascript
+// Import core library
+import * as echarts from 'echarts/core';
+
+// Import required components
+import { BarChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+// Register components
+echarts.use([
+  BarChart,
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  CanvasRenderer
+]);
+
+// Now use echarts.init as normal
+const chart = echarts.init(document.getElementById('main'));
+```
+
+<Note>
+  Custom builds can significantly reduce bundle size. The full ECharts library is around 900KB minified, but a custom build with only the components you need can be as small as 200KB.
+</Note>
+
+## Renderer Selection
+
+ECharts supports two rendering engines:
+
+### Canvas Renderer (Default)
+
+```javascript
+import { CanvasRenderer } from 'echarts/renderers';
+echarts.use([CanvasRenderer]);
+
+// Or when using CDN, canvas is the default
+const chart = echarts.init(document.getElementById('main'));
+```
+
+**Best for**: Large datasets, complex animations, better performance
+
+### SVG Renderer
+
+```javascript
+import { SVGRenderer } from 'echarts/renderers';
+echarts.use([SVGRenderer]);
+
+// Or specify renderer when initializing
+const chart = echarts.init(document.getElementById('main'), null, {
+  renderer: 'svg'
+});
+```
+
+**Best for**: Better scalability, smaller DOM count, print quality, accessibility
+
+## Next Steps
+
+Now that you have ECharts installed, you're ready to create your first chart:
+
+<Card title="Quick Start Guide" icon="rocket" href="/quickstart">
+  Follow our step-by-step guide to create your first interactive chart
+</Card>

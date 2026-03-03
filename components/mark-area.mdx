@@ -1,0 +1,532 @@
+---
+title: 'Mark Area Component'
+description: 'Highlight regions or ranges in charts with shaded areas'
+icon: 'draw-square'
+---
+
+The Mark Area component creates shaded rectangular areas in charts to highlight specific ranges, time periods, or regions of interest. It's useful for marking target ranges, time intervals, or special zones.
+
+## Purpose
+
+Mark Area enables visual emphasis of data ranges and regions within charts. From `~/workspace/source/src/component/marker/MarkAreaModel.ts`, it supports both single-axis ranges (horizontal or vertical bands) and two-dimensional rectangular areas.
+
+## Basic Usage
+
+### Horizontal Band
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markArea: {
+      data: [
+        [
+          {yAxis: 20},
+          {yAxis: 40}
+        ]
+      ]
+    }
+  }]
+}
+```
+
+### Vertical Band
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markArea: {
+      data: [
+        [
+          {xAxis: 1},
+          {xAxis: 3}
+        ]
+      ]
+    }
+  }]
+}
+```
+
+## Configuration Options
+
+<ParamField path="data" type="array" required>
+  Array of mark area data items. Each item is an array of two objects defining the area boundaries.
+  
+  ```javascript
+  // Horizontal band (y-axis range)
+  data: [
+    [{yAxis: 'min'}, {yAxis: 'max'}]
+  ]
+  
+  // Vertical band (x-axis range)
+  data: [
+    [{xAxis: 0}, {xAxis: 5}]
+  ]
+  
+  // Rectangular area
+  data: [
+    [{coord: [0, 20]}, {coord: [5, 40]}]
+  ]
+  ```
+</ParamField>
+
+<ParamField path="itemStyle" type="object">
+  Style of the mark area.
+  
+  ```javascript
+  itemStyle: {
+    color: 'rgba(255, 173, 177, 0.4)',
+    borderColor: '#c23531',
+    borderWidth: 1,
+    borderType: 'dashed'
+  }
+  ```
+  
+  <Expandable title="Item Style Properties">
+    <ParamField path="color" type="string">
+      Fill color of the area. Supports rgba for transparency.
+    </ParamField>
+    
+    <ParamField path="borderColor" type="string">
+      Border color of the area.
+    </ParamField>
+    
+    <ParamField path="borderWidth" type="number" default="0">
+      Width of the border.
+    </ParamField>
+    
+    <ParamField path="borderType" type="'solid' | 'dashed' | 'dotted'">
+      Type of the border line.
+    </ParamField>
+    
+    <ParamField path="opacity" type="number">
+      Opacity of the area.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="label" type="object">
+  Label configuration for mark areas.
+  
+  <Expandable title="Label Properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show labels.
+    </ParamField>
+    
+    <ParamField path="position" type="string" default="'top'">
+      Label position. Can be 'top', 'left', 'right', 'bottom', 'inside', 'insideLeft', 'insideRight', etc.
+    </ParamField>
+    
+    <ParamField path="formatter" type="string | function">
+      Formatter for label text.
+      
+      ```javascript
+      formatter: '{b}'  // Display name
+      formatter: function(params) {
+        return params.name;
+      }
+      ```
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Emphasis (hover) state configuration.
+  
+  ```javascript
+  emphasis: {
+    label: {
+      show: true,
+      position: 'top'
+    },
+    itemStyle: {
+      opacity: 0.6
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="animation" type="boolean" default="false">
+  Whether to enable animation for mark areas. Disabled by default since mark areas are typically static.
+</ParamField>
+
+<ParamField path="precision" type="number">
+  Decimal precision for automatically calculated values.
+</ParamField>
+
+## Data Item Configuration
+
+Each data item is an array with two boundary objects:
+
+```javascript
+[
+  {/* start boundary */},
+  {/* end boundary */}
+]
+```
+
+### 1D Mark Areas (Single Axis)
+
+<ParamField path="type" type="'min' | 'max' | 'average' | 'median'">
+  Statistical type for automatic boundary positioning:
+  - `'min'`: Boundary at minimum value
+  - `'max'`: Boundary at maximum value  
+  - `'average'`: Boundary at average value
+  - `'median'`: Boundary at median value
+  
+  ```javascript
+  [{yAxis: 'min'}, {yAxis: 'max'}]  // Area from min to max
+  ```
+</ParamField>
+
+<ParamField path="valueIndex" type="number">
+  When using `type`, specifies which dimension to calculate statistics on.
+</ParamField>
+
+<ParamField path="valueDim" type="string">
+  Dimension name for statistical calculation.
+</ParamField>
+
+<ParamField path="xAxis" type="number | string">
+  X-axis value for vertical boundary.
+  
+  ```javascript
+  [{xAxis: 1}, {xAxis: 3}]  // Vertical band from x=1 to x=3
+  ```
+</ParamField>
+
+<ParamField path="yAxis" type="number | string">
+  Y-axis value for horizontal boundary.
+  
+  ```javascript
+  [{yAxis: 20}, {yAxis: 40}]  // Horizontal band from y=20 to y=40
+  ```
+</ParamField>
+
+### 2D Mark Areas (Rectangular)
+
+<ParamField path="coord" type="array">
+  Coordinates `[x, y]` in the data coordinate system.
+  
+  ```javascript
+  [
+    {coord: [0, 20]},   // Bottom-left corner
+    {coord: [5, 40]}    // Top-right corner
+  ]
+  ```
+</ParamField>
+
+<ParamField path="x" type="number | string">
+  Absolute x position in pixels or percentage.
+</ParamField>
+
+<ParamField path="y" type="number | string">
+  Absolute y position in pixels or percentage.
+</ParamField>
+
+<ParamField path="name" type="string">
+  Name of the mark area, displayed in labels.
+</ParamField>
+
+<ParamField path="itemStyle" type="object">
+  Item style for this specific boundary (overrides global itemStyle).
+</ParamField>
+
+<ParamField path="label" type="object">
+  Label configuration for this specific mark area.
+</ParamField>
+
+## Examples
+
+### Target Range
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35, 20, 40],
+    markArea: {
+      itemStyle: {
+        color: 'rgba(84, 112, 198, 0.2)'
+      },
+      data: [
+        [
+          {
+            name: 'Target Range',
+            yAxis: 30
+          },
+          {
+            yAxis: 40
+          }
+        ]
+      ],
+      label: {
+        show: true,
+        position: 'top'
+      }
+    }
+  }]
+}
+```
+
+### Time Period Highlighting
+
+```javascript
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+  },
+  series: [{
+    type: 'line',
+    data: [100, 120, 150, 130, 180, 200, 190, 210],
+    markArea: {
+      itemStyle: {
+        color: 'rgba(255, 173, 177, 0.3)'
+      },
+      data: [
+        [
+          {
+            name: 'Q1',
+            xAxis: 'Jan'
+          },
+          {
+            xAxis: 'Mar'
+          }
+        ],
+        [
+          {
+            name: 'Q2',
+            xAxis: 'Apr'
+          },
+          {
+            xAxis: 'Jun'
+          }
+        ]
+      ]
+    }
+  }]
+}
+```
+
+### Statistical Range
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [85, 92, 78, 95, 88, 91, 82, 87],
+    markArea: {
+      silent: true,
+      itemStyle: {
+        color: 'rgba(145, 204, 117, 0.2)',
+        borderWidth: 0
+      },
+      data: [
+        [
+          {
+            name: 'Below Average',
+            yAxis: 'min'
+          },
+          {
+            yAxis: 'average'
+          }
+        ]
+      ],
+      label: {
+        position: 'inside'
+      },
+      emphasis: {
+        itemStyle: {
+          color: 'rgba(145, 204, 117, 0.4)'
+        }
+      }
+    }
+  }]
+}
+```
+
+### Rectangular Area
+
+```javascript
+option = {
+  series: [{
+    type: 'scatter',
+    data: [[0, 10], [1, 30], [2, 25], [3, 45], [4, 35]],
+    markArea: {
+      itemStyle: {
+        color: 'rgba(194, 53, 49, 0.15)',
+        borderColor: '#c23531',
+        borderWidth: 2,
+        borderType: 'dashed'
+      },
+      data: [
+        [
+          {
+            name: 'Critical Zone',
+            coord: [1, 25]
+          },
+          {
+            coord: [3, 40]
+          }
+        ]
+      ],
+      label: {
+        show: true,
+        position: 'inside',
+        color: '#c23531',
+        fontWeight: 'bold'
+      }
+    }
+  }]
+}
+```
+
+### Multiple Mark Areas
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35, 20, 40, 38],
+    markArea: {
+      data: [
+        [
+          {
+            name: 'Low',
+            yAxis: 0,
+            itemStyle: {
+              color: 'rgba(84, 112, 198, 0.2)'
+            }
+          },
+          {
+            yAxis: 20
+          }
+        ],
+        [
+          {
+            name: 'Medium',
+            yAxis: 20,
+            itemStyle: {
+              color: 'rgba(145, 204, 117, 0.2)'
+            }
+          },
+          {
+            yAxis: 35
+          }
+        ],
+        [
+          {
+            name: 'High',
+            yAxis: 35,
+            itemStyle: {
+              color: 'rgba(250, 200, 88, 0.2)'
+            }
+          },
+          {
+            yAxis: 50
+          }
+        ]
+      ]
+    }
+  }]
+}
+```
+
+### Styled Mark Areas with Custom Labels
+
+```javascript
+option = {
+  series: [{
+    type: 'bar',
+    data: [120, 132, 101, 134, 90, 230, 210],
+    markArea: {
+      itemStyle: {
+        color: 'rgba(255, 173, 177, 0.3)',
+        borderColor: '#ee6666',
+        borderWidth: 2,
+        borderType: 'dashed'
+      },
+      label: {
+        show: true,
+        position: 'top',
+        color: '#ee6666',
+        fontSize: 14,
+        fontWeight: 'bold',
+        formatter: function(params) {
+          return params.name + ' Zone';
+        }
+      },
+      emphasis: {
+        label: {
+          show: true,
+          position: 'top'
+        },
+        itemStyle: {
+          color: 'rgba(255, 173, 177, 0.5)'
+        }
+      },
+      data: [
+        [
+          {
+            name: 'Warning',
+            yAxis: 100
+          },
+          {
+            yAxis: 200
+          }
+        ]
+      ]
+    }
+  }]
+}
+```
+
+### Weekend Highlighting
+
+```javascript
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  series: [{
+    type: 'line',
+    data: [100, 110, 120, 115, 130, 80, 85],
+    markArea: {
+      silent: true,
+      itemStyle: {
+        color: 'rgba(128, 128, 128, 0.1)'
+      },
+      data: [
+        [
+          {
+            name: 'Weekend',
+            xAxis: 'Sat'
+          },
+          {
+            xAxis: 'Sun'
+          }
+        ]
+      ]
+    }
+  }]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/marker/MarkAreaModel.ts:69-111`, the Mark Area component:
+
+- **Z-index**: Defaults to 1, ensuring mark areas appear behind most chart elements
+- **Animation**: Disabled by default for better performance
+- **Default Border**: No border (borderWidth: 0)
+- **Label Position**: Defaults to 'top'
+- **Color Inheritance**: Uses series color by default when not specified
+- **Parent Component**: Extends MarkerModel from `~/workspace/source/src/component/marker/MarkerModel.ts`
+- **Coordinate System**: Fixed to coordinate system, doesn't move with data
+- **Interactive**: Supports silent mode to prevent interaction
+- **Statistical Support**: Can use min, max, average, median for boundaries

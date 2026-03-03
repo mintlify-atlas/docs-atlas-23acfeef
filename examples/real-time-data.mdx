@@ -1,0 +1,463 @@
+---
+title: "Real-time Data Updates"
+description: "Dynamic chart updates with live data streams"
+---
+
+Learn how to update ECharts dynamically with real-time data using `setOption()`, timers, and efficient data management.
+
+## Basic Dynamic Updates
+
+Update chart data periodically using `setInterval()`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Real-time Line Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="main" style="width: 800px; height: 400px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+
+    function randomData() {
+      return (Math.random() * 5 + 3).toFixed(3);
+    }
+
+    var xAxisData = [];
+    var data = [];
+    var count = 0;
+
+    // Initialize with data
+    for (; count < 50; count++) {
+      xAxisData.push('T' + count);
+      data.push(randomData());
+    }
+
+    var option = {
+      title: {
+        text: 'Real-time Sensor Data'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line'
+        }
+      },
+      xAxis: {
+        type: 'category',
+        data: xAxisData,
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      series: [{
+        name: 'Sensor',
+        type: 'line',
+        symbol: 'none',
+        data: data,
+        smooth: true,
+        lineStyle: {
+          width: 2
+        },
+        areaStyle: {}
+      }]
+    };
+
+    chart.setOption(option);
+
+    // Update every 500ms
+    setInterval(function() {
+      // Remove old data and add new
+      for (var i = 0; i < 5; i++) {
+        xAxisData.shift();
+        xAxisData.push('T' + count);
+        data.shift();
+        data.push(randomData());
+        count++;
+      }
+
+      // Update chart with new data
+      chart.setOption({
+        xAxis: {
+          data: xAxisData
+        },
+        series: [{
+          data: data
+        }]
+      });
+    }, 500);
+  </script>
+</body>
+</html>
+```
+
+## Using notMerge and replaceMerge
+
+Control how options are merged during updates:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Merge Strategies</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="chart" style="width: 800px; height: 400px;"></div>
+  <button onclick="updateDefault()">Update (Default Merge)</button>
+  <button onclick="updateNotMerge()">Update (No Merge)</button>
+  <button onclick="updateReplaceMerge()">Update (Replace Merge)</button>
+  
+  <script>
+    var chart = echarts.init(document.getElementById('chart'));
+
+    var initialOption = {
+      title: { text: 'Sales Data' },
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['Product A', 'Product B'] },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+      },
+      yAxis: { type: 'value' },
+      series: [
+        {
+          name: 'Product A',
+          type: 'bar',
+          data: [120, 200, 150, 80, 70]
+        },
+        {
+          name: 'Product B',
+          type: 'bar',
+          data: [90, 100, 120, 110, 130]
+        }
+      ]
+    };
+
+    chart.setOption(initialOption);
+
+    // Default merge - merges new options with existing
+    function updateDefault() {
+      chart.setOption({
+        series: [{
+          data: [150, 230, 180, 90, 85]
+        }]
+      });
+    }
+
+    // notMerge: true - replaces entire option
+    function updateNotMerge() {
+      chart.setOption({
+        xAxis: {
+          type: 'category',
+          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+        },
+        yAxis: { type: 'value' },
+        series: [{
+          name: 'New Data',
+          type: 'line',
+          data: [200, 180, 190, 210, 195],
+          smooth: true
+        }]
+      }, { notMerge: true });
+    }
+
+    // replaceMerge - replaces specific components
+    function updateReplaceMerge() {
+      chart.setOption({
+        series: [
+          {
+            name: 'Product C',
+            type: 'line',
+            data: [160, 170, 180, 190, 200],
+            smooth: true
+          }
+        ]
+      }, { replaceMerge: ['series'] });
+    }
+  </script>
+</body>
+</html>
+```
+
+## Multiple Series Updates
+
+Update multiple data series simultaneously:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Multi-series Real-time</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="multi-chart" style="width: 900px; height: 500px;"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('multi-chart'));
+
+    var xAxisData = [];
+    var series1Data = [];
+    var series2Data = [];
+    var series3Data = [];
+    var count = 0;
+
+    // Initialize data
+    for (; count < 100; count++) {
+      xAxisData.push(count);
+      series1Data.push((Math.random() * 10).toFixed(2));
+      series2Data.push((Math.random() * 15 + 5).toFixed(2));
+      series3Data.push((Math.random() * 8 + 10).toFixed(2));
+    }
+
+    var option = {
+      title: {
+        text: 'Multi-sensor Monitoring'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross'
+        }
+      },
+      legend: {
+        data: ['Sensor 1', 'Sensor 2', 'Sensor 3']
+      },
+      xAxis: {
+        type: 'category',
+        data: xAxisData,
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        scale: true
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 50,
+          end: 100
+        },
+        {
+          type: 'slider',
+          start: 50,
+          end: 100
+        }
+      ],
+      series: [
+        {
+          name: 'Sensor 1',
+          type: 'line',
+          symbol: 'none',
+          data: series1Data,
+          lineStyle: { width: 1 }
+        },
+        {
+          name: 'Sensor 2',
+          type: 'line',
+          symbol: 'none',
+          data: series2Data,
+          lineStyle: { width: 1 }
+        },
+        {
+          name: 'Sensor 3',
+          type: 'line',
+          symbol: 'none',
+          data: series3Data,
+          lineStyle: { width: 1 }
+        }
+      ]
+    };
+
+    chart.setOption(option);
+
+    // Update all series
+    setInterval(function() {
+      // Shift old data, add new
+      xAxisData.shift();
+      xAxisData.push(count++);
+      
+      series1Data.shift();
+      series1Data.push((Math.random() * 10).toFixed(2));
+      
+      series2Data.shift();
+      series2Data.push((Math.random() * 15 + 5).toFixed(2));
+      
+      series3Data.shift();
+      series3Data.push((Math.random() * 8 + 10).toFixed(2));
+
+      // Update chart
+      chart.setOption({
+        xAxis: {
+          data: xAxisData
+        },
+        series: [
+          { data: series1Data },
+          { data: series2Data },
+          { data: series3Data }
+        ]
+      });
+    }, 1000);
+  </script>
+</body>
+</html>
+```
+
+## Append Data API
+
+For large datasets, use `appendData()` for better performance:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Append Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="append-chart" style="width: 800px; height: 400px;"></div>
+  <button onclick="appendNewData()">Append 1000 Points</button>
+  
+  <script>
+    var chart = echarts.init(document.getElementById('append-chart'));
+
+    var option = {
+      title: { text: 'Large Dataset Streaming' },
+      tooltip: { trigger: 'axis' },
+      xAxis: { type: 'value' },
+      yAxis: { type: 'value' },
+      series: [{
+        type: 'scatter',
+        data: [[0, 0], [100, 100]],
+        progressiveThreshold: 3000,
+        symbolSize: 8
+      }]
+    };
+
+    chart.setOption(option);
+
+    var dataIndex = 1000;
+    function appendNewData() {
+      var newData = [];
+      for (var i = 0; i < 1000; i++) {
+        newData.push([
+          dataIndex + i,
+          Math.random() * 1000
+        ]);
+      }
+
+      // Use appendData API for better performance
+      chart.appendData({
+        seriesIndex: 0,
+        data: newData
+      });
+
+      dataIndex += 1000;
+    }
+  </script>
+</body>
+</html>
+```
+
+## Best Practices
+
+### Performance Optimization
+
+1. **Limit data points**: Keep visible data under 1000-5000 points for smooth updates
+2. **Use `symbol: 'none'`**: Remove markers on line charts for better performance
+3. **Disable animation**: Set `animation: false` for high-frequency updates
+4. **Batch updates**: Update multiple points at once rather than individually
+
+### Update Strategies
+
+```javascript
+// ✅ Good - Partial update
+chart.setOption({
+  series: [{ data: newData }]
+});
+
+// ✅ Good - Replace merge for new series
+chart.setOption({
+  series: [/* new series */]
+}, { replaceMerge: ['series'] });
+
+// ❌ Avoid - Complete replacement on every update
+chart.setOption(entireOption, { notMerge: true });
+```
+
+### Memory Management
+
+```javascript
+// Keep fixed window of data
+if (data.length > maxDataPoints) {
+  data.shift();  // Remove oldest
+}
+data.push(newValue);  // Add newest
+```
+
+## setOption Parameters
+
+```javascript
+chart.setOption(option, {
+  notMerge: false,      // false: merge with existing, true: replace all
+  replaceMerge: null,   // Array of component types to replace: ['series', 'xAxis']
+  lazyUpdate: false,    // true: update view in next animation frame
+  silent: false         // true: suppress events during update
+});
+```
+
+## Common Patterns
+
+### Sliding Window
+
+```javascript
+const MAX_POINTS = 50;
+
+function updateChart(newValue) {
+  if (data.length >= MAX_POINTS) {
+    data.shift();
+    xAxisData.shift();
+  }
+  data.push(newValue);
+  xAxisData.push(new Date().toLocaleTimeString());
+  
+  chart.setOption({
+    xAxis: { data: xAxisData },
+    series: [{ data: data }]
+  });
+}
+```
+
+### Time-based Updates
+
+```javascript
+function updateWithTimestamp() {
+  const now = Date.now();
+  data.push([now, Math.random() * 100]);
+  
+  chart.setOption({
+    series: [{ data: data }]
+  });
+}
+
+setInterval(updateWithTimestamp, 1000);
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Large Datasets" icon="database" href="/examples/large-datasets">
+    Optimize performance for millions of data points
+  </Card>
+  <Card title="Getting Started" icon="rocket" href="/examples/getting-started">
+    Learn basic chart types and configurations
+  </Card>
+</CardGroup>

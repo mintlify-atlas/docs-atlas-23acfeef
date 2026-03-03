@@ -1,0 +1,528 @@
+---
+title: Coordinate Systems
+description: Understanding the different coordinate systems in Apache ECharts and when to use each one
+---
+
+Apache ECharts supports multiple coordinate systems that determine how data is positioned and displayed. Choosing the right coordinate system is crucial for creating effective visualizations.
+
+## Available Coordinate Systems
+
+ECharts provides four main coordinate systems:
+
+- **Grid (Cartesian)**: For bar charts, line charts, scatter plots
+- **Polar**: For circular/radial visualizations
+- **Geo**: For geographic/map visualizations  
+- **Calendar**: For time-series data organized by calendar dates
+
+## Grid Coordinate System
+
+The Grid system is the most common, using Cartesian (x, y) coordinates. It's defined in `~/workspace/source/src/coord/cartesian/`.
+
+### Basic Grid
+
+```javascript
+const option = {
+  grid: {
+    left: '10%',
+    right: '10%',
+    bottom: '10%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'bar',
+    data: [120, 200, 150, 80, 70]
+  }]
+};
+```
+
+### Multiple Grids
+
+Create multiple independent coordinate systems:
+
+```javascript
+const option = {
+  grid: [
+    {
+      left: '5%',
+      right: '55%',
+      height: '35%'
+    },
+    {
+      left: '5%',
+      right: '55%',
+      top: '55%',
+      height: '35%'
+    },
+    {
+      right: '5%',
+      left: '55%',
+      height: '80%'
+    }
+  ],
+  xAxis: [
+    { gridIndex: 0, type: 'category', data: [...] },
+    { gridIndex: 1, type: 'category', data: [...] },
+    { gridIndex: 2, type: 'category', data: [...] }
+  ],
+  yAxis: [
+    { gridIndex: 0 },
+    { gridIndex: 1 },
+    { gridIndex: 2 }
+  ],
+  series: [
+    { type: 'bar', xAxisIndex: 0, yAxisIndex: 0, data: [...] },
+    { type: 'line', xAxisIndex: 1, yAxisIndex: 1, data: [...] },
+    { type: 'scatter', xAxisIndex: 2, yAxisIndex: 2, data: [...] }
+  ]
+};
+```
+
+### Grid Properties
+
+```javascript
+grid: {
+  show: true,              // Show grid background
+  left: '10%',            // Distance from left
+  right: '10%',           // Distance from right
+  top: 60,                // Distance from top
+  bottom: 60,             // Distance from bottom
+  width: 'auto',          // Grid width
+  height: 'auto',         // Grid height
+  containLabel: true,     // Include axis labels in grid size
+  backgroundColor: '#fff', // Background color
+  borderColor: '#ccc',    // Border color
+  borderWidth: 1          // Border width
+}
+```
+
+**When to use Grid**: Bar charts, line charts, scatter plots, area charts, candlestick charts
+
+## Polar Coordinate System
+
+Based on `~/workspace/source/src/coord/polar/Polar.ts`, the Polar system uses radius and angle dimensions for circular visualizations.
+
+### Basic Polar Chart
+
+```javascript
+const option = {
+  polar: {
+    radius: [30, '80%']
+  },
+  angleAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  radiusAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'bar',
+    coordinateSystem: 'polar',
+    data: [10, 20, 30, 40, 50, 60, 70]
+  }]
+};
+```
+
+### Polar Configuration
+
+From `~/workspace/source/src/coord/polar/Polar.ts:29-64`, polar coordinates have center (cx, cy) and use radius/angle axes:
+
+```javascript
+polar: {
+  center: ['50%', '50%'],  // Center position [x, y]
+  radius: '75%',           // Outer radius
+  // or
+  radius: [20, '75%']      // [inner radius, outer radius] for rings
+}
+```
+
+### Polar Line Chart (Spider/Radar)
+
+```javascript
+const option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+    boundaryGap: false
+  },
+  radiusAxis: {},
+  series: [{
+    type: 'line',
+    coordinateSystem: 'polar',
+    data: [100, 200, 150, 300],
+    areaStyle: {}
+  }]
+};
+```
+
+### Polar Scatter
+
+```javascript
+const option = {
+  polar: {},
+  angleAxis: {
+    type: 'value',
+    min: 0,
+    max: 360
+  },
+  radiusAxis: {
+    min: 0,
+    max: 100
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'polar',
+    data: [
+      [45, 50],   // [angle, radius]
+      [90, 75],
+      [180, 60],
+      [270, 85]
+    ]
+  }]
+};
+```
+
+**When to use Polar**: Circular bar charts, rose diagrams, polar scatter plots, radial data
+
+## Geographic Coordinate System
+
+The Geo system is for map-based visualizations using geographic coordinates (longitude, latitude).
+
+### Basic Map
+
+```javascript
+const option = {
+  geo: {
+    map: 'world',
+    roam: true,
+    itemStyle: {
+      areaColor: '#eee',
+      borderColor: '#444'
+    },
+    emphasis: {
+      itemStyle: {
+        areaColor: '#ffd700'
+      }
+    }
+  },
+  series: [{
+    type: 'scatter',
+    coordinateSystem: 'geo',
+    data: [
+      { name: 'New York', value: [-74.0060, 40.7128, 100] },
+      { name: 'London', value: [-0.1278, 51.5074, 200] },
+      { name: 'Tokyo', value: [139.6917, 35.6895, 150] }
+    ],
+    symbolSize: function(val) {
+      return val[2] / 10;
+    }
+  }]
+};
+```
+
+### Geo Properties
+
+```javascript
+geo: {
+  map: 'world',              // Map name (requires registration)
+  roam: true,                // Enable pan and zoom
+  center: [115.97, 29.71],   // Map center [longitude, latitude]
+  zoom: 1,                   // Initial zoom level
+  scaleLimit: {              // Zoom limits
+    min: 1,
+    max: 10
+  },
+  itemStyle: {
+    areaColor: '#eee',
+    borderColor: '#444',
+    borderWidth: 0.5
+  },
+  emphasis: {
+    itemStyle: {
+      areaColor: '#ffd700'
+    }
+  },
+  regions: [                 // Customize specific regions
+    {
+      name: 'United States',
+      itemStyle: {
+        areaColor: '#ff6b6b'
+      }
+    }
+  ]
+}
+```
+
+### Map with Lines
+
+```javascript
+const option = {
+  geo: {
+    map: 'world'
+  },
+  series: [
+    {
+      type: 'lines',
+      coordinateSystem: 'geo',
+      data: [
+        {
+          coords: [
+            [-74.0060, 40.7128],  // New York
+            [-0.1278, 51.5074]     // London
+          ]
+        },
+        {
+          coords: [
+            [-0.1278, 51.5074],    // London  
+            [139.6917, 35.6895]    // Tokyo
+          ]
+        }
+      ],
+      lineStyle: {
+        width: 2,
+        color: '#4285F4',
+        curveness: 0.2
+      }
+    }
+  ]
+};
+```
+
+**When to use Geo**: Geographic data visualization, maps, location-based data, flight routes
+
+## Calendar Coordinate System
+
+From `~/workspace/source/src/coord/calendar/Calendar.ts`, the Calendar system organizes data by calendar dates.
+
+### Basic Calendar
+
+```javascript
+const option = {
+  calendar: {
+    range: '2024',
+    cellSize: ['auto', 20]
+  },
+  series: [{
+    type: 'heatmap',
+    coordinateSystem: 'calendar',
+    data: [
+      ['2024-01-01', 100],
+      ['2024-01-02', 150],
+      ['2024-01-03', 80],
+      // ...
+    ]
+  }]
+};
+```
+
+### Calendar Configuration
+
+Based on `~/workspace/source/src/coord/calendar/Calendar.ts:121-247`, calendar supports various layouts:
+
+```javascript
+calendar: {
+  range: '2024',              // Year, month, or date range
+  // or
+  range: ['2024-01-01', '2024-06-30'],
+  
+  cellSize: ['auto', 20],     // [width, height]
+  
+  orient: 'horizontal',       // or 'vertical'
+  
+  splitLine: {
+    show: true,
+    lineStyle: {
+      color: '#ddd',
+      width: 1
+    }
+  },
+  
+  itemStyle: {
+    color: '#eee',
+    borderWidth: 1,
+    borderColor: '#fff'
+  },
+  
+  dayLabel: {
+    show: true,
+    firstDay: 0,              // 0: Sunday, 1: Monday
+    nameMap: 'en'             // or 'cn', or custom array
+  },
+  
+  monthLabel: {
+    show: true,
+    nameMap: 'en'
+  },
+  
+  yearLabel: {
+    show: true
+  }
+}
+```
+
+### Calendar Heatmap
+
+```javascript
+const option = {
+  calendar: {
+    range: '2024',
+    left: 50,
+    right: 50,
+    cellSize: ['auto', 20],
+    yearLabel: { show: false }
+  },
+  visualMap: {
+    min: 0,
+    max: 1000,
+    type: 'piecewise',
+    orient: 'horizontal',
+    left: 'center',
+    top: 20
+  },
+  series: [{
+    type: 'heatmap',
+    coordinateSystem: 'calendar',
+    data: getVirtulData('2024')
+  }]
+};
+
+function getVirtulData(year) {
+  const date = +new Date(year + '-01-01');
+  const end = +new Date((+year + 1) + '-01-01');
+  const dayTime = 3600 * 24 * 1000;
+  const data = [];
+  
+  for (let time = date; time < end; time += dayTime) {
+    data.push([
+      new Date(time).toISOString().split('T')[0],
+      Math.floor(Math.random() * 1000)
+    ]);
+  }
+  return data;
+}
+```
+
+### Multiple Calendars
+
+```javascript
+const option = {
+  calendar: [
+    {
+      range: '2023',
+      top: 50,
+      height: 200
+    },
+    {
+      range: '2024',
+      top: 300,
+      height: 200
+    }
+  ],
+  series: [
+    {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      calendarIndex: 0,
+      data: data2023
+    },
+    {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      calendarIndex: 1,
+      data: data2024
+    }
+  ]
+};
+```
+
+**When to use Calendar**: Activity tracking, commit history, temporal patterns, year-over-year comparisons
+
+## Choosing the Right Coordinate System
+
+<Tabs>
+  <Tab title="Grid">
+    **Best for:**
+    - Standard charts (bar, line, area)
+    - Comparing categories
+    - Time series with linear progression
+    - Scatter plots with two continuous variables
+    
+    **Example use cases:**
+    - Sales over time
+    - Category comparisons
+    - Correlation analysis
+  </Tab>
+  
+  <Tab title="Polar">
+    **Best for:**
+    - Cyclical data
+    - Radial relationships
+    - Comparing multiple dimensions
+    - Directional data
+    
+    **Example use cases:**
+    - Wind rose diagrams
+    - Seasonal patterns
+    - 360-degree measurements
+    - Circular progress indicators
+  </Tab>
+  
+  <Tab title="Geo">
+    **Best for:**
+    - Location-based data
+    - Regional comparisons
+    - Migration/flow patterns
+    - Spatial distributions
+    
+    **Example use cases:**
+    - Store locations
+    - Regional sales
+    - Flight routes
+    - Disease spread
+  </Tab>
+  
+  <Tab title="Calendar">
+    **Best for:**
+    - Daily/weekly patterns
+    - Year-long trends
+    - Activity tracking
+    - Date-specific events
+    
+    **Example use cases:**
+    - GitHub contributions
+    - Daily temperatures
+    - Attendance records
+    - Event calendars
+  </Tab>
+</Tabs>
+
+## Coordinate System Methods
+
+All coordinate systems implement conversion methods for transforming between data and pixel coordinates:
+
+```javascript
+// Convert data values to pixel coordinates
+const pixelPoint = chart.convertToPixel({ seriesIndex: 0 }, [10, 20]);
+
+// Convert pixel coordinates to data values  
+const dataPoint = chart.convertFromPixel({ seriesIndex: 0 }, [100, 200]);
+
+// Check if a point is within the coordinate system
+const isInside = chart.containPixel({ seriesIndex: 0 }, [100, 200]);
+```
+
+<Note>
+You can use multiple coordinate systems in a single chart. Each series specifies which coordinate system it uses via the `coordinateSystem` property or index properties like `xAxisIndex`, `geoIndex`, etc.
+</Note>
+
+<Warning>
+When using geographic coordinates, you must register the map data before using it. ECharts doesn't include map data by default to keep the bundle size small.
+</Warning>

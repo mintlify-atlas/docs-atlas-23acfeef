@@ -1,0 +1,393 @@
+---
+title: "Angle Axis"
+description: "Configure the angle axis for polar coordinate charts in Apache ECharts"
+---
+
+The angle axis is the angular component of polar coordinate charts. It works with the polar component and radius axis to create circular visualizations like radar charts, polar bar charts, and rose diagrams.
+
+## Basic Configuration
+
+The angle axis supports the same four types as Cartesian axes: `value`, `category`, `time`, and `log`.
+
+```javascript
+option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['North', 'East', 'South', 'West'],
+    startAngle: 90,
+    clockwise: false
+  },
+  radiusAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30, 40],
+    coordinateSystem: 'polar'
+  }]
+}
+```
+
+## Axis Types
+
+### Category Axis
+
+Most common for angle axis. Divides the circle into discrete segments.
+
+```javascript
+angleAxis: {
+  type: 'category',
+  data: ['Q1', 'Q2', 'Q3', 'Q4'],
+  boundaryGap: true,
+  startAngle: 0
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:182-206](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Value Axis
+
+Numerical axis that maps values to angles.
+
+```javascript
+angleAxis: {
+  type: 'value',
+  min: 0,
+  max: 360,
+  startAngle: 90,
+  splitNumber: 12
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:207-217](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Time Axis
+
+Temporal axis for time-based circular visualizations.
+
+```javascript
+angleAxis: {
+  type: 'time',
+  startAngle: 0,
+  clockwise: true
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:223-226](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+### Log Axis
+
+Logarithmic axis for exponential angular scaling.
+
+```javascript
+angleAxis: {
+  type: 'log',
+  logBase: 10,
+  min: 1,
+  max: 1000
+}
+```
+
+Reference: [src/coord/axisCommonTypes.ts:218-222](~/workspace/source/src/coord/axisCommonTypes.ts)
+
+## Key Properties
+
+<ParamField path="type" type="'value' | 'category' | 'time' | 'log'" default="'category'">
+  Axis type determines the scale and data interpretation.
+  
+  Reference: [src/coord/axisCommonTypes.ts:34](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="polarIndex" type="number" default="0">
+  Index of the polar component that the angle axis belongs to.
+  
+  Reference: [src/coord/polar/AxisModel.ts:35](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="polarId" type="string">
+  ID of the polar component that the angle axis belongs to.
+  
+  Reference: [src/coord/polar/AxisModel.ts:39](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="startAngle" type="number" default="90">
+  Starting angle in degrees. 0 degrees is at 3 o'clock position, increases counter-clockwise.
+  
+  Reference: [src/coord/polar/AxisModel.ts:41](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="endAngle" type="number">
+  Ending angle in degrees. If not specified, defaults to `startAngle + 360`.
+  
+  Reference: [src/coord/polar/AxisModel.ts:42](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="clockwise" type="boolean" default="true">
+  Whether the angle axis increases clockwise.
+  
+  Reference: [src/coord/polar/AxisModel.ts:43](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="name" type="string">
+  Axis name displayed on the chart.
+  
+  Reference: [src/coord/axisCommonTypes.ts:44](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="min" type="number | 'dataMin' | function">
+  Minimum value of the axis. Can be:
+  - A specific number
+  - `'dataMin'`: use the minimum value in data
+  - A function that returns the min value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:105](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="max" type="number | 'dataMax' | function">
+  Maximum value of the axis. Can be:
+  - A specific number
+  - `'dataMax'`: use the maximum value in data
+  - A function that returns the max value
+  - `null`/`undefined`: auto-calculated
+  
+  Reference: [src/coord/axisCommonTypes.ts:112](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="boundaryGap" type="boolean | [string, string]">
+  For category axis: whether to add gap at both ends (default `true`).
+  For value/time/log axis: gap value at both ends.
+  
+  Reference: [src/coord/axisCommonTypes.ts:140](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitNumber" type="number" default="5">
+  Number of segments the axis is split into. Only works for value, time, and log axes.
+  
+  Reference: [src/coord/axisCommonTypes.ts:145](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Label Configuration
+
+<ParamField path="axisLabel" type="object">
+  Configuration for axis labels displayed along the angle axis.
+  
+  Reference: [src/coord/polar/AxisModel.ts:45](~/workspace/source/src/coord/polar/AxisModel.ts)
+</ParamField>
+
+<ParamField path="axisLabel.show" type="boolean" default="true">
+  Whether to show axis labels.
+</ParamField>
+
+<ParamField path="axisLabel.margin" type="number" default="8">
+  Margin between label and axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:331](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.formatter" type="string | function">
+  Label formatter. Can be a template string or callback function.
+  
+  Reference: [src/coord/axisCommonTypes.ts:340](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.rotate" type="number">
+  Rotation angle of labels in degrees.
+  
+  Reference: [src/coord/axisCommonTypes.ts:316](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLabel.hideOverlap" type="boolean" default="false">
+  Whether to hide overlapping labels automatically.
+  
+  Reference: [src/coord/axisCommonTypes.ts:335](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Axis Line & Ticks
+
+<ParamField path="axisLine" type="object">
+  Configuration for the axis line (the circle or arc).
+  
+  Reference: [src/coord/axisCommonTypes.ts:92](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisLine.show" type="boolean | 'auto'" default="true">
+  Whether to show the axis line.
+  
+  Reference: [src/coord/axisCommonTypes.ts:232](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick" type="object">
+  Configuration for axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:93](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.show" type="boolean | 'auto'" default="true">
+  Whether to show axis ticks.
+  
+  Reference: [src/coord/axisCommonTypes.ts:245](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="axisTick.length" type="number" default="5">
+  Length of axis ticks in pixels.
+  
+  Reference: [src/coord/axisCommonTypes.ts:249](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Split Lines & Areas
+
+<ParamField path="splitLine" type="object">
+  Configuration for split lines (radial lines from center).
+  
+  Reference: [src/coord/axisCommonTypes.ts:95](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitLine.show" type="boolean" default="true">
+  Whether to show split lines.
+  
+  Reference: [src/coord/axisCommonTypes.ts:354](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea" type="object">
+  Configuration for split areas (pie-slice shaped areas).
+  
+  Reference: [src/coord/axisCommonTypes.ts:97](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+<ParamField path="splitArea.show" type="boolean" default="false">
+  Whether to show split areas.
+  
+  Reference: [src/coord/axisCommonTypes.ts:370](~/workspace/source/src/coord/axisCommonTypes.ts)
+</ParamField>
+
+## Advanced Examples
+
+### Rose Diagram (Nightingale Chart)
+
+```javascript
+option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['Category A', 'Category B', 'Category C', 'Category D'],
+    startAngle: 90,
+    axisLabel: {
+      rotate: 0
+    }
+  },
+  radiusAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30, 40],
+    coordinateSystem: 'polar',
+    barWidth: '100%',
+    roundCap: true
+  }]
+}
+```
+
+### Clock Face
+
+```javascript
+angleAxis: {
+  type: 'value',
+  min: 0,
+  max: 12,
+  startAngle: 90,
+  clockwise: true,
+  splitNumber: 12,
+  axisLabel: {
+    formatter: function(value) {
+      return value === 0 ? '12' : value;
+    }
+  },
+  axisTick: {
+    show: true,
+    length: 10
+  }
+}
+```
+
+### Circular Time Series
+
+```javascript
+angleAxis: {
+  type: 'time',
+  startAngle: 0,
+  clockwise: false,
+  axisLabel: {
+    formatter: '{HH}:{mm}'
+  },
+  splitLine: {
+    show: true,
+    lineStyle: {
+      color: '#999',
+      type: 'dashed'
+    }
+  }
+}
+```
+
+### Half Circle Configuration
+
+```javascript
+angleAxis: {
+  type: 'category',
+  data: ['A', 'B', 'C', 'D', 'E'],
+  startAngle: 180,
+  endAngle: 0,
+  splitLine: {
+    show: true
+  },
+  splitArea: {
+    show: true,
+    areaStyle: {
+      color: ['rgba(250,250,250,0.3)', 'rgba(200,200,200,0.3)']
+    }
+  }
+}
+```
+
+## Implementation Details
+
+The angle axis uses a specialized interval calculation for category type to prevent label overlap. The calculation is based on text height rather than width.
+
+Reference: [src/coord/polar/AngleAxis.ts:58-117](~/workspace/source/src/coord/polar/AngleAxis.ts)
+
+```typescript
+// From AngleAxis.ts
+calculateCategoryInterval() {
+    const axis = this;
+    const labelModel = axis.getLabelModel();
+    const ordinalScale = axis.scale as OrdinalScale;
+    const tickCount = ordinalScale.count();
+    
+    const tickValue = ordinalExtent[0];
+    const unitSpan = axis.dataToCoord(tickValue + 1) - axis.dataToCoord(tickValue);
+    const unitH = Math.abs(unitSpan);
+    
+    // Calculate interval based on text height
+    const rect = textContain.getBoundingRect(
+        tickValue == null ? '' : tickValue + '',
+        labelModel.getFont(),
+        'center',
+        'top'
+    );
+    const maxH = Math.max(rect.height, 7);
+    let dh = maxH / unitH;
+    let interval = Math.max(0, Math.floor(dh));
+    
+    return interval;
+}
+```
+
+## Related Components
+
+- [Radius Axis](/components/radius-axis) - Radial component of polar charts
+- [Polar](/components/polar) - Polar coordinate system
+- [X-Axis](/components/x-axis) - Horizontal Cartesian axis
+- [Y-Axis](/components/y-axis) - Vertical Cartesian axis

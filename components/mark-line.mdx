@@ -1,0 +1,502 @@
+---
+title: 'Mark Line Component'
+description: 'Draw reference lines to mark specific values or ranges in charts'
+icon: 'slash'
+---
+
+The Mark Line component draws reference lines in charts to highlight specific values, thresholds, or trends. It supports both horizontal/vertical lines and arbitrary directional lines between two points.
+
+## Purpose
+
+Mark Line helps visualize thresholds, averages, or relationships between data points. From `~/workspace/source/src/component/marker/MarkLineModel.ts`, it supports statistical lines (min, max, average) and custom positioned lines with rich styling.
+
+## Basic Usage
+
+### Simple Statistical Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markLine: {
+      data: [
+        {type: 'average', name: 'Average'},
+        {type: 'max', name: 'Maximum'}
+      ]
+    }
+  }]
+}
+```
+
+### Fixed Value Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markLine: {
+      data: [
+        {yAxis: 30, name: 'Target'},
+        {xAxis: 2, name: 'Milestone'}
+      ]
+    }
+  }]
+}
+```
+
+## Configuration Options
+
+<ParamField path="data" type="array" required>
+  Array of mark line data items. Can be 1D (single axis lines) or 2D (point-to-point lines).
+  
+  ```javascript
+  // 1D: Horizontal or vertical lines
+  data: [
+    {yAxis: 100},
+    {type: 'average'}
+  ]
+  
+  // 2D: Lines between two points
+  data: [
+    [{coord: [0, 10]}, {coord: [4, 40]}]
+  ]
+  ```
+</ParamField>
+
+<ParamField path="symbol" type="string | string[]" default="['circle', 'arrow']">
+  Symbol at both ends of the line. Can be:
+  - Single string: same symbol for both ends
+  - Array of two strings: `[startSymbol, endSymbol]`
+  - `'none'` to hide symbols
+  
+  ```javascript
+  symbol: 'circle'  // Circle at both ends
+  symbol: ['circle', 'arrow']  // Circle at start, arrow at end
+  symbol: 'none'  // No symbols
+  ```
+</ParamField>
+
+<ParamField path="symbolSize" type="number | number[]" default="[8, 16]">
+  Size of symbols at both ends. Can be a single number or `[startSize, endSize]`.
+</ParamField>
+
+<ParamField path="symbolRotate" type="number | number[]">
+  Rotation angle of symbols in degrees.
+</ParamField>
+
+<ParamField path="symbolOffset" type="number | string | array">
+  Offset of the symbol positions. Can be:
+  - Single value: applies to both symbols
+  - Array: `[startOffset, endOffset]`
+</ParamField>
+
+<ParamField path="precision" type="number" default="2">
+  Decimal precision for automatically calculated values.
+</ParamField>
+
+<ParamField path="lineStyle" type="object">
+  Style of the mark line.
+  
+  ```javascript
+  lineStyle: {
+    type: 'dashed',
+    color: '#c23531',
+    width: 2
+  }
+  ```
+  
+  <Expandable title="Line Style Properties">
+    <ParamField path="color" type="string">
+      Color of the line.
+    </ParamField>
+    
+    <ParamField path="width" type="number">
+      Width of the line.
+    </ParamField>
+    
+    <ParamField path="type" type="'solid' | 'dashed' | 'dotted'" default="'dashed'">
+      Type of the line.
+    </ParamField>
+    
+    <ParamField path="opacity" type="number">
+      Opacity of the line.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="label" type="object">
+  Label configuration for mark lines.
+  
+  <Expandable title="Label Properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show labels.
+    </ParamField>
+    
+    <ParamField path="position" type="string" default="'end'">
+      Label position. Can be 'start', 'middle', 'end', 'insideStartTop', 'insideStartBottom', etc.
+    </ParamField>
+    
+    <ParamField path="distance" type="number" default="5">
+      Distance from the line in pixels.
+    </ParamField>
+    
+    <ParamField path="formatter" type="string | function">
+      Formatter for label text.
+      
+      ```javascript
+      formatter: '{b}: {c}'  // name: value
+      formatter: function(params) {
+        return params.name + ': ' + params.value;
+      }
+      ```
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Emphasis (hover) state configuration.
+  
+  ```javascript
+  emphasis: {
+    label: {
+      show: true
+    },
+    lineStyle: {
+      width: 3
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="animationEasing" type="string" default="'linear'">
+  Easing function for line animation.
+</ParamField>
+
+## Data Item Configuration
+
+### 1D Mark Lines (Single Axis)
+
+<ParamField path="type" type="'min' | 'max' | 'average' | 'median'">
+  Statistical type for automatic positioning:
+  - `'min'`: Line at minimum value
+  - `'max'`: Line at maximum value  
+  - `'average'`: Line at average value
+  - `'median'`: Line at median value
+</ParamField>
+
+<ParamField path="valueIndex" type="number">
+  When using `type`, specifies which dimension to calculate statistics on.
+</ParamField>
+
+<ParamField path="valueDim" type="string">
+  Dimension name for statistical calculation.
+</ParamField>
+
+<ParamField path="xAxis" type="number | string">
+  X-axis value for a vertical line.
+  
+  ```javascript
+  {xAxis: 3, name: 'Milestone'}
+  ```
+</ParamField>
+
+<ParamField path="yAxis" type="number | string">
+  Y-axis value for a horizontal line.
+  
+  ```javascript
+  {yAxis: 100, name: 'Target'}
+  ```
+</ParamField>
+
+<ParamField path="name" type="string">
+  Name of the mark line, displayed in labels.
+</ParamField>
+
+### 2D Mark Lines (Two Points)
+
+For lines between two arbitrary points, use an array of two objects:
+
+```javascript
+[
+  {coord: [startX, startY], name: 'Start'},
+  {coord: [endX, endY], name: 'End'}
+]
+```
+
+Each endpoint can have:
+
+<ParamField path="coord" type="array">
+  Coordinates `[x, y]` in the data coordinate system.
+</ParamField>
+
+<ParamField path="x" type="number | string">
+  Absolute x position in pixels or percentage.
+</ParamField>
+
+<ParamField path="y" type="number | string">
+  Absolute y position in pixels or percentage.
+</ParamField>
+
+<ParamField path="xAxis" type="number | string">
+  X coordinate on the x-axis.
+</ParamField>
+
+<ParamField path="yAxis" type="number | string">
+  Y coordinate on the y-axis.
+</ParamField>
+
+<ParamField path="symbol" type="string">
+  Symbol for this endpoint.
+</ParamField>
+
+<ParamField path="symbolSize" type="number">
+  Size of symbol at this endpoint.
+</ParamField>
+
+## Examples
+
+### Statistical Mark Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35, 20, 40],
+    markLine: {
+      data: [
+        {
+          type: 'average',
+          name: 'Average',
+          label: {
+            formatter: 'Avg: {c}'
+          }
+        },
+        {
+          type: 'max',
+          name: 'Max'
+        },
+        {
+          type: 'min',
+          name: 'Min'
+        }
+      ],
+      lineStyle: {
+        type: 'dashed',
+        color: '#c23531'
+      }
+    }
+  }]
+}
+```
+
+### Threshold Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [85, 92, 78, 95, 88, 91, 82],
+    markLine: {
+      silent: true,
+      symbol: 'none',
+      data: [
+        {
+          yAxis: 90,
+          name: 'Target',
+          lineStyle: {
+            color: '#5470c6',
+            type: 'solid',
+            width: 2
+          },
+          label: {
+            position: 'end',
+            formatter: 'Target: {c}'
+          }
+        },
+        {
+          yAxis: 80,
+          name: 'Minimum',
+          lineStyle: {
+            color: '#ee6666',
+            type: 'dashed'
+          },
+          label: {
+            position: 'start'
+          }
+        }
+      ]
+    }
+  }]
+}
+```
+
+### Custom Two-Point Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'scatter',
+    data: [[0, 10], [1, 30], [2, 25], [3, 45], [4, 35]],
+    markLine: {
+      symbol: ['circle', 'arrow'],
+      symbolSize: [8, 12],
+      data: [
+        [
+          {
+            coord: [1, 30],
+            name: 'Point A',
+            symbol: 'circle',
+            itemStyle: {color: '#5470c6'}
+          },
+          {
+            coord: [3, 45],
+            name: 'Point B',
+            symbol: 'arrow',
+            itemStyle: {color: '#5470c6'}
+          }
+        ],
+        [
+          {xAxis: 0, yAxis: 10},
+          {xAxis: 4, yAxis: 35}
+        ]
+      ],
+      lineStyle: {
+        type: 'solid',
+        color: '#5470c6',
+        width: 2
+      },
+      label: {
+        show: true,
+        position: 'middle',
+        formatter: 'Trend'
+      }
+    }
+  }]
+}
+```
+
+### Styled Mark Lines
+
+```javascript
+option = {
+  series: [{
+    type: 'bar',
+    data: [120, 132, 101, 134, 90, 230, 210],
+    markLine: {
+      symbol: ['none', 'arrow'],
+      symbolSize: [0, 10],
+      lineStyle: {
+        type: 'dashed',
+        color: '#91cc75',
+        width: 2
+      },
+      label: {
+        show: true,
+        position: 'end',
+        color: '#91cc75',
+        fontWeight: 'bold',
+        formatter: '{b}: {c}'
+      },
+      emphasis: {
+        lineStyle: {
+          width: 3
+        },
+        label: {
+          show: true
+        }
+      },
+      data: [
+        {type: 'average', name: 'Average'}
+      ]
+    }
+  }]
+}
+```
+
+### Multiple Series with Different Mark Lines
+
+```javascript
+option = {
+  series: [
+    {
+      name: 'Actual',
+      type: 'line',
+      data: [100, 120, 90, 140, 130],
+      markLine: {
+        data: [{type: 'average', name: 'Actual Avg'}],
+        lineStyle: {color: '#5470c6'}
+      }
+    },
+    {
+      name: 'Forecast',
+      type: 'line',
+      data: [110, 115, 100, 135, 125],
+      markLine: {
+        data: [{type: 'average', name: 'Forecast Avg'}],
+        lineStyle: {color: '#91cc75', type: 'dashed'}
+      }
+    }
+  ]
+}
+```
+
+### Vertical Milestone Lines
+
+```javascript
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'line',
+    data: [100, 120, 150, 130, 180, 200],
+    markLine: {
+      symbol: 'none',
+      data: [
+        {
+          xAxis: 'Mar',
+          name: 'Q1 End',
+          lineStyle: {
+            type: 'solid',
+            color: '#ee6666',
+            width: 2
+          },
+          label: {
+            position: 'insideEndTop',
+            formatter: '{b}'
+          }
+        },
+        {
+          xAxis: 'Jun',
+          name: 'Q2 End',
+          lineStyle: {
+            type: 'solid',
+            color: '#ee6666',
+            width: 2
+          }
+        }
+      ]
+    }
+  }]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/marker/MarkLineModel.ts:102-150`, the Mark Line component:
+
+- **Z-index**: Defaults to 5, same as mark points
+- **Default Symbols**: Circle at start, arrow at end
+- **Default Line Style**: Dashed lines
+- **Animation**: Uses linear easing by default
+- **Emphasis**: Increases line width to 3 on hover
+- **Parent Component**: Extends MarkerModel from `~/workspace/source/src/component/marker/MarkerModel.ts`
+- **Statistical Support**: Calculates min, max, average, and median across any dimension
+- **Precision**: Formats numeric values to 2 decimal places by default
+- **Label Position**: Defaults to 'end' with 5px distance

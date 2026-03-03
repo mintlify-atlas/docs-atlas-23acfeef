@@ -1,0 +1,352 @@
+---
+title: Liquid Fill Chart
+description: Liquid fill chart extension for Apache ECharts
+---
+
+# Liquid Fill Chart Extension
+
+The liquid fill chart extension provides a visually appealing way to display percentage data with animated liquid-filling effects.
+
+## Overview
+
+Liquid fill charts are used to represent percentage values in a container shape (typically circular) with an animated liquid effect. They're perfect for displaying metrics like progress, completion rates, or any percentage-based data.
+
+## Installation
+
+### Using npm
+
+```bash
+npm install echarts-liquidfill
+```
+
+### Using CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill/dist/echarts-liquidfill.min.js"></script>
+```
+
+## Basic Usage
+
+```javascript
+import * as echarts from 'echarts';
+import 'echarts-liquidfill';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6]
+  }]
+};
+
+chart.setOption(option);
+```
+
+This creates a basic liquid fill chart showing 60% completion.
+
+## Configuration Options
+
+### Multiple Waves
+
+Create multiple liquid waves with different values:
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6, 0.5, 0.4, 0.3]
+  }]
+};
+```
+
+### Wave Configuration
+
+Customize wave appearance and animation:
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6, 0.5, 0.4],
+    
+    // Wave amplitude (height)
+    amplitude: 20,
+    
+    // Wave length (number of waves)
+    waveLength: '80%',
+    
+    // Animation period (ms)
+    period: 2000,
+    
+    // Animation direction
+    direction: 'right', // 'left' or 'right'
+    
+    // Wave animation
+    waveAnimation: true,
+    animationDuration: 2000,
+    animationDurationUpdate: 1000
+  }]
+};
+```
+
+### Shape and Outline
+
+Control the container shape:
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6],
+    
+    // Shape: 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'
+    shape: 'circle',
+    
+    // Container radius
+    radius: '80%',
+    
+    // Center position
+    center: ['50%', '50%'],
+    
+    // Outline style
+    outline: {
+      show: true,
+      borderDistance: 8,
+      itemStyle: {
+        color: 'none',
+        borderColor: '#294D99',
+        borderWidth: 8,
+        shadowBlur: 20,
+        shadowColor: 'rgba(0, 0, 0, 0.25)'
+      }
+    }
+  }]
+};
+```
+
+### Colors and Styling
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6, 0.5, 0.4],
+    
+    // Wave colors (one for each wave)
+    color: ['#294D99', '#156ACF', '#1598ED'],
+    
+    // Background color
+    backgroundStyle: {
+      color: 'rgba(255, 255, 255, 0.1)'
+    },
+    
+    // Item style for waves
+    itemStyle: {
+      opacity: 0.8,
+      shadowBlur: 10,
+      shadowColor: 'rgba(0, 0, 0, 0.4)'
+    }
+  }]
+};
+```
+
+### Label Configuration
+
+Customize the percentage label:
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6],
+    
+    label: {
+      show: true,
+      color: '#294D99',
+      insideColor: '#fff',
+      fontSize: 50,
+      fontWeight: 'bold',
+      
+      // Custom formatter
+      formatter: function(param) {
+        return (param.value * 100).toFixed(0) + '%';
+      },
+      
+      // Position adjustments
+      position: ['50%', '50%']
+    }
+  }]
+};
+```
+
+## Advanced Examples
+
+### Gradient Colors
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.6],
+    color: [{
+      type: 'linear',
+      x: 0, y: 0, x2: 0, y2: 1,
+      colorStops: [
+        { offset: 0, color: '#46bee9' },
+        { offset: 1, color: '#156ACF' }
+      ]
+    }]
+  }]
+};
+```
+
+### Rectangular Liquid Fill
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.75],
+    shape: 'rect',
+    radius: '80%',
+    outline: {
+      show: false
+    },
+    backgroundStyle: {
+      color: '#e8e8e8'
+    }
+  }]
+};
+```
+
+### Diamond Shape with Custom Label
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [0.68],
+    shape: 'diamond',
+    color: ['#c23531', '#d48265', '#91c7ae'],
+    label: {
+      fontSize: 30,
+      formatter: function(param) {
+        return 'SALES\n' + (param.value * 100).toFixed(1) + '%';
+      }
+    },
+    outline: {
+      itemStyle: {
+        borderColor: '#c23531',
+        borderWidth: 5
+      }
+    }
+  }]
+};
+```
+
+### Dynamic Data Update
+
+```javascript
+let value = 0;
+const option = {
+  series: [{
+    type: 'liquidFill',
+    data: [value]
+  }]
+};
+
+chart.setOption(option);
+
+// Update value periodically
+setInterval(function() {
+  value = Math.random();
+  chart.setOption({
+    series: [{
+      data: [value]
+    }]
+  });
+}, 2000);
+```
+
+## Complete Configuration Example
+
+```javascript
+const option = {
+  series: [{
+    type: 'liquidFill',
+    
+    // Data (0-1 range)
+    data: [0.6, 0.55, 0.5],
+    
+    // Colors for each wave
+    color: ['#294D99', '#156ACF', '#1598ED'],
+    
+    // Center and radius
+    center: ['50%', '50%'],
+    radius: '75%',
+    
+    // Shape
+    shape: 'circle',
+    
+    // Wave configuration
+    amplitude: 15,
+    waveLength: '80%',
+    period: 2000,
+    direction: 'right',
+    waveAnimation: true,
+    
+    // Outline
+    outline: {
+      show: true,
+      borderDistance: 5,
+      itemStyle: {
+        borderWidth: 4,
+        borderColor: '#156ACF',
+        shadowBlur: 20,
+        shadowColor: 'rgba(0, 0, 0, 0.25)'
+      }
+    },
+    
+    // Background
+    backgroundStyle: {
+      color: '#E3F7FF'
+    },
+    
+    // Item style for waves
+    itemStyle: {
+      opacity: 0.8
+    },
+    
+    // Label
+    label: {
+      show: true,
+      color: '#294D99',
+      insideColor: '#fff',
+      fontSize: 50,
+      fontWeight: 'bold',
+      formatter: function(param) {
+        return (param.value * 100).toFixed(0) + '%';
+      }
+    },
+    
+    // Animation
+    animationDuration: 2000,
+    animationDurationUpdate: 1000
+  }]
+};
+```
+
+## Resources
+
+- **GitHub Repository**: [ecomfe/echarts-liquidfill](https://github.com/ecomfe/echarts-liquidfill)
+- **Live Examples**: See the repository for interactive demos
+
+## Tips
+
+- Values should be in the range 0-1 (representing 0%-100%)
+- Multiple waves create a more dynamic visual effect
+- Adjust `amplitude` and `waveLength` to control wave appearance
+- Use `period` to control animation speed (lower = faster)
+- The `direction` option controls whether waves move left or right

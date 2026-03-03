@@ -1,0 +1,571 @@
+---
+title: Event Handling and Interactions
+description: Learn how to handle user interactions and events in Apache ECharts using the on/off API
+---
+
+Apache ECharts provides a comprehensive event system for handling user interactions. Events enable you to create interactive charts that respond to clicks, hovers, and other user actions.
+
+## Event System Overview
+
+ECharts uses an event-driven architecture based on the Eventful class. From `~/workspace/source/src/core/echarts.ts:42`, the event system supports:
+
+- Mouse events (click, dblclick, mouseover, mouseout, etc.)
+- Chart events (rendered, finished)
+- Action events (triggered by chart interactions)
+
+## The on/off API
+
+### Registering Event Handlers
+
+From `~/workspace/source/src/core/echarts.ts:254-272`, event names are automatically converted to lowercase:
+
+```javascript
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({ /* ... */ });
+
+// Register click event
+chart.on('click', function(params) {
+  console.log('Clicked:', params);
+});
+```
+
+### Removing Event Handlers
+
+```javascript
+function handleClick(params) {
+  console.log('Clicked:', params);
+}
+
+// Register handler
+chart.on('click', handleClick);
+
+// Remove specific handler
+chart.off('click', handleClick);
+
+// Remove all click handlers
+chart.off('click');
+```
+
+## Mouse Events
+
+Based on `~/workspace/source/src/core/echarts.ts:1196-1292`, ECharts supports standard mouse events:
+
+### Available Mouse Events
+
+- `click` - Mouse click
+- `dblclick` - Mouse double click
+- `mousedown` - Mouse button pressed
+- `mouseup` - Mouse button released
+- `mouseover` - Mouse enters element
+- `mouseout` - Mouse leaves element
+- `mousemove` - Mouse moves
+- `contextmenu` - Right-click context menu
+- `globalout` - Mouse leaves chart area
+
+### Click Event
+
+```javascript
+chart.on('click', function(params) {
+  console.log('Component type:', params.componentType);
+  console.log('Series index:', params.seriesIndex);
+  console.log('Data index:', params.dataIndex);
+  console.log('Data value:', params.value);
+  console.log('Name:', params.name);
+});
+```
+
+### Event Parameters
+
+From `~/workspace/source/src/core/echarts.ts:1197-1273`, event parameters include:
+
+```javascript
+chart.on('click', function(params) {
+  // Component information
+  params.componentType;   // 'series', 'xAxis', 'yAxis', etc.
+  params.componentIndex;  // Component index
+  params.componentSubType; // 'bar', 'line', 'pie', etc.
+  
+  // Series information  
+  params.seriesType;      // Series type
+  params.seriesIndex;     // Series index
+  params.seriesName;      // Series name
+  
+  // Data information
+  params.dataIndex;       // Data index
+  params.dataType;        // Data type (for dataset)
+  params.name;            // Data name
+  params.value;           // Data value
+  params.data;            // Original data item
+  
+  // Event information
+  params.event;           // Native DOM event
+  params.type;            // Event type
+});
+```
+
+### Mouseover and Mouseout
+
+```javascript
+chart.on('mouseover', function(params) {
+  console.log('Mouse over:', params.name);
+  // Highlight related elements
+  chart.dispatchAction({
+    type: 'highlight',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+});
+
+chart.on('mouseout', function(params) {
+  console.log('Mouse out:', params.name);
+  // Restore elements
+  chart.dispatchAction({
+    type: 'downplay',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+});
+```
+
+### Double Click
+
+```javascript
+chart.on('dblclick', function(params) {
+  console.log('Double clicked:', params.name);
+  // Zoom to data item
+  if (params.componentType === 'series') {
+    chart.dispatchAction({
+      type: 'dataZoom',
+      start: params.dataIndex,
+      end: params.dataIndex + 10
+    });
+  }
+});
+```
+
+### Context Menu (Right Click)
+
+```javascript
+chart.on('contextmenu', function(params) {
+  // Prevent default context menu
+  params.event.event.preventDefault();
+  
+  // Show custom menu
+  showCustomMenu(params);
+});
+
+function showCustomMenu(params) {
+  console.log('Show menu for:', params.name);
+  // Display custom context menu
+}
+```
+
+## Event Filtering
+
+Filter events by component type or other criteria:
+
+### By Component Type
+
+```javascript
+// Only listen to series clicks
+chart.on('click', 'series', function(params) {
+  console.log('Series clicked:', params.seriesName);
+});
+
+// Only listen to specific series type
+chart.on('click', 'series.bar', function(params) {
+  console.log('Bar clicked:', params.name);
+});
+
+// Only listen to axis clicks
+chart.on('click', 'xAxis', function(params) {
+  console.log('X-axis clicked');
+});
+```
+
+### By Series Index or Name
+
+```javascript
+// Listen to specific series by index
+chart.on('click', { seriesIndex: 0 }, function(params) {
+  console.log('First series clicked');
+});
+
+// Listen to specific series by name
+chart.on('click', { seriesName: 'Sales' }, function(params) {
+  console.log('Sales series clicked');
+});
+```
+
+### Multiple Conditions
+
+```javascript
+chart.on('click', {
+  seriesName: 'Sales',
+  dataIndex: 5
+}, function(params) {
+  console.log('Specific data point clicked');
+});
+```
+
+## Chart-Specific Events
+
+### Rendered Event
+
+From `~/workspace/source/src/core/echarts.ts:345-353`, triggered when chart rendering completes:
+
+```javascript
+chart.on('rendered', function(params) {
+  console.log('Chart rendered in', params.elapsedTime, 'ms');
+});
+```
+
+### Finished Event
+
+Triggered when all animations complete:
+
+```javascript
+chart.on('finished', function() {
+  console.log('All animations finished');
+  // Safe to perform actions that depend on final state
+});
+```
+
+## Interaction Examples
+
+### Click to Show Details
+
+```javascript
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    name: 'Sales',
+    type: 'bar',
+    data: [120, 200, 150, 80, 70]
+  }]
+});
+
+chart.on('click', function(params) {
+  if (params.componentType === 'series') {
+    // Show detailed information
+    alert(
+      'Day: ' + params.name + '\n' +
+      'Sales: ' + params.value + '\n' +
+      'Series: ' + params.seriesName
+    );
+  }
+});
+```
+
+### Hover Highlighting
+
+```javascript
+chart.setOption({
+  series: [{
+    type: 'pie',
+    data: [
+      { value: 335, name: 'A' },
+      { value: 234, name: 'B' },
+      { value: 154, name: 'C' }
+    ]
+  }]
+});
+
+let currentHighlight = null;
+
+chart.on('mouseover', function(params) {
+  // Clear previous highlight
+  if (currentHighlight !== null) {
+    chart.dispatchAction({
+      type: 'downplay',
+      seriesIndex: 0,
+      dataIndex: currentHighlight
+    });
+  }
+  
+  // Highlight current
+  chart.dispatchAction({
+    type: 'highlight',
+    seriesIndex: params.seriesIndex,
+    dataIndex: params.dataIndex
+  });
+  
+  currentHighlight = params.dataIndex;
+});
+```
+
+### Click to Filter Data
+
+```javascript
+let filteredData = [
+  { name: 'Category A', value: 100 },
+  { name: 'Category B', value: 200 },
+  { name: 'Category C', value: 150 }
+];
+
+chart.setOption({
+  series: [{
+    type: 'bar',
+    data: filteredData
+  }]
+});
+
+chart.on('click', function(params) {
+  // Remove clicked item
+  filteredData = filteredData.filter((item, idx) => idx !== params.dataIndex);
+  
+  // Update chart
+  chart.setOption({
+    series: [{
+      data: filteredData
+    }]
+  });
+});
+```
+
+### Drill Down
+
+```javascript
+let level = 0;
+const data = {
+  level0: [
+    { name: 'Region A', value: 500 },
+    { name: 'Region B', value: 300 }
+  ],
+  level1: {
+    'Region A': [
+      { name: 'City A1', value: 200 },
+      { name: 'City A2', value: 300 }
+    ],
+    'Region B': [
+      { name: 'City B1', value: 150 },
+      { name: 'City B2', value: 150 }
+    ]
+  }
+};
+
+function renderChart() {
+  const currentData = level === 0 
+    ? data.level0 
+    : data.level1[selectedRegion];
+  
+  chart.setOption({
+    series: [{
+      type: 'bar',
+      data: currentData
+    }]
+  });
+}
+
+let selectedRegion = null;
+
+chart.on('click', function(params) {
+  if (level === 0) {
+    // Drill down
+    selectedRegion = params.name;
+    level = 1;
+    renderChart();
+  }
+});
+
+// Add back button
+document.getElementById('back').addEventListener('click', function() {
+  if (level === 1) {
+    level = 0;
+    renderChart();
+  }
+});
+
+renderChart();
+```
+
+## Dispatching Actions
+
+From `~/workspace/source/src/core/echarts.ts:1479-1529`, trigger chart actions programmatically:
+
+### Highlight/Downplay
+
+```javascript
+// Highlight a data point
+chart.dispatchAction({
+  type: 'highlight',
+  seriesIndex: 0,
+  dataIndex: 5
+});
+
+// Downplay (remove highlight)
+chart.dispatchAction({
+  type: 'downplay',
+  seriesIndex: 0,
+  dataIndex: 5
+});
+```
+
+### Show Tooltip
+
+```javascript
+chart.dispatchAction({
+  type: 'showTip',
+  seriesIndex: 0,
+  dataIndex: 5
+});
+
+// Hide tooltip
+chart.dispatchAction({
+  type: 'hideTip'
+});
+```
+
+### Select/Unselect
+
+```javascript
+// Select a data point
+chart.dispatchAction({
+  type: 'select',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+
+// Unselect
+chart.dispatchAction({
+  type: 'unselect',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+
+// Toggle selection
+chart.dispatchAction({
+  type: 'toggleSelect',
+  seriesIndex: 0,
+  dataIndex: 3
+});
+```
+
+### Legend Actions
+
+```javascript
+// Select legend
+chart.dispatchAction({
+  type: 'legendSelect',
+  name: 'Series 1'
+});
+
+// Toggle legend
+chart.dispatchAction({
+  type: 'legendToggleSelect',
+  name: 'Series 1'
+});
+```
+
+## Action Events
+
+Listen to actions dispatched by user or programmatically:
+
+```javascript
+// Listen to legend select
+chart.on('legendselectchanged', function(params) {
+  console.log('Legend selection changed:', params.selected);
+});
+
+// Listen to data zoom
+chart.on('datazoom', function(params) {
+  console.log('Zoom range:', params.start, params.end);
+});
+
+// Listen to brush selection
+chart.on('brushselected', function(params) {
+  console.log('Selected data:', params.batch);
+});
+```
+
+## Event Once
+
+Listen to an event only once:
+
+```javascript
+chart.one('click', function(params) {
+  console.log('This will only trigger once');
+});
+```
+
+## Best Practices
+
+1. **Remove handlers when done**: Always call `off()` to prevent memory leaks
+2. **Use event filtering**: Filter by component type to avoid unnecessary processing
+3. **Throttle/debounce**: For frequent events like `mousemove`, use throttling
+4. **Prevent defaults carefully**: Be cautious when preventing default browser behavior
+5. **Dispose on cleanup**: Call `chart.dispose()` when removing the chart
+
+<Warning>
+Event handlers can accumulate if not properly removed. Always clean up event listeners when components unmount or charts are destroyed.
+</Warning>
+
+## Common Patterns
+
+### Coordinated Charts
+
+```javascript
+const chart1 = echarts.init(document.getElementById('chart1'));
+const chart2 = echarts.init(document.getElementById('chart2'));
+
+// Sync tooltips
+chart1.on('mousemove', function(params) {
+  chart2.dispatchAction({
+    type: 'showTip',
+    seriesIndex: 0,
+    dataIndex: params.dataIndex
+  });
+});
+
+chart2.on('mousemove', function(params) {
+  chart1.dispatchAction({
+    type: 'showTip',
+    seriesIndex: 0,
+    dataIndex: params.dataIndex
+  });
+});
+```
+
+### Loading State
+
+```javascript
+chart.showLoading();
+
+fetch('/api/data')
+  .then(response => response.json())
+  .then(data => {
+    chart.hideLoading();
+    chart.setOption({
+      series: [{ data }]
+    });
+  })
+  .catch(error => {
+    chart.hideLoading();
+    console.error('Failed to load data:', error);
+  });
+```
+
+### Responsive Events
+
+```javascript
+window.addEventListener('resize', function() {
+  chart.resize();
+});
+
+// Clean up on unmount
+window.removeEventListener('resize', resizeHandler);
+chart.dispose();
+```
+
+<Note>
+All event names in ECharts are case-insensitive. They're automatically converted to lowercase internally. You can use 'Click', 'click', or 'CLICK' - they all work the same.
+</Note>

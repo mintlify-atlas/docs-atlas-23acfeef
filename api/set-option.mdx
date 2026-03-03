@@ -1,0 +1,188 @@
+---
+title: 'setOption()'
+description: 'Configure chart options and update the visualization'
+---
+
+## Method Signature
+
+```typescript
+setOption<Opt extends ECBasicOption>(
+  option: Opt,
+  notMerge?: boolean,
+  lazyUpdate?: boolean
+): void
+
+setOption<Opt extends ECBasicOption>(
+  option: Opt,
+  opts?: SetOptionOpts
+): void
+```
+
+## Description
+
+The `setOption()` method is the primary way to configure and update an ECharts instance. It accepts a configuration object that defines all aspects of the chart including series data, axes, visual components, and animations.
+
+## Parameters
+
+<ParamField path="option" type="ECBasicOption" required>
+  The complete chart configuration object. This can include series, xAxis, yAxis, title, legend, tooltip, and all other chart components.
+</ParamField>
+
+<ParamField path="notMerge" type="boolean" default="false">
+  When `false` (default), the new option will be merged with the previous option. When `true`, all components in the previous option will be removed and new components will be created according to the new option.
+</ParamField>
+
+<ParamField path="lazyUpdate" type="boolean" default="false">
+  When `true`, the chart will not be updated immediately. The update will be performed in the next animation frame. This is useful when calling `setOption` frequently to improve performance.
+</ParamField>
+
+### Alternative: Using Options Object
+
+<ParamField path="opts" type="SetOptionOpts">
+  An options object that provides more control over the update behavior.
+  
+  <Expandable title="SetOptionOpts Properties">
+    <ParamField path="opts.notMerge" type="boolean" default="false">
+      Same as the `notMerge` parameter above.
+    </ParamField>
+    
+    <ParamField path="opts.lazyUpdate" type="boolean" default="false">
+      Same as the `lazyUpdate` parameter above.
+    </ParamField>
+    
+    <ParamField path="opts.silent" type="boolean" default="false">
+      When `true`, the chart will not trigger events during the update process.
+    </ParamField>
+    
+    <ParamField path="opts.replaceMerge" type="string | string[]">
+      Specifies which components should use replace-merge mode. Only components with matching IDs will be merged, others of that type will be removed. Example: `['xAxis', 'series']`
+    </ParamField>
+    
+    <ParamField path="opts.transition" type="SetOptionTransitionOpt">
+      Configuration for transition animations between option updates. Allows customizing animation behavior for specific series or data.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Return Value
+
+`void` - This method does not return a value.
+
+## Examples
+
+### Basic Usage
+
+```typescript
+import * as echarts from 'echarts';
+
+const chart = echarts.init(document.getElementById('main'));
+
+chart.setOption({
+  title: {
+    text: 'Sales Data'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    data: [120, 200, 150, 80, 70, 110, 130],
+    type: 'bar'
+  }]
+});
+```
+
+### Updating Data Without Merge
+
+```typescript
+// Replace the entire option instead of merging
+chart.setOption(newOption, true);
+
+// Or using the options object
+chart.setOption(newOption, {
+  notMerge: true
+});
+```
+
+### Lazy Update for Performance
+
+```typescript
+// Useful when calling setOption in a loop or frequently
+for (let i = 0; i < data.length; i++) {
+  chart.setOption({
+    series: [{
+      data: data[i]
+    }]
+  }, {
+    lazyUpdate: true
+  });
+}
+```
+
+### Using replaceMerge
+
+```typescript
+// Only merge series with matching IDs, remove others
+chart.setOption({
+  series: [
+    { id: 'sales', data: [1, 2, 3] },
+    { id: 'profit', data: [4, 5, 6] }
+  ]
+}, {
+  replaceMerge: 'series'
+});
+```
+
+### Silent Update
+
+```typescript
+// Update without triggering events
+chart.setOption(newOption, {
+  silent: true
+});
+```
+
+### With Transition Animation
+
+```typescript
+chart.setOption({
+  series: [{
+    id: 'sales',
+    type: 'bar',
+    data: [10, 20, 30, 40, 50]
+  }]
+}, {
+  transition: {
+    from: 'line',
+    to: 'bar',
+    duration: 1000
+  }
+});
+```
+
+## Important Notes
+
+<Warning>
+  `setOption()` should not be called during the main rendering process. Doing so will result in an error in development mode.
+</Warning>
+
+<Note>
+  When using `lazyUpdate: true`, the chart update will be deferred to the next animation frame. This can significantly improve performance when calling `setOption` multiple times in quick succession.
+</Note>
+
+<Info>
+  The `replaceMerge` option is particularly useful when you want to replace all instances of a component type but still want to merge other components. For example, you might want to replace all series while keeping the existing axis configurations.
+</Info>
+
+## Related Methods
+
+- [getOption()](/api/get-option) - Retrieve the current chart option
+- [resize()](/api/resize) - Resize the chart
+- [dispatchAction()](/api/dispatch-action) - Trigger chart actions
+
+## Source Reference
+
+Implementation: `src/core/echarts.ts:646-725`

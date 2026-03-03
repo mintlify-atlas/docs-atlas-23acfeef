@@ -1,0 +1,416 @@
+---
+title: Dataset Component
+description: Learn how to use the dataset component for efficient data management and transformation in Apache ECharts
+---
+
+The dataset component provides a unified data management solution in Apache ECharts. It separates data from visualization configuration, enabling data reuse, transformation, and better organization.
+
+## Why Use Dataset
+
+Datasets offer several advantages:
+
+- **Separation of concerns**: Keep data separate from chart configuration
+- **Data reuse**: Multiple series can share the same dataset
+- **Data transformation**: Transform data without modifying the original source
+- **Better organization**: Manage multiple data sources in one place
+
+## Basic Usage
+
+### Simple Dataset
+
+```javascript
+const option = {
+  dataset: {
+    source: [
+      ['Product', 'Sales', 'Price'],
+      ['Laptop', 43.3, 1200],
+      ['Mouse', 83.1, 25],
+      ['Monitor', 86.4, 300]
+    ]
+  },
+  xAxis: { type: 'category' },
+  yAxis: {},
+  series: [
+    { type: 'bar' }
+  ]
+};
+```
+
+The first row contains dimension names, and subsequent rows contain data values.
+
+### Array Format
+
+```javascript
+dataset: {
+  source: [
+    ['Mon', 120, 140],
+    ['Tue', 200, 180],
+    ['Wed', 150, 160],
+    ['Thu', 80, 90],
+    ['Fri', 70, 85]
+  ]
+}
+```
+
+### Object Format
+
+```javascript
+dataset: {
+  source: [
+    { day: 'Mon', sales: 120, revenue: 140 },
+    { day: 'Tue', sales: 200, revenue: 180 },
+    { day: 'Wed', sales: 150, revenue: 160 },
+    { day: 'Thu', sales: 80, revenue: 90 },
+    { day: 'Fri', sales: 70, revenue: 85 }
+  ]
+}
+```
+
+## Dataset Configuration
+
+### seriesLayoutBy
+
+From `~/workspace/source/src/component/dataset/install.ts:46-47`, control how series map to data:
+
+```javascript
+dataset: {
+  // Map series by columns (default)
+  seriesLayoutBy: 'column',
+  source: [
+    ['Product', 'Sales', 'Price'],
+    ['Laptop', 43, 1200],
+    ['Mouse', 83, 25]
+  ]
+}
+```
+
+<Tabs>
+  <Tab title="By Column">
+    ```javascript
+    dataset: {
+      seriesLayoutBy: 'column',
+      source: [
+        ['Product', 'Sales', 'Price', 'Stock'],
+        ['Laptop', 43, 1200, 50],
+        ['Mouse', 83, 25, 200]
+      ]
+    },
+    series: [
+      { type: 'bar' },  // Maps to 'Sales' column
+      { type: 'bar' }   // Maps to 'Price' column
+    ]
+    ```
+  </Tab>
+  <Tab title="By Row">
+    ```javascript
+    dataset: {
+      seriesLayoutBy: 'row',
+      source: [
+        ['Sales', 43, 83, 86],
+        ['Price', 1200, 25, 300]
+      ]
+    },
+    series: [
+      { type: 'bar' },  // Maps to first row 'Sales'
+      { type: 'bar' }   // Maps to second row 'Price'
+    ]
+    ```
+  </Tab>
+</Tabs>
+
+### sourceHeader
+
+Specify whether the first row/column contains dimension names:
+
+```javascript
+dataset: {
+  sourceHeader: true,  // First row is headers
+  source: [
+    ['Product', 'Sales', 'Price'],
+    ['Laptop', 43, 1200],
+    ['Mouse', 83, 25]
+  ]
+}
+```
+
+### dimensions
+
+Explicitly define dimension properties:
+
+```javascript
+dataset: {
+  dimensions: [
+    { name: 'product', type: 'ordinal' },
+    { name: 'sales', type: 'number' },
+    { name: 'price', type: 'number' }
+  ],
+  source: [
+    ['Laptop', 43, 1200],
+    ['Mouse', 83, 25],
+    ['Monitor', 86, 300]
+  ]
+}
+```
+
+## Multiple Datasets
+
+Use multiple datasets and reference them in series:
+
+```javascript
+const option = {
+  dataset: [
+    {
+      id: 'sales',
+      source: [
+        ['Product', 'Q1', 'Q2', 'Q3', 'Q4'],
+        ['Laptop', 43, 45, 50, 55],
+        ['Mouse', 83, 85, 90, 88]
+      ]
+    },
+    {
+      id: 'inventory',
+      source: [
+        ['Product', 'Stock'],
+        ['Laptop', 120],
+        ['Mouse', 450]
+      ]
+    }
+  ],
+  series: [
+    {
+      type: 'bar',
+      datasetId: 'sales',  // Use sales dataset
+      seriesLayoutBy: 'row'
+    },
+    {
+      type: 'bar',
+      datasetId: 'inventory'
+    }
+  ]
+};
+```
+
+## Data Transformation
+
+Based on `~/workspace/source/src/data/helper/transform.ts:38-56`, datasets support powerful data transformations:
+
+### Filter Transform
+
+```javascript
+const option = {
+  dataset: [
+    {
+      id: 'raw',
+      source: [
+        ['Product', 'Sales', 'Price'],
+        ['Laptop', 43, 1200],
+        ['Mouse', 83, 25],
+        ['Monitor', 86, 300],
+        ['Keyboard', 72, 80]
+      ]
+    },
+    {
+      id: 'filtered',
+      fromDatasetId: 'raw',
+      transform: {
+        type: 'filter',
+        config: {
+          dimension: 'Sales',
+          '>=': 80
+        }
+      }
+    }
+  ],
+  series: {
+    type: 'bar',
+    datasetId: 'filtered'
+  }
+};
+```
+
+### Sort Transform
+
+```javascript
+dataset: [
+  {
+    id: 'raw',
+    source: [...]
+  },
+  {
+    id: 'sorted',
+    fromDatasetId: 'raw',
+    transform: {
+      type: 'sort',
+      config: {
+        dimension: 'Sales',
+        order: 'desc'
+      }
+    }
+  }
+]
+```
+
+### Chained Transforms
+
+From `~/workspace/source/src/data/helper/transform.ts:39`, you can chain multiple transformations:
+
+```javascript
+dataset: [
+  {
+    id: 'raw',
+    source: [
+      ['Product', 'Sales', 'Price', 'Category'],
+      ['Laptop', 43, 1200, 'Electronics'],
+      ['Mouse', 83, 25, 'Electronics'],
+      ['Desk', 120, 450, 'Furniture'],
+      ['Chair', 95, 200, 'Furniture']
+    ]
+  },
+  {
+    id: 'processed',
+    fromDatasetId: 'raw',
+    transform: [
+      {
+        type: 'filter',
+        config: {
+          dimension: 'Category',
+          '=': 'Electronics'
+        }
+      },
+      {
+        type: 'sort',
+        config: {
+          dimension: 'Sales',
+          order: 'desc'
+        }
+      }
+    ]
+  }
+]
+```
+
+## Referencing Datasets
+
+Series can reference datasets in multiple ways:
+
+### By Index
+
+```javascript
+series: [
+  {
+    type: 'bar',
+    datasetIndex: 0  // First dataset
+  },
+  {
+    type: 'line',
+    datasetIndex: 1  // Second dataset
+  }
+]
+```
+
+### By ID
+
+```javascript
+series: [
+  {
+    type: 'bar',
+    datasetId: 'sales'
+  }
+]
+```
+
+### From Transform Result
+
+```javascript
+dataset: [
+  {
+    id: 'raw',
+    source: [...]
+  },
+  {
+    fromDatasetId: 'raw',
+    transform: {
+      type: 'filter',
+      config: { ... }
+    }
+  }
+],
+series: {
+  type: 'bar',
+  datasetIndex: 1,  // Reference the transformed dataset
+  fromTransformResult: 0  // If transform returns multiple results
+}
+```
+
+## Encode Configuration
+
+Map dimensions to visual channels:
+
+```javascript
+const option = {
+  dataset: {
+    source: [
+      ['Product', 'Sales', 'Price', 'Stock'],
+      ['Laptop', 43, 1200, 50],
+      ['Mouse', 83, 25, 200],
+      ['Monitor', 86, 300, 75]
+    ]
+  },
+  xAxis: { type: 'category' },
+  yAxis: {},
+  series: [
+    {
+      type: 'bar',
+      encode: {
+        x: 'Product',
+        y: 'Sales',
+        tooltip: ['Product', 'Sales', 'Price']
+      }
+    }
+  ]
+};
+```
+
+## Dataset with Different Series Types
+
+```javascript
+const option = {
+  dataset: {
+    source: [
+      ['Month', 'Sales', 'Target', 'Difference'],
+      ['Jan', 120, 100, 20],
+      ['Feb', 200, 180, 20],
+      ['Mar', 150, 160, -10],
+      ['Apr', 180, 170, 10]
+    ]
+  },
+  xAxis: { type: 'category' },
+  yAxis: {},
+  series: [
+    {
+      type: 'bar',
+      encode: { x: 'Month', y: 'Sales' }
+    },
+    {
+      type: 'line',
+      encode: { x: 'Month', y: 'Target' }
+    }
+  ]
+};
+```
+
+<Note>
+Datasets are particularly useful when working with large amounts of data or when you need to apply transformations. They provide better performance and code organization compared to inline data.
+</Note>
+
+## Best Practices
+
+1. **Use object format for clarity**: Object arrays are more readable and maintainable
+2. **Define dimensions explicitly**: This helps with data parsing and type conversion
+3. **Leverage transforms**: Use built-in transforms instead of preprocessing data in JavaScript
+4. **ID your datasets**: Always use IDs for datasets when you have multiple sources
+5. **Separate data from config**: Keep your data in datasets and visualization config in series
+
+<Warning>
+When using `fromDatasetId` or `fromDatasetIndex`, ensure the source dataset exists and is defined before the referencing dataset in the array.
+</Warning>

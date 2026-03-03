@@ -1,0 +1,581 @@
+---
+title: TypeScript Type Definitions
+description: TypeScript type definitions and interfaces for Apache ECharts options
+---
+
+# TypeScript Type Definitions
+
+Apache ECharts provides comprehensive TypeScript type definitions for type-safe chart development.
+
+## Importing Types
+
+### From NPM Package
+
+```typescript
+import * as echarts from 'echarts';
+import type {
+  EChartsOption,
+  SeriesOption,
+  LineSeriesOption,
+  BarSeriesOption
+} from 'echarts';
+```
+
+### Direct Import from Types
+
+```typescript
+// Import main option type
+import type { EChartsOption } from 'echarts/types/dist/echarts';
+
+// Import specific series types
+import type { LineSeriesOption } from 'echarts/types/dist/echarts';
+import type { BarSeriesOption } from 'echarts/types/dist/echarts';
+
+// Import component types
+import type { 
+  TitleComponentOption,
+  LegendComponentOption,
+  TooltipComponentOption,
+  GridComponentOption
+} from 'echarts/types/dist/echarts';
+```
+
+## Core Type Interfaces
+
+### EChartsOption
+
+The main configuration interface (from `~/workspace/source/src/export/option.ts:258-293`):
+
+```typescript
+interface EChartsOption extends ECBasicOption {
+  dataset?: DatasetComponentOption | DatasetComponentOption[];
+  aria?: AriaComponentOption;
+  title?: TitleComponentOption | TitleComponentOption[];
+  grid?: GridComponentOption | GridComponentOption[];
+  radar?: RadarComponentOption | RadarComponentOption[];
+  polar?: PolarComponentOption | PolarComponentOption[];
+  geo?: GeoComponentOption | GeoComponentOption[];
+  
+  angleAxis?: AngleAxisComponentOption | AngleAxisComponentOption[];
+  radiusAxis?: RadiusAxisComponentOption | RadiusAxisComponentOption[];
+  xAxis?: XAxisComponentOption | XAxisComponentOption[];
+  yAxis?: YAxisComponentOption | YAxisComponentOption[];
+  singleAxis?: SingleAxisComponentOption | SingleAxisComponentOption[];
+  parallel?: ParallelComponentOption | ParallelComponentOption[];
+  parallelAxis?: ParallelAxisComponentOption | ParallelAxisComponentOption[];
+  calendar?: CalendarComponentOption | CalendarComponentOption[];
+  matrix?: MatrixComponentOption | MatrixComponentOption[];
+  
+  toolbox?: ToolboxComponentOption | ToolboxComponentOption[];
+  tooltip?: TooltipComponentOption | TooltipComponentOption[];
+  axisPointer?: AxisPointerComponentOption | AxisPointerComponentOption[];
+  brush?: BrushComponentOption | BrushComponentOption[];
+  
+  timeline?: TimelineComponentOption | TimelineSliderComponentOption;
+  legend?: LegendComponentOption | LegendComponentOption[];
+  dataZoom?: DataZoomComponentOption | DataZoomComponentOption[];
+  visualMap?: VisualMapComponentOption | VisualMapComponentOption[];
+  thumbnail?: ThumbnailComponentOption | ThumbnailComponentOption[];
+  graphic?: GraphicComponentOption | GraphicComponentOption[];
+  
+  series?: SeriesOption | SeriesOption[];
+  
+  options?: EChartsOption[];
+  baseOption?: EChartsOption;
+}
+```
+
+## Series Types
+
+### SeriesOption (Base)
+
+Base interface for all series types (from `~/workspace/source/src/util/types.ts:1867-1943`):
+
+```typescript
+interface SeriesOption<
+  StateOption = unknown,
+  StatesMixin extends StatesMixinBase = DefaultStatesMixin
+> extends
+  ComponentOption,
+  AnimationOptionMixin,
+  ColorPaletteOptionMixin,
+  StatesOptionMixin<StateOption, StatesMixin>
+{
+  mainType?: 'series';
+  silent?: boolean;
+  blendMode?: string;
+  cursor?: string;
+  dataGroupId?: OptionId;
+  data?: unknown;
+  colorBy?: ColorBy;
+  legendHoverLink?: boolean;
+  
+  progressive?: number | false;
+  progressiveThreshold?: number;
+  progressiveChunkMode?: 'mod';
+  hoverLayerThreshold?: number;
+  
+  seriesLayoutBy?: 'column' | 'row';
+  labelLine?: LabelLineOption;
+  labelLayout?: LabelLayoutOption | LabelLayoutOptionCallback;
+  stateAnimation?: AnimationOption;
+  universalTransition?: boolean | UniversalTransitionOption;
+  
+  selectedMap?: Dictionary<boolean> | 'all';
+  selectedMode?: 'single' | 'multiple' | 'series' | boolean;
+}
+```
+
+### Registered Series Types
+
+All available series types (from `~/workspace/source/src/export/option.ts:229-253`):
+
+```typescript
+interface RegisteredSeriesOption {
+  line: LineSeriesOption;
+  bar: BarSeriesOption;
+  scatter: ScatterSeriesOption;
+  pie: PieSeriesOption;
+  radar: RadarSeriesOption;
+  map: MapSeriesOption;
+  tree: TreeSeriesOption;
+  treemap: TreemapSeriesOption;
+  graph: GraphSeriesOption;
+  chord: ChordSeriesOption;
+  gauge: GaugeSeriesOption;
+  funnel: FunnelSeriesOption;
+  parallel: ParallelSeriesOption;
+  sankey: SankeySeriesOption;
+  boxplot: BoxplotSeriesOption;
+  candlestick: CandlestickSeriesOption;
+  effectScatter: EffectScatterSeriesOption;
+  lines: LinesSeriesOption;
+  heatmap: HeatmapSeriesOption;
+  pictorialBar: PictorialBarSeriesOption;
+  themeRiver: ThemeRiverSeriesOption;
+  sunburst: SunburstSeriesOption;
+  custom: CustomSeriesOption;
+}
+```
+
+### LineSeriesOption
+
+From `~/workspace/source/src/chart/line/LineSeries.ts:74-135`:
+
+```typescript
+interface LineSeriesOption extends 
+  SeriesOption<LineStateOption, LineStateOptionMixin>,
+  LineStateOption,
+  SeriesOnCartesianOptionMixin,
+  SeriesOnPolarOptionMixin,
+  SeriesStackOptionMixin,
+  SeriesSamplingOptionMixin,
+  SymbolOptionMixin,
+  SeriesEncodeOptionMixin 
+{
+  type?: 'line';
+  coordinateSystem?: 'cartesian2d' | 'polar';
+  clip?: boolean;
+  
+  label?: SeriesLabelOption;
+  endLabel?: LineEndLabelOption;
+  lineStyle?: LineStyleOption;
+  areaStyle?: AreaStyleOption & {
+    origin?: 'auto' | 'start' | 'end' | number;
+  };
+  
+  step?: false | 'start' | 'end' | 'middle';
+  smooth?: boolean | number;
+  smoothMonotone?: 'x' | 'y' | 'none';
+  connectNulls?: boolean;
+  
+  showSymbol?: boolean;
+  showAllSymbol?: 'auto' | boolean;
+  
+  data?: (LineDataValue | LineDataItemOption)[];
+  triggerEvent?: boolean | 'line' | 'area';
+}
+```
+
+### BarSeriesOption
+
+From `~/workspace/source/src/chart/bar/BarSeries.ts:68-94`:
+
+```typescript
+interface BarSeriesOption extends
+  BaseBarSeriesOption<BarStateOption, BarStatesMixin>,
+  BarStateOption,
+  SeriesStackOptionMixin,
+  SeriesSamplingOptionMixin,
+  SeriesEncodeOptionMixin
+{
+  type?: 'bar';
+  coordinateSystem?: 'cartesian2d' | 'polar';
+  clip?: boolean;
+  
+  roundCap?: boolean;
+  showBackground?: boolean;
+  backgroundStyle?: ItemStyleOption & {
+    borderRadius?: number | number[];
+  };
+  
+  data?: (BarDataItemOption | OptionDataValue | OptionDataValue[])[];
+  realtimeSort?: boolean;
+}
+```
+
+## Component Types
+
+### TitleComponentOption
+
+```typescript
+interface TitleComponentOption extends ComponentOption {
+  show?: boolean;
+  text?: string;
+  link?: string;
+  target?: 'self' | 'blank';
+  
+  textStyle?: TextStyleOption;
+  subtext?: string;
+  sublink?: string;
+  subtarget?: 'self' | 'blank';
+  subtextStyle?: TextStyleOption;
+  
+  textAlign?: string;
+  textVerticalAlign?: string;
+  
+  padding?: number | number[];
+  itemGap?: number;
+  
+  zlevel?: number;
+  z?: number;
+  
+  left?: string | number;
+  top?: string | number;
+  right?: string | number;
+  bottom?: string | number;
+  
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number | number[];
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+}
+```
+
+### TooltipComponentOption
+
+```typescript
+interface TooltipComponentOption extends ComponentOption {
+  show?: boolean;
+  trigger?: 'item' | 'axis' | 'none';
+  
+  axisPointer?: {
+    type?: 'line' | 'shadow' | 'cross' | 'none';
+    axis?: 'auto' | 'x' | 'y' | 'angle' | 'radius';
+    snap?: boolean;
+    // ... more options
+  };
+  
+  showContent?: boolean;
+  alwaysShowContent?: boolean;
+  triggerOn?: 'mousemove' | 'click' | 'none' | 'mousemove|click';
+  showDelay?: number;
+  hideDelay?: number;
+  
+  formatter?: string | TooltipFormatterCallback;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  padding?: number | number[];
+  textStyle?: TextStyleOption;
+  
+  position?: TooltipPositionCallback | (string | number)[];
+  // ... more options
+}
+```
+
+### LegendComponentOption
+
+From `~/workspace/source/src/export/option.ts:150-151`:
+
+```typescript
+type LegendComponentOption = 
+  | PlainLegendComponentOption 
+  | ScrollableLegendComponentOption;
+
+interface PlainLegendComponentOption extends ComponentOption {
+  show?: boolean;
+  type?: 'plain';
+  
+  orient?: 'horizontal' | 'vertical';
+  align?: 'auto' | 'left' | 'right';
+  
+  data?: (string | LegendDataOption)[];
+  selected?: Record<string, boolean>;
+  
+  itemGap?: number;
+  itemWidth?: number;
+  itemHeight?: number;
+  
+  icon?: string;
+  
+  textStyle?: TextStyleOption;
+  // ... more options
+}
+```
+
+### GridComponentOption
+
+```typescript
+interface GridComponentOption extends ComponentOption {
+  show?: boolean;
+  
+  left?: string | number;
+  top?: string | number;
+  right?: string | number;
+  bottom?: string | number;
+  width?: string | number;
+  height?: string | number;
+  
+  containLabel?: boolean;
+  
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+}
+```
+
+## Helper Types
+
+### Callback Types
+
+From `~/workspace/source/src/export/option.ts:295-312`:
+
+```typescript
+// Animation callbacks
+type AnimationDurationCallback = (idx: number) => number;
+type AnimationDelayCallback = (idx: number, params: AnimationDelayCallbackParam) => number;
+
+// Label formatter
+type LabelFormatterCallback = (
+  params: CallbackDataParams
+) => string;
+
+// Tooltip formatter
+type TooltipFormatterCallback = (
+  params: TopLevelFormatterParams
+) => string | HTMLElement;
+
+// Tooltip position
+type TooltipPositionCallback = (
+  point: [number, number],
+  params: TooltipPositionCallbackParams,
+  el: HTMLElement,
+  rect: { width: number; height: number },
+  size: { contentSize: [number, number]; viewSize: [number, number] }
+) => [number, number] | { left?: number; top?: number };
+
+// Label layout
+type LabelLayoutOptionCallback = (
+  params: LabelLayoutOptionCallbackParams
+) => LabelLayoutOption;
+```
+
+### Custom Series Types
+
+From `~/workspace/source/src/export/option.ts:95-101`:
+
+```typescript
+interface CustomSeriesRenderItemParams {
+  context: Dictionary<unknown>;
+  seriesId: string;
+  seriesName: string;
+  seriesIndex: number;
+  dataIndex: number;
+  dataIndexInside: number;
+  // ... more properties
+}
+
+interface CustomSeriesRenderItemAPI {
+  value(dim: number | string): unknown;
+  coord(data: unknown[]): number[];
+  size(dataSize: number[], dataItem: unknown): number[];
+  style(userProps?: unknown): unknown;
+  // ... more methods
+}
+
+type CustomSeriesRenderItemReturn = {
+  type: string;
+  [key: string]: unknown;
+};
+
+type CustomSeriesRenderItem = (
+  params: CustomSeriesRenderItemParams,
+  api: CustomSeriesRenderItemAPI
+) => CustomSeriesRenderItemReturn;
+```
+
+### Mixin Types
+
+```typescript
+// Coordinate system mixins
+interface SeriesOnCartesianOptionMixin {
+  xAxisIndex?: number;
+  yAxisIndex?: number;
+  xAxisId?: OptionId;
+  yAxisId?: OptionId;
+}
+
+interface SeriesOnPolarOptionMixin {
+  polarIndex?: number;
+  polarId?: OptionId;
+}
+
+// Stack mixin
+interface SeriesStackOptionMixin {
+  stack?: string;
+}
+
+// Sampling mixin
+interface SeriesSamplingOptionMixin {
+  sampling?: 'none' | 'average' | 'max' | 'min' | 'sum' | 'lttb';
+}
+
+// Symbol mixin
+interface SymbolOptionMixin {
+  symbol?: string | string[];
+  symbolSize?: number | number[] | Function;
+  symbolRotate?: number;
+  symbolKeepAspect?: boolean;
+  symbolOffset?: string | number | (string | number)[];
+}
+```
+
+### Basic Value Types
+
+```typescript
+// Option values
+type OptionDataValue = string | number | Date | null | undefined;
+type OptionId = string | number;
+type OptionName = string | number;
+
+// Color types
+type ColorString = string;
+type ZRColor = ColorString | LinearGradientObject | RadialGradientObject | PatternObject;
+
+// Layout types
+type LayoutOrient = 'vertical' | 'horizontal';
+type HorizontalAlign = 'left' | 'center' | 'right';
+type VerticalAlign = 'top' | 'middle' | 'bottom';
+
+// Display states
+type DisplayState = 'normal' | 'emphasis' | 'blur' | 'select';
+```
+
+## Using Types in Your Code
+
+### Basic Example
+
+```typescript
+import * as echarts from 'echarts';
+import type { EChartsOption } from 'echarts';
+
+const option: EChartsOption = {
+  title: {
+    text: 'Sales Data'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      type: 'line',
+      data: [120, 200, 150]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+### Strict Type Example
+
+```typescript
+import type { LineSeriesOption, BarSeriesOption } from 'echarts';
+
+const lineSeries: LineSeriesOption = {
+  type: 'line',
+  name: 'Temperature',
+  data: [10, 15, 13, 17, 16, 18, 20],
+  smooth: true,
+  lineStyle: {
+    width: 2,
+    type: 'solid'
+  },
+  areaStyle: {
+    opacity: 0.3
+  }
+};
+
+const barSeries: BarSeriesOption = {
+  type: 'bar',
+  name: 'Rainfall',
+  data: [30, 45, 35, 50, 49, 60, 70],
+  itemStyle: {
+    borderRadius: [5, 5, 0, 0]
+  }
+};
+```
+
+### Extending Types
+
+For custom series or extensions:
+
+```typescript
+import 'echarts';
+
+// Extend registered series
+declare module 'echarts/types/dist/echarts' {
+  interface RegisteredSeriesOption {
+    wordCloud: WordCloudSeriesOption;
+  }
+}
+
+interface WordCloudSeriesOption extends SeriesOption {
+  type: 'wordCloud';
+  // ... custom options
+}
+```
+
+## Type Definition Files
+
+ECharts provides these type definition files:
+
+- `index.d.ts` - Main entry point (deprecated, see `~/workspace/source/index.d.ts:20-29`)
+- `types/dist/echarts.d.ts` - Complete type definitions
+- `types/dist/shared.d.ts` - Shared type utilities
+
+## Related Documentation
+
+- [Series Options](/api/options/series) - Series configuration reference
+- [Global Options](/api/options/global) - Global configuration reference
+
+## Source Code References
+
+- Main option types: `~/workspace/source/src/export/option.ts`
+- Base types: `~/workspace/source/src/util/types.ts`
+- Series implementations: `~/workspace/source/src/chart/*/`

@@ -1,0 +1,412 @@
+---
+title: 'Customization and Theming'
+description: 'Learn how to customize Apache ECharts with themes, colors, and visual styling options'
+---
+
+## Overview
+
+Apache ECharts provides powerful customization capabilities through built-in themes, custom color palettes, and comprehensive styling options. This guide covers how to apply themes and customize the visual appearance of your charts.
+
+## Built-in Themes
+
+ECharts includes over 30 pre-built themes that you can use out of the box. Themes are located in the `theme/` directory and can be registered using `echarts.registerTheme()`.
+
+### Available Themes
+
+Some popular built-in themes include:
+
+- `dark` - Dark mode theme with high contrast
+- `vintage` - Retro color palette with warm tones
+- `macarons` - Soft pastel colors
+- `infographic` - Bold colors for infographics
+- `shine` - Bright, vibrant colors
+- `roma` - Roma color scheme
+- And many more: `azul`, `blue`, `caravan`, `cool`, `forest`, `fresh-cut`, `fruit`, `green`, `jazz`, `london`, `royal`, etc.
+
+### Registering and Using Themes
+
+Themes are registered using the UMD pattern and work in AMD, CommonJS, and browser environments.
+
+<CodeGroup>
+```javascript Browser (Script Tag)
+// Load the theme file
+<script src="echarts.js"></script>
+<script src="theme/dark.js"></script>
+
+// The theme is automatically registered
+var chart = echarts.init(dom, 'dark');
+```
+
+```javascript ES Modules
+import * as echarts from 'echarts';
+import darkTheme from 'echarts/theme/dark';
+
+// Register the theme
+echarts.registerTheme('dark', darkTheme);
+
+// Initialize chart with theme
+var chart = echarts.init(dom, 'dark');
+```
+
+```javascript CommonJS
+var echarts = require('echarts/lib/echarts');
+require('echarts/theme/dark');
+
+// Theme is registered automatically
+var chart = echarts.init(dom, 'dark');
+```
+</CodeGroup>
+
+### Dark Theme Example
+
+The dark theme (from `theme/dark.js`) provides a complete dark mode experience:
+
+```javascript
+var colorPalette = [
+    '#4992ff',
+    '#7cffb2',
+    '#fddd60',
+    '#ff6e76',
+    '#58d9f9',
+    '#05c091',
+    '#ff8a45',
+    '#8d48e3',
+    '#dd79ff'
+];
+
+var theme = {
+    darkMode: true,
+    color: colorPalette,
+    backgroundColor: '#100C2A',
+    textStyle: {
+        color: '#B9B8CE'
+    },
+    title: {
+        textStyle: {
+            color: '#EEF1FA'
+        },
+        subtextStyle: {
+            color: '#B9B8CE'
+        }
+    }
+    // ... more configurations
+};
+
+echarts.registerTheme('dark', theme);
+```
+
+### Vintage Theme Example
+
+The vintage theme offers a simple, retro color scheme:
+
+```javascript
+var colorPalette = [
+    '#d87c7c',
+    '#919e8b',
+    '#d7ab82',
+    '#6e7074',
+    '#61a0a8',
+    '#efa18d',
+    '#787464',
+    '#cc7e63',
+    '#724e58',
+    '#4b565b'
+];
+
+echarts.registerTheme('vintage', {
+    color: colorPalette,
+    backgroundColor: '#fef8ef',
+    graph: {
+        color: colorPalette
+    }
+});
+```
+
+## Creating Custom Themes
+
+You can create your own theme by defining a theme object and registering it:
+
+```javascript
+var myTheme = {
+    color: [
+        '#fc97af',
+        '#87f7cf',
+        '#f7f494',
+        '#72ccff',
+        '#f7c5a0',
+        '#d4a4eb'
+    ],
+    backgroundColor: '#ffffff',
+    textStyle: {},
+    title: {
+        textStyle: {
+            color: '#333333'
+        },
+        subtextStyle: {
+            color: '#aaaaaa'
+        }
+    },
+    line: {
+        itemStyle: {
+            borderWidth: 1
+        },
+        lineStyle: {
+            width: 2
+        },
+        symbolSize: 4,
+        symbol: 'circle',
+        smooth: false
+    },
+    radar: {
+        itemStyle: {
+            borderWidth: 1
+        },
+        lineStyle: {
+            width: 2
+        },
+        symbolSize: 4,
+        symbol: 'circle',
+        smooth: false
+    },
+    bar: {
+        itemStyle: {
+            barBorderWidth: 0,
+            barBorderColor: '#ccc'
+        }
+    },
+    pie: {
+        itemStyle: {
+            borderWidth: 0,
+            borderColor: '#ccc'
+        }
+    },
+    scatter: {
+        itemStyle: {
+            borderWidth: 0,
+            borderColor: '#ccc'
+        }
+    },
+    categoryAxis: {
+        axisLine: {
+            show: true,
+            lineStyle: {
+                color: '#6E7079'
+            }
+        },
+        axisTick: {
+            show: true,
+            lineStyle: {
+                color: '#6E7079'
+            }
+        },
+        axisLabel: {
+            show: true,
+            color: '#6E7079'
+        },
+        splitLine: {
+            show: false,
+            lineStyle: {
+                color: ['#E0E6F1']
+            }
+        },
+        splitArea: {
+            show: false,
+            areaStyle: {
+                color: ['rgba(250,250,250,0.2)', 'rgba(210,219,238,0.2)']
+            }
+        }
+    },
+    valueAxis: {
+        axisLine: {
+            show: false,
+            lineStyle: {
+                color: '#6E7079'
+            }
+        },
+        axisTick: {
+            show: false,
+            lineStyle: {
+                color: '#6E7079'
+            }
+        },
+        axisLabel: {
+            show: true,
+            color: '#6E7079'
+        },
+        splitLine: {
+            show: true,
+            lineStyle: {
+                color: ['#E0E6F1']
+            }
+        },
+        splitArea: {
+            show: false,
+            areaStyle: {
+                color: ['rgba(250,250,250,0.2)', 'rgba(210,219,238,0.2)']
+            }
+        }
+    }
+};
+
+// Register custom theme
+echarts.registerTheme('myTheme', myTheme);
+
+// Use the custom theme
+var chart = echarts.init(dom, 'myTheme');
+```
+
+## Color Customization
+
+### Direct Color Configuration
+
+You can override theme colors directly in the chart option:
+
+```javascript
+option = {
+    // Global color palette
+    color: ['#c23531', '#2f4554', '#61a0a8', '#d48265', '#91c7ae'],
+    
+    series: [{
+        type: 'bar',
+        data: [5, 20, 36, 10, 10, 20],
+        // Series-specific item style
+        itemStyle: {
+            color: '#c23531',
+            borderColor: '#000',
+            borderWidth: 2
+        }
+    }]
+};
+```
+
+### Dynamic Colors with Functions
+
+Use callback functions for dynamic color assignment:
+
+```javascript
+series: [{
+    type: 'bar',
+    data: [5, 20, 36, 10, 10, 20],
+    itemStyle: {
+        color: function(params) {
+            // params.dataIndex is the index of the data
+            var colorList = [
+                '#c23531', '#2f4554', '#61a0a8',
+                '#d48265', '#91c7ae', '#749f83'
+            ];
+            return colorList[params.dataIndex % colorList.length];
+        }
+    }
+}]
+```
+
+### Gradient Colors
+
+```javascript
+itemStyle: {
+    color: {
+        type: 'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [{
+            offset: 0, color: '#83bff6' // color at 0%
+        }, {
+            offset: 0.5, color: '#188df0' // color at 50%
+        }, {
+            offset: 1, color: '#188df0' // color at 100%
+        }],
+        global: false // default is false
+    }
+}
+```
+
+## Component Customization
+
+### Axis Styling
+
+Customize axis appearance from theme configurations (as seen in `theme/dark.js`):
+
+```javascript
+var axisCommon = {
+    axisLine: {
+        lineStyle: {
+            color: '#B9B8CE'
+        }
+    },
+    splitLine: {
+        lineStyle: {
+            color: '#484753'
+        }
+    },
+    splitArea: {
+        areaStyle: {
+            color: ['rgba(255,255,255,0.02)', 'rgba(255,255,255,0.05)']
+        }
+    },
+    minorSplitLine: {
+        lineStyle: {
+            color: '#20203B'
+        }
+    }
+};
+
+option = {
+    xAxis: axisCommon,
+    yAxis: axisCommon,
+    // ... other options
+};
+```
+
+### DataZoom Styling
+
+```javascript
+dataZoom: {
+    borderColor: '#71708A',
+    textStyle: {
+        color: '#B9B8CE'
+    },
+    brushStyle: {
+        color: 'rgba(135,163,206,0.3)'
+    },
+    handleStyle: {
+        color: '#353450',
+        borderColor: '#C5CBE3'
+    },
+    emphasis: {
+        handleStyle: {
+            borderColor: '#91B7F2',
+            color: '#4D587D'
+        }
+    }
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Theme Priority" icon="layer-group">
+    Theme settings are overridden by option settings. Use themes for base styling and options for specific customizations.
+  </Card>
+  <Card title="Color Contrast" icon="eye">
+    Ensure sufficient contrast between colors, especially for dark themes. The dark theme uses `#B9B8CE` text on `#100C2A` background.
+  </Card>
+  <Card title="Consistency" icon="palette">
+    Use consistent color palettes across related charts. Register a common theme for your application.
+  </Card>
+  <Card title="Accessibility" icon="universal-access">
+    Consider colorblind-friendly palettes and provide sufficient visual distinction beyond color alone.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Responsive Design" icon="mobile" href="/guides/responsive-design">
+    Learn how to make your charts responsive across different screen sizes
+  </Card>
+  <Card title="Accessibility" icon="universal-access" href="/guides/accessibility">
+    Implement ARIA labels and accessibility features
+  </Card>
+</CardGroup>

@@ -1,0 +1,451 @@
+---
+title: Canvas and SVG Rendering
+description: Understanding Canvas and SVG renderers in Apache ECharts and how to choose between them
+---
+
+Apache ECharts supports two rendering modes: Canvas and SVG. Each has distinct performance characteristics and use cases. Understanding these differences helps you choose the right renderer for your application.
+
+## Renderer Types
+
+ECharts uses ZRender as its rendering engine, which supports both Canvas and SVG backends. The renderer is specified during chart initialization.
+
+### Canvas Renderer
+
+Canvas is the default renderer. From `~/workspace/source/src/renderer/installCanvasRenderer.ts:23-24`, it's registered as:
+
+```typescript
+registers.registerPainter('canvas', CanvasPainter);
+```
+
+### SVG Renderer
+
+From `~/workspace/source/src/renderer/installSVGRenderer.ts:23-24`, SVG is an alternative renderer:
+
+```typescript
+registers.registerPainter('svg', SVGPainter);
+```
+
+## Specifying the Renderer
+
+Set the renderer when initializing a chart instance:
+
+### Canvas (Default)
+
+```javascript
+const chart = echarts.init(document.getElementById('main'), null, {
+  renderer: 'canvas'
+});
+```
+
+### SVG
+
+```javascript
+const chart = echarts.init(document.getElementById('main'), null, {
+  renderer: 'svg'
+});
+```
+
+### With Other Options
+
+Based on `~/workspace/source/src/core/echarts.ts:355-365`, you can combine renderer with other initialization options:
+
+```javascript
+const chart = echarts.init(document.getElementById('main'), null, {
+  renderer: 'svg',
+  devicePixelRatio: 2,      // For high DPI displays
+  width: 800,                // Explicit width
+  height: 600,               // Explicit height
+  locale: 'en',              // Language
+  useDirtyRect: false        // Optimization flag
+});
+```
+
+## Canvas vs SVG: Performance Comparison
+
+<Tabs>
+  <Tab title="Canvas">
+    **Advantages:**
+    - Better performance with large datasets (10,000+ data points)
+    - Faster rendering and updates
+    - Lower memory consumption
+    - Better for animations and real-time data
+    - Smaller bundle size (default renderer)
+    
+    **Disadvantages:**
+    - Blurry on high DPI displays without adjustment
+    - No built-in accessibility features
+    - Cannot inspect individual elements in DOM
+    - Harder to export/modify outside the chart
+  </Tab>
+  
+  <Tab title="SVG">
+    **Advantages:**
+    - Sharp rendering at any resolution
+    - Better for small to medium datasets
+    - Elements are in DOM (inspectable, accessible)
+    - Easy to export and manipulate
+    - Better print quality
+    - Native accessibility support
+    
+    **Disadvantages:**
+    - Performance degrades with many elements (>1,000)
+    - Higher memory usage
+    - Slower animations
+    - Larger bundle size
+  </Tab>
+</Tabs>
+
+## When to Use Canvas
+
+### Large Datasets
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'canvas' });
+
+chart.setOption({
+  xAxis: { type: 'value' },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'scatter',
+    large: true,              // Enable large mode
+    largeThreshold: 2000,     // Threshold for large mode
+    data: generateLargeData() // 100,000+ points
+  }]
+});
+
+function generateLargeData() {
+  const data = [];
+  for (let i = 0; i < 100000; i++) {
+    data.push([Math.random() * 1000, Math.random() * 1000]);
+  }
+  return data;
+}
+```
+
+### Real-time Updates
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'canvas' });
+
+let data = [];
+let time = Date.now();
+
+setInterval(() => {
+  data.push({
+    name: time++,
+    value: [time, Math.random() * 100]
+  });
+  
+  // Keep only last 100 points
+  if (data.length > 100) {
+    data.shift();
+  }
+  
+  chart.setOption({
+    series: [{ data }]
+  });
+}, 100); // Update every 100ms
+```
+
+### Animation-Heavy Charts
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'canvas' });
+
+chart.setOption({
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30, 40, 50],
+    animationDuration: 2000,
+    animationEasing: 'elasticOut'
+  }]
+});
+```
+
+## When to Use SVG
+
+### Small Datasets with Interactivity
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'svg' });
+
+chart.setOption({
+  tooltip: { trigger: 'item' },
+  series: [{
+    type: 'pie',
+    data: [
+      { value: 335, name: 'Category A' },
+      { value: 234, name: 'Category B' },
+      { value: 154, name: 'Category C' }
+    ],
+    emphasis: {
+      itemStyle: {
+        shadowBlur: 10,
+        shadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    }
+  }]
+});
+```
+
+### High DPI Displays
+
+```javascript
+const chart = echarts.init(container, null, {
+  renderer: 'svg'
+  // No need for devicePixelRatio with SVG
+});
+
+chart.setOption({
+  series: [{
+    type: 'line',
+    data: [10, 20, 15, 30, 25],
+    smooth: true,
+    lineStyle: { width: 2 }
+  }]
+});
+```
+
+### Printing or Export
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'svg' });
+
+chart.setOption({ /* chart configuration */ });
+
+// Export SVG string
+const svgStr = chart.renderToSVGString({
+  useViewBox: true  // Make SVG scalable
+});
+
+// Create downloadable file
+const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'chart.svg';
+a.click();
+```
+
+## Renderer-Specific Features
+
+### Canvas: High DPI Support
+
+From `~/workspace/source/src/core/echarts.ts:811-815`, Canvas renderer needs DPI adjustment:
+
+```javascript
+const chart = echarts.init(container, null, {
+  renderer: 'canvas',
+  devicePixelRatio: window.devicePixelRatio || 2
+});
+```
+
+### Canvas: Export to Image
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'canvas' });
+
+chart.setOption({ /* ... */ });
+
+// Get data URL (based on echarts.ts:828-843)
+const dataURL = chart.renderToCanvas({
+  backgroundColor: '#fff',
+  pixelRatio: 2
+}).toDataURL('image/png');
+
+// Download image
+const a = document.createElement('a');
+a.href = dataURL;
+a.download = 'chart.png';
+a.click();
+```
+
+### SVG: Export to String
+
+From `~/workspace/source/src/core/echarts.ts:845-858`, SVG can be exported as string:
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'svg' });
+
+chart.setOption({ /* ... */ });
+
+const svgString = chart.renderToSVGString({
+  useViewBox: true  // Makes SVG responsive
+});
+```
+
+### SVG: Data URL
+
+From `~/workspace/source/src/core/echarts.ts:863-872`:
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'svg' });
+
+chart.setOption({ /* ... */ });
+
+const dataURL = chart.getSvgDataURL();
+```
+
+## Optimization Techniques
+
+### Canvas Optimizations
+
+#### Dirty Rectangle Rendering
+
+```javascript
+const chart = echarts.init(container, null, {
+  renderer: 'canvas',
+  useDirtyRect: true  // Only redraw changed regions
+});
+```
+
+<Note>
+Dirty rectangle rendering is experimental. It can significantly improve performance for charts with localized updates but may have edge cases.
+</Note>
+
+#### Large Mode for Scatter
+
+```javascript
+chart.setOption({
+  series: [{
+    type: 'scatter',
+    large: true,           // Enable large mode
+    largeThreshold: 2000,  // Enter large mode at 2000 points
+    data: largeDataset
+  }]
+});
+```
+
+### SVG Optimizations
+
+#### Limit Data Points
+
+```javascript
+const MAX_POINTS = 1000;
+const data = fullDataset.slice(0, MAX_POINTS);
+
+chart.setOption({
+  series: [{ data }]
+});
+```
+
+#### Disable Animations for Better Performance
+
+```javascript
+chart.setOption({
+  animation: false,
+  series: [{
+    type: 'line',
+    data: data
+  }]
+});
+```
+
+## Server-Side Rendering (SSR)
+
+Both renderers support server-side rendering:
+
+```javascript
+const chart = echarts.init(null, null, {
+  renderer: 'svg',  // SVG is better for SSR
+  ssr: true,
+  width: 800,
+  height: 600
+});
+
+chart.setOption({ /* ... */ });
+
+const svgString = chart.renderToSVGString();
+// Send svgString to client
+```
+
+## Renderer Detection
+
+Check which renderer is being used:
+
+```javascript
+const chart = echarts.init(container, null, { renderer: 'canvas' });
+
+const zr = chart.getZr();
+const painterType = zr.painter.getType();
+
+console.log('Using renderer:', painterType); // 'canvas' or 'svg'
+```
+
+## Performance Guidelines
+
+<Warning>
+**Canvas Recommended:**
+- Data points > 10,000
+- Frequent updates (> 10 times/second)
+- Heavy animations
+- Mobile devices with limited memory
+
+**SVG Recommended:**
+- Data points < 1,000
+- Static or infrequent updates
+- Need for DOM inspection/accessibility
+- High DPI displays
+- Export/print requirements
+</Warning>
+
+## Switching Renderers
+
+You cannot change the renderer after initialization. To switch:
+
+```javascript
+// Dispose old chart
+const oldChart = echarts.getInstanceByDom(container);
+if (oldChart) {
+  oldChart.dispose();
+}
+
+// Create new chart with different renderer
+const newChart = echarts.init(container, null, {
+  renderer: 'svg'  // Changed from 'canvas'
+});
+
+newChart.setOption(option);
+```
+
+## Best Practices
+
+1. **Start with Canvas**: Use the default Canvas renderer unless you have a specific reason to use SVG
+2. **Profile your charts**: Test both renderers with your actual data to see which performs better
+3. **Consider your data size**: > 10k points → Canvas, < 1k points → SVG is a good rule of thumb
+4. **Think about updates**: Frequent updates favor Canvas
+5. **Mobile first**: Canvas generally performs better on mobile devices
+6. **Accessibility matters**: If you need screen reader support, SVG provides better accessibility
+
+## Common Issues
+
+### Blurry Canvas on Retina Displays
+
+```javascript
+const chart = echarts.init(container, null, {
+  renderer: 'canvas',
+  devicePixelRatio: window.devicePixelRatio
+});
+```
+
+### SVG Performance Degradation
+
+Reduce data points or switch to Canvas:
+
+```javascript
+// If SVG is too slow, switch to Canvas
+if (dataPoints.length > 5000) {
+  chart.dispose();
+  chart = echarts.init(container, null, { renderer: 'canvas' });
+}
+```
+
+### Memory Leaks
+
+Always dispose charts when unmounting:
+
+```javascript
+window.addEventListener('beforeunload', () => {
+  chart.dispose();
+});
+```

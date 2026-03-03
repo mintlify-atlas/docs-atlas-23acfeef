@@ -1,0 +1,297 @@
+---
+title: Legend Component
+description: Display legend items for data series identification and interactive selection
+---
+
+The Legend component provides visual indicators for chart data series, allowing users to identify and toggle the visibility of different data series.
+
+## Purpose
+
+Based on the source implementation in `~/workspace/source/src/component/legend/LegendModel.ts`, the legend component:
+
+- Displays symbolic representations of data series with their names
+- Supports interactive selection/deselection of series
+- Provides selector buttons for bulk operations (select all, inverse selection)
+- Automatically derives legend items from series data or accepts custom configuration
+- Supports both plain and scrollable layouts for handling many legend items
+
+## Basic Usage
+
+```javascript
+option = {
+  legend: {
+    data: ['Sales', 'Revenue', 'Profit'],
+    orient: 'horizontal',
+    left: 'center',
+    bottom: 0
+  },
+  series: [
+    { name: 'Sales', type: 'line', data: [120, 200, 150] },
+    { name: 'Revenue', type: 'line', data: [80, 130, 110] },
+    { name: 'Profit', type: 'bar', data: [40, 70, 40] }
+  ]
+};
+```
+
+## Legend with Selector Buttons
+
+```javascript
+option = {
+  legend: {
+    selector: [
+      { type: 'all', title: 'Select All' },
+      { type: 'inverse', title: 'Inverse Selection' }
+    ],
+    selectorPosition: 'start',
+    selected: {
+      'Sales': true,
+      'Revenue': false
+    }
+  },
+  series: [
+    { name: 'Sales', type: 'line', data: [120, 200, 150] },
+    { name: 'Revenue', type: 'line', data: [80, 130, 110] }
+  ]
+};
+```
+
+## Styled Legend Items
+
+```javascript
+option = {
+  legend: {
+    data: [
+      {
+        name: 'Series A',
+        icon: 'circle',
+        textStyle: { color: '#ff0000' }
+      },
+      {
+        name: 'Series B',
+        icon: 'rect',
+        textStyle: { color: '#00ff00' }
+      }
+    ],
+    itemWidth: 25,
+    itemHeight: 14,
+    itemGap: 10,
+    inactiveColor: '#ccc'
+  }
+};
+```
+
+## Configuration Options
+
+### Core Properties
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the legend component.
+</ParamField>
+
+<ParamField path="orient" type="'horizontal' | 'vertical'" default="'horizontal'">
+  Layout orientation of the legend. From `~/workspace/source/src/component/legend/LegendModel.ts:455`.
+</ParamField>
+
+<ParamField path="left" type="string | number" default="'center'">
+  Distance from the left side of the container. Can be pixel value or percentage.
+</ParamField>
+
+<ParamField path="top" type="string | number">
+  Distance from the top of the container.
+</ParamField>
+
+<ParamField path="right" type="string | number">
+  Distance from the right side of the container.
+</ParamField>
+
+<ParamField path="bottom" type="string | number">
+  Distance from the bottom of the container.
+</ParamField>
+
+<ParamField path="align" type="'auto' | 'left' | 'right'" default="'auto'">
+  Alignment of legend items. Auto alignment is based on the position and orientation.
+</ParamField>
+
+### Item Styling
+
+<ParamField path="itemWidth" type="number" default="25">
+  Width of the legend symbol. Defined in `LegendModel.ts:470`.
+</ParamField>
+
+<ParamField path="itemHeight" type="number" default="14">
+  Height of the legend symbol. Defined in `LegendModel.ts:471`.
+</ParamField>
+
+<ParamField path="itemGap" type="number" default="8">
+  Gap between each legend item. From `LegendModel.ts:469`.
+</ParamField>
+
+<ParamField path="icon" type="string" default="'roundRect'">
+  Icon type for legend items. Can be 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', or a custom SVG path.
+</ParamField>
+
+<ParamField path="symbolRotate" type="number | 'inherit'" default="'inherit'">
+  Rotation angle of the legend symbol. Set to 'inherit' to use the series symbol rotation.
+</ParamField>
+
+<ParamField path="inactiveColor" type="ColorString" default="tokens.color.disabled">
+  Color when legend item is not selected. Implementation in `LegendModel.ts:475`.
+</ParamField>
+
+<ParamField path="inactiveBorderColor" type="ColorString" default="tokens.color.disabled">
+  Border color when legend item is not selected.
+</ParamField>
+
+### Selection Mode
+
+<ParamField path="selectedMode" type="boolean | 'single' | 'multiple'" default="true">
+  Selection mode for legend items:
+  - `true` or `'multiple'`: Multiple items can be selected
+  - `'single'`: Only one item can be selected at a time
+  - `false`: Selection is disabled
+  
+  Implementation in `LegendModel.ts:388-398`.
+</ParamField>
+
+<ParamField path="selected" type="object">
+  Default selection state for legend items. Object with item names as keys and boolean values.
+  
+  ```javascript
+  selected: {
+    'Series A': true,
+    'Series B': false
+  }
+  ```
+</ParamField>
+
+### Selector Configuration
+
+<ParamField path="selector" type="array | boolean" default="false">
+  Buttons for select all or inverse select operations. Can be:
+  - `true`: Show both 'all' and 'inverse' buttons
+  - `['all', 'inverse']`: Specify which buttons to show
+  - Array of objects with custom configuration
+  
+  See `LegendModel.ts:279-293` for implementation.
+</ParamField>
+
+<ParamField path="selectorPosition" type="'auto' | 'start' | 'end'" default="'auto'">
+  Position of selector buttons relative to legend items.
+</ParamField>
+
+<ParamField path="selectorItemGap" type="number" default="7">
+  Gap between each selector button. From `LegendModel.ts:530`.
+</ParamField>
+
+<ParamField path="selectorButtonGap" type="number" default="10">
+  Gap between selector buttons and legend items. From `LegendModel.ts:532`.
+</ParamField>
+
+### Data Configuration
+
+<ParamField path="data" type="array">
+  Array of legend item names or configuration objects. If not specified, automatically derived from series data.
+  
+  ```javascript
+  data: [
+    'Item 1',
+    { name: 'Item 2', icon: 'circle', textStyle: { color: '#f00' } }
+  ]
+  ```
+  
+  See `LegendModel.ts:359-381` for data processing.
+</ParamField>
+
+<ParamField path="formatter" type="string | function">
+  Legend label formatter. Can be a template string or function:
+  
+  ```javascript
+  formatter: 'Legend {name}'
+  // or
+  formatter: function(name) { return 'Legend ' + name; }
+  ```
+</ParamField>
+
+### Background and Border
+
+<ParamField path="backgroundColor" type="ColorString" default="'transparent'">
+  Background color of the legend component.
+</ParamField>
+
+<ParamField path="borderColor" type="ColorString" default="tokens.color.border">
+  Border color of the legend box. From `LegendModel.ts:465`.
+</ParamField>
+
+<ParamField path="borderWidth" type="number" default="0">
+  Border width of the legend box.
+</ParamField>
+
+<ParamField path="borderRadius" type="number | number[]" default="0">
+  Border radius of the legend box.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]" default="5">
+  Padding inside the legend box. Can be a single number or array [top, right, bottom, left].
+</ParamField>
+
+### Text Styling
+
+<ParamField path="textStyle" type="object">
+  Text style configuration for legend labels. Default color from `LegendModel.ts:503-505`.
+  
+  ```javascript
+  textStyle: {
+    color: '#333',
+    fontSize: 12,
+    fontFamily: 'Arial'
+  }
+  ```
+</ParamField>
+
+### Advanced Styling
+
+<ParamField path="itemStyle" type="object">
+  Style configuration for legend item symbols. Supports 'inherit' to use series styles.
+  
+  Properties defined in `LegendModel.ts:479-488`.
+</ParamField>
+
+<ParamField path="lineStyle" type="object">
+  Line style for line series legend items. Includes special properties:
+  - `inactiveColor`: Line color when item is not selected
+  - `inactiveWidth`: Line width when item is not selected
+  
+  See `LegendModel.ts:490-501`.
+</ParamField>
+
+## Methods
+
+The LegendModel provides several methods for programmatic control (from `LegendModel.ts`):
+
+- `select(name)`: Select a legend item (lines 388-398)
+- `unSelect(name)`: Unselect a legend item (lines 400-404)
+- `toggleSelected(name)`: Toggle selection state (lines 406-413)
+- `allSelect()`: Select all legend items (lines 415-421)
+- `inverseSelect()`: Inverse current selection (lines 423-434)
+- `isSelected(name)`: Check if an item is selected (lines 436-440)
+
+## Events
+
+<ParamField path="triggerEvent" type="boolean" default="false">
+  Whether to trigger legend events that can be caught by the user. From `LegendModel.ts:538`.
+</ParamField>
+
+When enabled, legend selection triggers events that can be listened to:
+
+```javascript
+myChart.on('legendselectchanged', function(params) {
+  console.log('Legend selected:', params.name);
+  console.log('Selection state:', params.selected);
+});
+```
+
+## Tooltip
+
+<ParamField path="tooltip" type="object" default="{ show: false }">
+  Tooltip configuration for legend items. Default from `LegendModel.ts:534-536`.
+</ParamField>

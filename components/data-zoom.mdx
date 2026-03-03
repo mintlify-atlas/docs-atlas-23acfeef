@@ -1,0 +1,461 @@
+---
+title: Data Zoom Component
+description: Interactive data zooming and panning for exploring large datasets
+---
+
+The Data Zoom component enables users to focus on specific data ranges through zooming and panning interactions, essential for exploring large datasets.
+
+## Purpose
+
+Based on the source implementation in `~/workspace/source/src/component/dataZoom/DataZoomModel.ts`, the data zoom component:
+
+- Controls the visible data range on axes
+- Supports multiple interaction types: slider, inside (mouse/touch), and select (toolbox)
+- Works with multiple axes simultaneously
+- Provides smooth transitions and real-time updates
+- Filters or empties data outside the selected range
+
+## Types of Data Zoom
+
+ECharts provides three data zoom types:
+
+1. **Slider** (`dataZoom.slider`): Visual slider control
+2. **Inside** (`dataZoom.inside`): Mouse wheel and drag interactions
+3. **Select** (`dataZoom.select`): Toolbox brush selection
+
+## Slider Data Zoom
+
+From `~/workspace/source/src/component/dataZoom/SliderZoomModel.ts`:
+
+```javascript
+option = {
+  dataZoom: [{
+    type: 'slider',
+    xAxisIndex: 0,
+    start: 0,
+    end: 50,
+    showDetail: true,
+    showDataShadow: true
+  }],
+  xAxis: { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [10, 20, 30, 40, 50] }]
+};
+```
+
+## Inside Data Zoom
+
+From `~/workspace/source/src/component/dataZoom/InsideZoomModel.ts`:
+
+```javascript
+option = {
+  dataZoom: [{
+    type: 'inside',
+    xAxisIndex: 0,
+    start: 0,
+    end: 100,
+    zoomOnMouseWheel: true,
+    moveOnMouseMove: true,
+    preventDefaultMouseMove: true
+  }],
+  xAxis: { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [10, 20, 30, 40, 50] }]
+};
+```
+
+## Combined Slider and Inside
+
+```javascript
+option = {
+  dataZoom: [
+    {
+      type: 'slider',
+      xAxisIndex: 0,
+      start: 30,
+      end: 70,
+      height: 30,
+      bottom: 10
+    },
+    {
+      type: 'inside',
+      xAxisIndex: 0,
+      start: 30,
+      end: 70
+    }
+  ],
+  xAxis: { type: 'value' },
+  yAxis: { type: 'value' },
+  series: [{ type: 'scatter', data: [[1, 2], [2, 3], [3, 4]] }]
+};
+```
+
+## Vertical Data Zoom
+
+```javascript
+option = {
+  dataZoom: [{
+    type: 'slider',
+    yAxisIndex: 0,
+    start: 0,
+    end: 50,
+    orient: 'vertical',
+    right: 10,
+    width: 30
+  }],
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [120, 200, 150] }]
+};
+```
+
+## Configuration Options
+
+### Common Properties (All Types)
+
+From `~/workspace/source/src/component/dataZoom/DataZoomModel.ts`:
+
+<ParamField path="type" type="'slider' | 'inside' | 'select'">
+  Type of data zoom component. Required for proper initialization.
+</ParamField>
+
+<ParamField path="orient" type="'horizontal' | 'vertical'" default="'auto'">
+  Orientation of the data zoom. Auto-determined by target axis if not specified.
+</ParamField>
+
+### Axis Targeting
+
+<ParamField path="xAxisIndex" type="number | number[] | 'all' | 'none'">
+  Index or indices of x-axes to control. From `DataZoomModel.ts:50`.
+</ParamField>
+
+<ParamField path="yAxisIndex" type="number | number[] | 'all' | 'none'">
+  Index or indices of y-axes to control. From `DataZoomModel.ts:56`.
+</ParamField>
+
+<ParamField path="radiusAxisIndex" type="number | number[]">
+  Index of radius axis to control (for polar coordinates).
+</ParamField>
+
+<ParamField path="angleAxisIndex" type="number | number[]">
+  Index of angle axis to control (for polar coordinates).
+</ParamField>
+
+<ParamField path="singleAxisIndex" type="number | number[]">
+  Index of single axis to control.
+</ParamField>
+
+### Range Control
+
+<ParamField path="start" type="number" default="0">
+  Start position as percentage (0-100). From `DataZoomModel.ts:167`.
+</ParamField>
+
+<ParamField path="end" type="number" default="100">
+  End position as percentage (0-100). From `DataZoomModel.ts:168`.
+</ParamField>
+
+<ParamField path="startValue" type="number | string | Date">
+  Start value on the axis. If specified, `start` is ignored.
+  
+  From `DataZoomModel.ts:104`.
+</ParamField>
+
+<ParamField path="endValue" type="number | string | Date">
+  End value on the axis. If specified, `end` is ignored.
+  
+  From `DataZoomModel.ts:108`.
+</ParamField>
+
+<ParamField path="minSpan" type="number">
+  Minimum span percentage (0-100). Prevents zoom range from becoming too small.
+  
+  From `DataZoomModel.ts:113`.
+</ParamField>
+
+<ParamField path="maxSpan" type="number">
+  Maximum span percentage (0-100). Prevents zoom range from becoming too large.
+  
+  From `DataZoomModel.ts:118`.
+</ParamField>
+
+<ParamField path="minValueSpan" type="number">
+  Minimum value span. Alternative to `minSpan` using actual values.
+</ParamField>
+
+<ParamField path="maxValueSpan" type="number">
+  Maximum value span. Alternative to `maxSpan` using actual values.
+</ParamField>
+
+<ParamField path="rangeMode" type="['value' | 'percent', 'value' | 'percent']">
+  Range mode for start and end separately:
+  - `'percent'`: Percentage mode (default)
+  - `'value'`: Absolute value mode
+  
+  Detailed explanation in `DataZoomModel.ts:180-194`.
+</ParamField>
+
+### Data Filtering
+
+<ParamField path="filterMode" type="'filter' | 'weakFilter' | 'empty' | 'none'" default="'filter'">
+  How to handle data outside the zoom range:
+  
+  - `'filter'`: Remove data points where any dimension is out of range
+  - `'weakFilter'`: Remove only if all dimensions are out on the same side
+  - `'empty'`: Set out-of-range data to empty (shows gaps in line charts)
+  - `'none'`: No filtering
+  
+  From `DataZoomModel.ts:68-84` and default at `DataZoomModel.ts:165`.
+</ParamField>
+
+### Performance
+
+<ParamField path="throttle" type="number | null" default="100 or 20">
+  Throttle delay in milliseconds to avoid excessive updates.
+  
+  Default is 100 if animation is enabled, otherwise 20. Set to null to disable.
+  
+  From `DataZoomModel.ts:87-92` and implementation at `DataZoomModel.ts:384-394`.
+</ParamField>
+
+<ParamField path="realtime" type="boolean" default="true">
+  Whether to update chart in real-time during dragging. True for immediate updates.
+</ParamField>
+
+## Slider-Specific Options
+
+From `~/workspace/source/src/component/dataZoom/SliderZoomModel.ts`:
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the slider component. From `SliderZoomModel.ts:151`.
+</ParamField>
+
+<ParamField path="backgroundColor" type="ZRColor" default="tokens.color.transparent">
+  Background color of the slider zoom component. From `SliderZoomModel.ts:164`.
+</ParamField>
+
+<ParamField path="borderColor" type="ZRColor" default="tokens.color.accent10">
+  Border color of the slider box. From `SliderZoomModel.ts:161`.
+</ParamField>
+
+<ParamField path="borderRadius" type="number | number[]" default="0">
+  Border radius of the slider box.
+</ParamField>
+
+### Data Shadow
+
+<ParamField path="showDataShadow" type="'auto' | boolean" default="'auto'">
+  Whether to show data shadow in the slider background. Auto shows for series with few data points.
+  
+  From `SliderZoomModel.ts:208`.
+</ParamField>
+
+<ParamField path="dataBackground" type="object">
+  Style for the data shadow background. From `SliderZoomModel.ts:167-176`:
+  
+  ```javascript
+  dataBackground: {
+    lineStyle: {
+      color: tokens.color.accent30,
+      width: 0.5
+    },
+    areaStyle: {
+      color: tokens.color.accent20,
+      opacity: 0.2
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="selectedDataBackground" type="object">
+  Style for selected data shadow. From `SliderZoomModel.ts:178-187`.
+</ParamField>
+
+### Slider Handles
+
+<ParamField path="handleIcon" type="string">
+  SVG path for handle icons. Default path in `SliderZoomModel.ts:191`.
+</ParamField>
+
+<ParamField path="handleSize" type="string | number" default="'100%'">
+  Size of handle. Number for pixels, string for percentage of slider height.
+  
+  From `SliderZoomModel.ts:193`.
+</ParamField>
+
+<ParamField path="handleStyle" type="object">
+  Style for handles. From `SliderZoomModel.ts:195-198`:
+  
+  ```javascript
+  handleStyle: {
+    color: tokens.color.neutral00,
+    borderColor: tokens.color.accent20
+  }
+  ```
+</ParamField>
+
+<ParamField path="handleLabel" type="object">
+  Label configuration for handles showing current values.
+</ParamField>
+
+### Move Handle
+
+<ParamField path="moveHandleIcon" type="string">
+  Icon for the draggable area between handles. From `SliderZoomModel.ts:201`.
+</ParamField>
+
+<ParamField path="moveHandleSize" type="number" default="7">
+  Size of the move handle icon. From `SliderZoomModel.ts:200`.
+</ParamField>
+
+<ParamField path="moveHandleStyle" type="object">
+  Style for move handle. From `SliderZoomModel.ts:202-205`.
+</ParamField>
+
+### Display Options
+
+<ParamField path="showDetail" type="boolean" default="true">
+  Whether to show detail (current value) on handles. From `SliderZoomModel.ts:207`.
+</ParamField>
+
+<ParamField path="labelPrecision" type="number | 'auto'" default="'auto'">
+  Precision for displayed numbers. Auto determines based on data.
+</ParamField>
+
+<ParamField path="labelFormatter" type="string | function">
+  Formatter for handle labels:
+  
+  ```javascript
+  labelFormatter: function(value, valueStr) {
+    return 'Value: ' + value;
+  }
+  ```
+</ParamField>
+
+<ParamField path="fillerColor" type="ZRColor" default="'rgba(135,175,274,0.2)'">
+  Color of the selected range area. From `SliderZoomModel.ts:190`.
+</ParamField>
+
+### Brush Selection
+
+<ParamField path="brushSelect" type="boolean" default="true">
+  Whether to enable brush selection on the slider. From `SliderZoomModel.ts:216`.
+</ParamField>
+
+<ParamField path="brushStyle" type="object">
+  Style for brush selection area. From `SliderZoomModel.ts:217-220`.
+</ParamField>
+
+<ParamField path="zoomLock" type="boolean" default="false">
+  Whether to lock the zoom range size (only allow panning). From `SliderZoomModel.ts:210`.
+</ParamField>
+
+### Text Styling
+
+<ParamField path="textStyle" type="object">
+  Text style for labels. From `SliderZoomModel.ts:212-214`.
+</ParamField>
+
+## Inside-Specific Options
+
+From `~/workspace/source/src/component/dataZoom/InsideZoomModel.ts`:
+
+<ParamField path="disabled" type="boolean" default="false">
+  Whether to disable this inside zoom completely. From `InsideZoomModel.ts:55`.
+</ParamField>
+
+<ParamField path="zoomLock" type="boolean" default="false">
+  Whether to disable zoom but allow panning. From `InsideZoomModel.ts:56`.
+</ParamField>
+
+<ParamField path="zoomOnMouseWheel" type="boolean | 'shift' | 'ctrl' | 'alt'" default="true">
+  Enable zoom on mouse wheel. Can require modifier key:
+  - `true`: Always enabled
+  - `false`: Disabled
+  - `'shift' | 'ctrl' | 'alt'`: Only when modifier key is pressed
+  
+  From `InsideZoomModel.ts:57`.
+</ParamField>
+
+<ParamField path="moveOnMouseMove" type="boolean | 'shift' | 'ctrl' | 'alt'" default="true">
+  Enable panning on mouse drag. Can require modifier key.
+  
+  From `InsideZoomModel.ts:59`.
+</ParamField>
+
+<ParamField path="moveOnMouseWheel" type="boolean | 'shift' | 'ctrl' | 'alt'" default="false">
+  Enable panning on mouse wheel. Can require modifier key.
+  
+  From `InsideZoomModel.ts:61`.
+</ParamField>
+
+<ParamField path="preventDefaultMouseMove" type="boolean" default="true">
+  Whether to prevent default mouse move behavior. From `InsideZoomModel.ts:63`.
+</ParamField>
+
+## Advanced Example
+
+```javascript
+option = {
+  dataZoom: [
+    {
+      type: 'slider',
+      xAxisIndex: [0, 1],
+      start: 10,
+      end: 60,
+      height: 30,
+      bottom: 50,
+      showDetail: true,
+      showDataShadow: true,
+      borderColor: '#ccc',
+      fillerColor: 'rgba(167, 183, 204, 0.4)',
+      handleIcon: 'path://M-9.35,34.56V42m0-40V9.5m-2,0h4a2,2,0,0,1,2,2v21a2,2,0,0,1-2,2h-4a2,2,0,0,1-2-2v-21A2,2,0,0,1-11.35,9.5Z',
+      handleSize: '120%',
+      handleStyle: {
+        color: '#fff',
+        borderColor: '#ACB8C1'
+      },
+      textStyle: {
+        color: '#333'
+      },
+      filterMode: 'filter',
+      brushSelect: true,
+      brushStyle: {
+        color: 'rgba(135, 175, 274, 0.3)'
+      },
+      emphasis: {
+        handleStyle: {
+          borderColor: '#8391a5'
+        }
+      }
+    },
+    {
+      type: 'inside',
+      xAxisIndex: [0, 1],
+      start: 10,
+      end: 60,
+      zoomOnMouseWheel: 'ctrl',
+      moveOnMouseMove: true,
+      moveOnMouseWheel: false
+    },
+    {
+      type: 'slider',
+      yAxisIndex: 0,
+      start: 0,
+      end: 100,
+      orient: 'vertical',
+      right: 10,
+      width: 25
+    }
+  ],
+  xAxis: [
+    { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+    { type: 'category', data: ['A', 'B', 'C', 'D', 'E'], gridIndex: 1 }
+  ],
+  yAxis: [{ type: 'value' }],
+  series: [
+    { type: 'line', data: [10, 20, 30, 40, 50] },
+    { type: 'bar', data: [15, 25, 35, 45, 55], xAxisIndex: 1 }
+  ]
+};
+```

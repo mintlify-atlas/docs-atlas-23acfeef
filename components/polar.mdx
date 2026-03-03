@@ -1,0 +1,142 @@
+---
+title: Polar
+description: Configure the polar coordinate system for creating circular charts with radius and angle axes
+---
+
+The `polar` component defines a polar coordinate system for creating circular visualizations. It uses radius and angle as its two dimensions, perfect for displaying cyclical or radial data patterns.
+
+## When to Use
+
+Use the polar coordinate system when you need to:
+- Display data with cyclical patterns (time of day, seasons, directions)
+- Create radar charts, rose diagrams, or polar bar charts
+- Visualize angular relationships and radial distances
+- Show data where angle and magnitude are meaningful dimensions
+
+## Basic Configuration
+
+```javascript
+option = {
+  polar: {
+    center: ['50%', '50%'],
+    radius: '80%'
+  },
+  angleAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  radiusAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'bar',
+    coordinateSystem: 'polar',
+    data: [120, 200, 150, 80, 70, 110, 130]
+  }]
+};
+```
+
+## Polar Bar Chart (Rose Diagram)
+
+Create a rose diagram by using bars in polar coordinates:
+
+```javascript
+option = {
+  polar: {},
+  angleAxis: {
+    type: 'category',
+    data: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+    startAngle: 0
+  },
+  radiusAxis: {},
+  series: [{
+    type: 'bar',
+    data: [10, 20, 30, 40, 50, 60, 70, 80],
+    coordinateSystem: 'polar'
+  }]
+};
+```
+
+## Polar Line Chart
+
+Display data as a line wrapping around the polar center:
+
+```javascript
+option = {
+  polar: {
+    center: ['50%', '50%'],
+    radius: '60%'
+  },
+  angleAxis: {
+    type: 'value',
+    startAngle: 0
+  },
+  radiusAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'line',
+    coordinateSystem: 'polar',
+    data: [[0, 1], [30, 2], [60, 3], [90, 4], [120, 3], [150, 2], [180, 1]]
+  }]
+};
+```
+
+## Properties
+
+<ParamField path="center" type="Array<number | string>" default="['50%', '50%']">
+  Center position of the polar coordinate system. The first element is the horizontal position, the second is vertical. Can be absolute pixels or percentage strings.
+  
+  Source: `PolarModel.ts:63`
+</ParamField>
+
+<ParamField path="radius" type="number | string | Array<number | string>" default="'80%'">
+  Radius of the polar coordinate system. Can be:
+  - A number (pixels)
+  - A percentage string (relative to container size)
+  - An array of two values for inner and outer radius (to create a ring)
+  
+  Source: `PolarModel.ts:65`
+</ParamField>
+
+<ParamField path="z" type="number" default="0">
+  z-index of the component.
+  
+  Source: `PolarModel.ts:61`
+</ParamField>
+
+## Implementation Details
+
+The Polar class implements both `CoordinateSystem` and `CoordinateSystemMaster` interfaces. Key implementation details from `Polar.ts`:
+
+### Dimensions and Axes
+
+Polar coordinates use two dimensions: `['radius', 'angle']` (source: `Polar.ts:29, 38`). The coordinate system contains:
+- A radius axis (RadiusAxis) - controls radial distance from center (source: `Polar.ts:52`)
+- An angle axis (AngleAxis) - controls angular position (source: `Polar.ts:54`)
+
+### Coordinate Conversion
+
+The polar system provides several coordinate conversion methods:
+
+- `dataToPoint(data, clamp)` - Convert data values to canvas (x, y) point (source: `Polar.ts:141-146`)
+- `pointToData(point, clamp)` - Convert canvas point to data values (source: `Polar.ts:151-157`)
+- `pointToCoord(point)` - Convert (x, y) to (radius, angle) coordinates (source: `Polar.ts:162-188`)
+- `coordToPoint(coord)` - Convert (radius, angle) to (x, y) point (source: `Polar.ts:193-202`)
+
+### Center Point
+
+The polar center is defined by `cx` and `cy` properties (source: `Polar.ts:45, 50`), which represent the x and y coordinates of the polar center in the canvas.
+
+### Base Axis
+
+The base axis (used for stacking) is determined by (source: `Polar.ts:122-126`):
+1. First ordinal scale axis, or
+2. First time scale axis, or  
+3. The angle axis
+
+## Related Components
+
+- [angleAxis](/components/angle-axis) - The angular axis in polar coordinates
+- [radiusAxis](/components/radius-axis) - The radial axis in polar coordinates
+- [Radar Chart](/charts/radar) - Specialized polar visualization for multivariate data

@@ -1,0 +1,452 @@
+---
+title: 'Visual Map Component'
+description: 'Map data values to visual properties like color, size, and opacity'
+icon: 'palette'
+---
+
+The Visual Map component provides visual encoding for data by mapping values to visual properties such as color, symbol size, and opacity. It comes in two types: continuous and piecewise.
+
+## Purpose
+
+Visual Map enables data-driven visual encoding, allowing you to represent data magnitude through colors, sizes, or other visual channels. Based on `~/workspace/source/src/component/visualMap/VisualMapModel.ts`, it supports both continuous gradients and discrete categorical mappings.
+
+## Types
+
+ECharts provides two types of Visual Map components:
+
+1. **Continuous**: Maps data to a continuous color gradient or size range
+2. **Piecewise**: Divides data into discrete pieces with distinct visual properties
+
+## Basic Usage
+
+### Continuous Visual Map
+
+```javascript
+option = {
+  visualMap: {
+    type: 'continuous',
+    min: 0,
+    max: 100,
+    inRange: {
+      color: ['#50a3ba', '#eac736', '#d94e5d']
+    }
+  },
+  series: [{
+    type: 'scatter',
+    data: [[10, 20, 30], [15, 25, 35]]
+  }]
+}
+```
+
+### Piecewise Visual Map
+
+```javascript
+option = {
+  visualMap: {
+    type: 'piecewise',
+    pieces: [
+      {min: 0, max: 20, label: 'Low', color: '#50a3ba'},
+      {min: 20, max: 40, label: 'Medium', color: '#eac736'},
+      {min: 40, max: 100, label: 'High', color: '#d94e5d'}
+    ]
+  }
+}
+```
+
+## Common Configuration
+
+<ParamField path="type" type="'continuous' | 'piecewise'">
+  Type of the visual map component.
+</ParamField>
+
+<ParamField path="show" type="boolean" default="true">
+  Whether to display the visual map component.
+</ParamField>
+
+<ParamField path="min" type="number" default="0">
+  Minimum value for the visual mapping range.
+</ParamField>
+
+<ParamField path="max" type="number" default="200">
+  Maximum value for the visual mapping range.
+</ParamField>
+
+<ParamField path="dimension" type="number">
+  Specifies which dimension of the data to map. If not specified, the last dimension is used.
+  
+  ```javascript
+  visualMap: {
+    dimension: 2,  // Map the third dimension (0-indexed)
+    min: 0,
+    max: 100
+  }
+  ```
+</ParamField>
+
+<ParamField path="seriesIndex" type="number | number[] | 'all'">
+  Specifies which series the visual map applies to. Can be a single index, array of indices, or 'all'.
+  
+  ```javascript
+  visualMap: {
+    seriesIndex: [0, 2],  // Apply to first and third series
+    min: 0,
+    max: 100
+  }
+  ```
+</ParamField>
+
+<ParamField path="seriesTargets" type="object[]">
+  Advanced option for targeting specific dimensions in specific series.
+  
+  ```javascript
+  visualMap: {
+    seriesTargets: [
+      {seriesIndex: 0, dimension: 2},
+      {seriesId: 'sales', dimension: 1}
+    ]
+  }
+  ```
+  
+  <Expandable title="Series Target Properties">
+    <ParamField path="seriesIndex" type="number">
+      Index of the target series.
+    </ParamField>
+    
+    <ParamField path="seriesId" type="string">
+      ID of the target series.
+    </ParamField>
+    
+    <ParamField path="dimension" type="number" required>
+      Dimension to apply visual mapping to.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="inRange" type="object">
+  Visual properties for data within the selected range.
+  
+  ```javascript
+  inRange: {
+    color: ['#121122', '#d94e5d'],
+    symbolSize: [10, 50],
+    opacity: [0.4, 1]
+  }
+  ```
+</ParamField>
+
+<ParamField path="outOfRange" type="object">
+  Visual properties for data outside the selected range.
+  
+  ```javascript
+  outOfRange: {
+    color: '#ddd',
+    symbolSize: 5
+  }
+  ```
+</ParamField>
+
+<ParamField path="orient" type="'vertical' | 'horizontal'" default="'vertical'">
+  Orientation of the visual map component.
+</ParamField>
+
+<ParamField path="inverse" type="boolean" default="false">
+  Whether to inverse the component.
+</ParamField>
+
+<ParamField path="precision" type="number" default="0">
+  Number of decimal places for displayed values.
+</ParamField>
+
+<ParamField path="itemWidth" type="number">
+  Width of the visual map item in pixels.
+</ParamField>
+
+<ParamField path="itemHeight" type="number">
+  Height of the visual map item in pixels.
+</ParamField>
+
+<ParamField path="text" type="string[]">
+  Text labels for both ends of the visual map, such as `['High', 'Low']`.
+  
+  ```javascript
+  visualMap: {
+    text: ['High', 'Low'],
+    min: 0,
+    max: 100
+  }
+  ```
+</ParamField>
+
+<ParamField path="textGap" type="number" default="10">
+  Gap between text and the visual map item.
+</ParamField>
+
+<ParamField path="formatter" type="string | function">
+  Formatter for the label text. Can be a template string or function.
+  
+  ```javascript
+  // Template string
+  formatter: '{value} units'
+  
+  // Function
+  formatter: function(value) {
+    return value.toFixed(2) + ' kg';
+  }
+  ```
+</ParamField>
+
+### Position
+
+<ParamField path="left" type="number | string" default="0">
+  Distance from the left side of the container.
+</ParamField>
+
+<ParamField path="top" type="number | string">
+  Distance from the top of the container.
+</ParamField>
+
+<ParamField path="right" type="number | string">
+  Distance from the right side of the container.
+</ParamField>
+
+<ParamField path="bottom" type="number | string" default="0">
+  Distance from the bottom of the container.
+</ParamField>
+
+<ParamField path="padding" type="number | number[]">
+  Padding inside the component. Can be a single number or array `[top, right, bottom, left]`.
+</ParamField>
+
+## Continuous Visual Map
+
+From `~/workspace/source/src/component/visualMap/ContinuousModel.ts`, continuous visual maps provide smooth gradients.
+
+<ParamField path="range" type="number[]">
+  Selected range for continuous visual map, defaults to `[min, max]`.
+  
+  ```javascript
+  visualMap: {
+    type: 'continuous',
+    min: 0,
+    max: 100,
+    range: [20, 80]  // Only show data between 20 and 80
+  }
+  ```
+</ParamField>
+
+<ParamField path="calculable" type="boolean" default="false">
+  Whether to show handles to allow interactive range adjustment.
+</ParamField>
+
+<ParamField path="realtime" type="boolean" default="true">
+  Whether to update the chart in real-time while dragging handles.
+</ParamField>
+
+<ParamField path="hoverLink" type="boolean" default="true">
+  Whether to enable hover highlighting of data related to the hovered visual map item.
+</ParamField>
+
+<ParamField path="unboundedRange" type="boolean" default="true">
+  When `range` touches `min` or `max`, whether to treat it as unbounded:
+  - `true`: `range[0] <= min` becomes `[-Infinity, range[1]]`
+  - `false`: Range is strictly bounded
+</ParamField>
+
+<ParamField path="handleIcon" type="string">
+  SVG path for the handle icon.
+</ParamField>
+
+<ParamField path="handleSize" type="string | number" default="'120%'">
+  Size of the handle, can be a percentage of item width.
+</ParamField>
+
+<ParamField path="handleStyle" type="object">
+  Style configuration for the handles.
+</ParamField>
+
+## Piecewise Visual Map
+
+From `~/workspace/source/src/component/visualMap/PiecewiseModel.ts`, piecewise visual maps divide data into discrete ranges.
+
+<ParamField path="pieces" type="object[]">
+  Array of piece definitions. Each piece can define a range and visual properties.
+  
+  ```javascript
+  pieces: [
+    {min: 0, max: 20, label: 'Low', color: '#50a3ba'},
+    {min: 20, max: 40, label: 'Medium', color: '#eac736'},
+    {gt: 40, label: 'High', color: '#d94e5d'}
+  ]
+  ```
+  
+  <Expandable title="Piece Properties">
+    <ParamField path="min" type="number">
+      Minimum value (inclusive).
+    </ParamField>
+    
+    <ParamField path="max" type="number">
+      Maximum value (inclusive).
+    </ParamField>
+    
+    <ParamField path="lt" type="number">
+      Less than (exclusive).
+    </ParamField>
+    
+    <ParamField path="gt" type="number">
+      Greater than (exclusive).
+    </ParamField>
+    
+    <ParamField path="lte" type="number">
+      Less than or equal to (inclusive).
+    </ParamField>
+    
+    <ParamField path="gte" type="number">
+      Greater than or equal to (inclusive).
+    </ParamField>
+    
+    <ParamField path="value" type="number">
+      Exact value match.
+    </ParamField>
+    
+    <ParamField path="label" type="string">
+      Label text for this piece.
+    </ParamField>
+    
+    <ParamField path="color" type="string">
+      Color for this piece.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="categories" type="string[]">
+  Category names for categorical data mapping.
+  
+  ```javascript
+  visualMap: {
+    type: 'piecewise',
+    categories: ['Type A', 'Type B', 'Type C'],
+    inRange: {
+      color: ['#d94e5d', '#eac736', '#50a3ba']
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="splitNumber" type="number" default="5">
+  When pieces are not specified, split the data range into this many equal pieces.
+</ParamField>
+
+<ParamField path="selected" type="object">
+  Which pieces are selected. Object keys are piece indices or category names.
+  
+  ```javascript
+  selected: {
+    '0': true,
+    '1': false,
+    '2': true
+  }
+  ```
+</ParamField>
+
+<ParamField path="selectedMode" type="'multiple' | 'single' | boolean" default="'multiple'">
+  Selection mode:
+  - `'multiple'`: Allow multiple pieces to be selected
+  - `'single'`: Only one piece can be selected at a time
+  - `false`: Disable selection
+</ParamField>
+
+<ParamField path="itemSymbol" type="string" default="'roundRect'">
+  Symbol shape for piecewise items.
+</ParamField>
+
+<ParamField path="itemGap" type="number" default="10">
+  Gap between items in pixels.
+</ParamField>
+
+<ParamField path="hoverLink" type="boolean" default="true">
+  Whether to enable hover highlighting.
+</ParamField>
+
+## Examples
+
+### Heatmap with Continuous Visual Map
+
+```javascript
+option = {
+  visualMap: {
+    type: 'continuous',
+    min: 0,
+    max: 100,
+    calculable: true,
+    orient: 'horizontal',
+    left: 'center',
+    bottom: '15%',
+    inRange: {
+      color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8',
+              '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+    }
+  },
+  series: [{
+    type: 'heatmap',
+    data: [[0, 0, 50], [0, 1, 75], [1, 0, 25]]
+  }]
+}
+```
+
+### Scatter Plot with Piecewise Visual Map
+
+```javascript
+option = {
+  visualMap: {
+    type: 'piecewise',
+    dimension: 2,
+    pieces: [
+      {min: 0, max: 10, label: 'Small', color: '#93CE07'},
+      {min: 10, max: 30, label: 'Medium', color: '#FBDB0F'},
+      {min: 30, max: 50, label: 'Large', color: '#FC7D02'},
+      {min: 50, max: 100, label: 'Extra Large', color: '#FD0100'}
+    ],
+    orient: 'vertical',
+    left: 'right',
+    top: 'center'
+  },
+  series: [{
+    type: 'scatter',
+    data: [[10, 20, 15], [15, 25, 45], [20, 30, 8]]
+  }]
+}
+```
+
+### Multiple Series with Series Targets
+
+```javascript
+option = {
+  visualMap: {
+    type: 'continuous',
+    min: 0,
+    max: 100,
+    seriesTargets: [
+      {seriesIndex: 0, dimension: 2},  // First series, third dimension
+      {seriesIndex: 1, dimension: 1}   // Second series, second dimension
+    ],
+    inRange: {
+      color: ['#50a3ba', '#eac736', '#d94e5d']
+    }
+  },
+  series: [
+    {type: 'scatter', data: [[1, 2, 30], [3, 4, 60]]},
+    {type: 'scatter', data: [[5, 70], [7, 40]]}
+  ]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/visualMap/VisualMapModel.ts:179-700`, the Visual Map component:
+
+- **Dependencies**: Requires series components to function
+- **Visual Properties**: Supports color, symbolSize, opacity, and other visual channels
+- **Data Extent**: Automatically calculates from specified min/max values
+- **Target Selection**: Can target specific series and dimensions
+- **State Management**: Maintains inRange and outOfRange visual states
+- **Interactive**: Supports selection and hover interactions

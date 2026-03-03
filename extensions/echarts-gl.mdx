@@ -1,0 +1,220 @@
+---
+title: ECharts GL
+description: 3D visualization extension for Apache ECharts
+---
+
+# ECharts GL
+
+ECharts GL is a powerful 3D visualization extension for Apache ECharts, providing enhanced rendering capabilities for creating stunning 3D charts and visualizations.
+
+## Overview
+
+ECharts GL extends the core ECharts library with WebGL-based rendering, enabling you to create:
+
+- **3D Charts**: 3D bar charts, scatter plots, surface plots, and more
+- **Geographic Visualizations**: 3D maps and globe visualizations
+- **Graph Layouts**: 3D force-directed graphs
+- **Advanced Effects**: Realistic lighting, shadows, and post-processing effects
+
+## Installation
+
+### Using npm
+
+```bash
+npm install echarts-gl
+```
+
+### Using CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+```
+
+## Basic Usage
+
+After installing ECharts GL, you can use it directly with ECharts:
+
+```javascript
+import * as echarts from 'echarts';
+import 'echarts-gl';
+
+const chart = echarts.init(document.getElementById('main'));
+
+const option = {
+  grid3D: {},
+  xAxis3D: {},
+  yAxis3D: {},
+  zAxis3D: {},
+  series: [{
+    type: 'scatter3D',
+    data: [
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5]
+    ]
+  }]
+};
+
+chart.setOption(option);
+```
+
+## 3D Chart Types
+
+ECharts GL provides several 3D chart types:
+
+### 3D Scatter
+
+```javascript
+series: [{
+  type: 'scatter3D',
+  symbolSize: 12,
+  data: data,
+  itemStyle: {
+    opacity: 0.8
+  }
+}]
+```
+
+### 3D Bar
+
+```javascript
+series: [{
+  type: 'bar3D',
+  data: data,
+  shading: 'lambert'
+}]
+```
+
+### 3D Surface
+
+```javascript
+series: [{
+  type: 'surface',
+  wireframe: {
+    show: false
+  },
+  equation: {
+    x: { min: -3, max: 3 },
+    y: { min: -3, max: 3 },
+    z: function (x, y) {
+      return Math.sin(x * x + y * y) * x / 3.14;
+    }
+  }
+}]
+```
+
+### 3D Line
+
+```javascript
+series: [{
+  type: 'line3D',
+  data: data,
+  lineStyle: {
+    width: 4
+  }
+}]
+```
+
+## Globe Visualization
+
+Create interactive 3D globe visualizations:
+
+```javascript
+const option = {
+  globe: {
+    baseTexture: 'world.jpg',
+    shading: 'realistic',
+    light: {
+      ambient: {
+        intensity: 0.4
+      },
+      main: {
+        intensity: 0.4
+      }
+    }
+  },
+  series: [{
+    type: 'scatter3D',
+    coordinateSystem: 'globe',
+    data: geoData
+  }]
+};
+```
+
+## Visual Effects
+
+### Lighting
+
+Control realistic lighting effects:
+
+```javascript
+light: {
+  main: {
+    intensity: 1.2,
+    shadow: true
+  },
+  ambient: {
+    intensity: 0.3
+  },
+  ambientCubemap: {
+    texture: 'pisa.hdr',
+    exposure: 1.0
+  }
+}
+```
+
+### Post-Processing
+
+Add visual effects like depth of field and color correction:
+
+```javascript
+postEffect: {
+  enable: true,
+  bloom: {
+    enable: true,
+    intensity: 0.1
+  },
+  depthOfField: {
+    enable: true,
+    focalDistance: 50,
+    focalRange: 20
+  },
+  SSAO: {
+    enable: true,
+    radius: 2
+  }
+}
+```
+
+## Camera Control
+
+Customize the 3D viewpoint:
+
+```javascript
+viewControl: {
+  projection: 'perspective',
+  autoRotate: true,
+  distance: 200,
+  alpha: 40,
+  beta: 40
+}
+```
+
+## Resources
+
+- **GitHub Repository**: [ecomfe/echarts-gl](https://github.com/ecomfe/echarts-gl)
+- **Examples**: [ECharts GL Examples](https://echarts.apache.org/examples/en/index.html#chart-type-globe)
+- **API Documentation**: [ECharts GL API](https://echarts.apache.org/en/api.html#echarts)
+
+## Browser Support
+
+ECharts GL requires WebGL support. It works in:
+
+- Chrome 9+
+- Firefox 4+
+- Safari 5.1+
+- Edge (all versions)
+- IE 11 (with limitations)
+
+For the best experience, use a modern browser with WebGL 2.0 support.

@@ -1,80 +1,406 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Create your first Apache ECharts chart in minutes
 ---
 
-## Get started in three steps
+# Quick Start
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through creating your first interactive chart with Apache ECharts. By the end, you'll have a working chart and understand the basic concepts.
 
-### Step 1: Set up your local environment
+## Prerequisites
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Install ECharts">
+    Make sure you have ECharts installed in your project. See the [Installation Guide](/installation) if you haven't already.
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```bash
+    npm install echarts --save
+    ```
+  </Step>
+</Steps>
+
+## Creating Your First Chart
+
+<Steps>
+  <Step title="Prepare a DOM container">
+    First, create an HTML element with explicit dimensions to hold your chart:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```html
+    <div id="main" style="width: 600px; height: 400px;"></div>
+    ```
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    <Note>
+      The container **must** have a defined width and height. ECharts cannot render in a container with zero dimensions.
+    </Note>
+  </Step>
+  
+  <Step title="Initialize the chart instance">
+    Import ECharts and initialize a chart instance using `echarts.init()`:
+    
+    ```javascript
+    import * as echarts from 'echarts';
+    
+    // Get the DOM element
+    const chartDom = document.getElementById('main');
+    
+    // Initialize the chart instance
+    const myChart = echarts.init(chartDom);
+    ```
+    
+    The `init()` function returns an ECharts instance that you'll use to configure and update your chart.
+    
+    <Tip>
+      You can optionally specify a theme and renderer:
+      ```javascript
+      const myChart = echarts.init(chartDom, 'dark', { renderer: 'svg' });
+      ```
+    </Tip>
+  </Step>
+  
+  <Step title="Configure the chart options">
+    Define your chart configuration using an option object. This example creates a simple bar chart:
+    
+    ```javascript
+    const option = {
+      title: {
+        text: 'ECharts Getting Started'
+      },
+      tooltip: {},
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Sales',
+          type: 'bar',
+          data: [120, 200, 150, 80, 70, 110, 130]
+        }
+      ]
+    };
+    ```
+    
+    Let's break down the key components:
+    
+    - **title**: The chart title displayed at the top
+    - **tooltip**: Enables interactive tooltips on hover
+    - **xAxis**: Defines the x-axis (category type for discrete values)
+    - **yAxis**: Defines the y-axis (value type for continuous values)
+    - **series**: The actual data and chart type (bar, line, pie, etc.)
+  </Step>
+  
+  <Step title="Set the option to display the chart">
+    Apply the configuration to your chart instance:
+    
+    ```javascript
+    myChart.setOption(option);
+    ```
+    
+    Your chart is now rendered! The `setOption()` method accepts your configuration and renders the chart accordingly.
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Complete Example
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Here's the complete code for your first chart:
 
-### Step 3: Go live
+<CodeGroup>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+```html HTML + CDN
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ECharts Quick Start</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+</head>
+<body>
+  <!-- Chart container -->
+  <div id="main" style="width: 600px; height: 400px;"></div>
+  
+  <script>
+    // Initialize chart
+    var myChart = echarts.init(document.getElementById('main'));
+    
+    // Chart configuration
+    var option = {
+      title: {
+        text: 'ECharts Getting Started'
+      },
+      tooltip: {},
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Sales',
+          type: 'bar',
+          data: [120, 200, 150, 80, 70, 110, 130]
+        }
+      ]
+    };
+    
+    // Display the chart
+    myChart.setOption(option);
+  </script>
+</body>
+</html>
+```
 
-## Next steps
+```javascript ES Modules
+import * as echarts from 'echarts';
 
-Now that you have your docs running, explore these key features:
+// Initialize chart
+const myChart = echarts.init(document.getElementById('main'));
+
+// Chart configuration
+const option = {
+  title: {
+    text: 'ECharts Getting Started'
+  },
+  tooltip: {},
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'Sales',
+      type: 'bar',
+      data: [120, 200, 150, 80, 70, 110, 130]
+    }
+  ]
+};
+
+// Display the chart
+myChart.setOption(option);
+```
+
+```typescript TypeScript
+import * as echarts from 'echarts';
+import type { EChartsOption } from 'echarts';
+
+// Initialize chart
+const chartDom = document.getElementById('main')!;
+const myChart = echarts.init(chartDom);
+
+// Chart configuration with type safety
+const option: EChartsOption = {
+  title: {
+    text: 'ECharts Getting Started'
+  },
+  tooltip: {},
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'Sales',
+      type: 'bar',
+      data: [120, 200, 150, 80, 70, 110, 130]
+    }
+  ]
+};
+
+// Display the chart
+myChart.setOption(option);
+```
+
+</CodeGroup>
+
+## Try Different Chart Types
+
+Changing the chart type is as simple as modifying the `type` property in the series:
+
+<CodeGroup>
+
+```javascript Line Chart
+series: [{
+  name: 'Sales',
+  type: 'line',  // Changed from 'bar' to 'line'
+  data: [120, 200, 150, 80, 70, 110, 130]
+}]
+```
+
+```javascript Pie Chart
+// Pie charts don't need xAxis/yAxis
+const option = {
+  title: { text: 'Sales Distribution' },
+  tooltip: {},
+  series: [
+    {
+      name: 'Sales',
+      type: 'pie',
+      data: [
+        { value: 335, name: 'Product A' },
+        { value: 310, name: 'Product B' },
+        { value: 234, name: 'Product C' },
+        { value: 135, name: 'Product D' },
+        { value: 548, name: 'Product E' }
+      ]
+    }
+  ]
+};
+```
+
+```javascript Scatter Chart
+const option = {
+  title: { text: 'Height vs Weight' },
+  tooltip: {},
+  xAxis: { type: 'value', name: 'Height' },
+  yAxis: { type: 'value', name: 'Weight' },
+  series: [
+    {
+      type: 'scatter',
+      data: [
+        [161.2, 51.6], [167.5, 59.0], [159.5, 49.2],
+        [157.0, 63.0], [155.8, 53.6], [170.0, 59.0]
+      ]
+    }
+  ]
+};
+```
+
+</CodeGroup>
+
+## Updating Charts
+
+You can update your chart by calling `setOption()` again with new data:
+
+```javascript
+// Initial chart
+myChart.setOption(option);
+
+// Update after 2 seconds
+setTimeout(() => {
+  myChart.setOption({
+    series: [{
+      data: [150, 230, 224, 218, 135, 147, 260]
+    }]
+  });
+}, 2000);
+```
+
+<Tip>
+  By default, `setOption()` merges the new configuration with the existing one. You don't need to provide the complete option object when updating - just the parts you want to change.
+</Tip>
+
+## Responsive Charts
+
+Make your chart responsive to window resizing:
+
+```javascript
+// Listen to window resize event
+window.addEventListener('resize', () => {
+  myChart.resize();
+});
+```
+
+Or set the container size to be responsive using CSS:
+
+```html
+<div id="main" style="width: 100%; height: 400px;"></div>
+```
+
+## Common Chart Configurations
+
+### Adding Multiple Series
+
+Display multiple datasets on the same chart:
+
+```javascript
+const option = {
+  title: { text: 'Sales Comparison' },
+  tooltip: {},
+  legend: { data: ['Product A', 'Product B'] },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: { type: 'value' },
+  series: [
+    {
+      name: 'Product A',
+      type: 'bar',
+      data: [120, 200, 150, 80, 70, 110, 130]
+    },
+    {
+      name: 'Product B',
+      type: 'bar',
+      data: [90, 120, 180, 130, 110, 95, 140]
+    }
+  ]
+};
+```
+
+### Custom Colors
+
+Customize the color palette:
+
+```javascript
+const option = {
+  color: ['#5470c6', '#91cc75', '#fac858', '#ee6666'],
+  // ... rest of your configuration
+};
+```
+
+### Enhanced Tooltips
+
+Customize the tooltip formatter:
+
+```javascript
+const option = {
+  tooltip: {
+    trigger: 'axis',
+    formatter: '{b}: {c} units'
+  },
+  // ... rest of your configuration
+};
+```
+
+## Next Steps
+
+Now that you've created your first chart, explore more features:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Chart Examples" icon="chart-mixed" href="https://echarts.apache.org/examples">
+    Browse hundreds of chart examples and copy the code
+  </Card>
+  <Card title="Configuration Manual" icon="book" href="https://echarts.apache.org/option.html">
+    Deep dive into all available configuration options
+  </Card>
+  <Card title="API Reference" icon="code" href="https://echarts.apache.org/api.html">
+    Learn about chart instance methods and events
+  </Card>
+  <Card title="Extensions" icon="puzzle-piece" href="https://github.com/ecomfe/awesome-echarts">
+    Discover community extensions and integrations
+  </Card>
 </CardGroup>
 
+## Tips and Best Practices
+
+<Tip>
+  **Performance**: For large datasets (10,000+ points), consider using sampling, data zoom, or progressive rendering features.
+</Tip>
+
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  **Memory Management**: Always call `myChart.dispose()` when you're done with a chart to free up memory, especially in single-page applications.
 </Note>
+
+<Warning>
+  **Container Dimensions**: If your chart doesn't appear, check that the container has non-zero dimensions. Use browser DevTools to inspect the element.
+</Warning>

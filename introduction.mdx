@@ -1,0 +1,115 @@
+---
+title: Introduction
+description: Apache ECharts is a powerful, interactive charting and data visualization library for browser
+---
+
+# Apache ECharts
+
+Apache ECharts is a free, powerful charting and visualization library offering easy ways to add intuitive, interactive, and highly customizable charts to your commercial products. It is written in pure JavaScript and based on [zrender](https://github.com/ecomfe/zrender), a lightweight canvas library.
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install ECharts via npm, yarn, pnpm, or CDN
+  </Card>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Create your first chart in minutes
+  </Card>
+  <Card title="Chart Types" icon="chart-line" href="https://echarts.apache.org/examples">
+    Explore 20+ chart types and hundreds of examples
+  </Card>
+  <Card title="API Reference" icon="code" href="https://echarts.apache.org/api.html">
+    Complete API documentation
+  </Card>
+</CardGroup>
+
+## Key Features
+
+### Rich Chart Types
+
+ECharts provides 20+ chart types available out of the box:
+
+- **Basic Charts**: Line, Bar, Pie, Scatter, Candlestick
+- **Statistical Charts**: Box Plot, Heatmap, Parallel Coordinates
+- **Graph & Tree**: Graph, Tree, Treemap, Sunburst, Sankey
+- **Geographic**: Map with GeoJSON support
+- **3D Charts**: Available via [ECharts GL](https://github.com/ecomfe/echarts-gl) extension
+
+### Powerful Rendering Engine
+
+- **Canvas Renderer**: High-performance rendering for large datasets
+- **SVG Renderer**: Better scalability and print quality
+- **Server-Side Rendering**: Generate charts on the server
+
+<Tip>
+  ECharts can handle datasets with millions of data points using its progressive rendering and data sampling strategies.
+</Tip>
+
+### Rich Interactive Features
+
+- **Legend**: Toggle series visibility
+- **Tooltip**: Rich tooltip formatting with custom templates
+- **Data Zoom**: Interactive zoom and pan
+- **Brush**: Select data regions
+- **Visual Map**: Map data to visual channels (color, size, etc.)
+- **Timeline**: Show data changes over time
+
+### Flexible Configuration
+
+ECharts uses a declarative configuration approach. All chart features are configured through a single `option` object:
+
+```javascript
+chart.setOption({
+  title: { text: 'Sales Report' },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{
+    type: 'bar',
+    data: [120, 200, 150]
+  }]
+});
+```
+
+### Mobile Optimized
+
+- Touch event support for mobile devices
+- Responsive sizing
+- Optimized rendering performance for mobile browsers
+
+### Accessibility
+
+Built-in ARIA (Accessible Rich Internet Applications) support helps make your charts accessible to screen readers and assistive technologies.
+
+## Use Cases
+
+ECharts is widely used across various industries:
+
+- **Business Intelligence**: Sales dashboards, KPI monitoring, financial reports
+- **Data Analysis**: Scientific visualization, statistical analysis
+- **Geographic Visualization**: Heat maps, migration maps, regional data
+- **Real-time Monitoring**: System monitoring, IoT data visualization
+- **Mobile Applications**: Responsive charts for mobile and tablet devices
+
+## Open Source
+
+ECharts is available under the Apache License 2.0. It's actively maintained by the Apache Software Foundation with a vibrant community of contributors.
+
+- GitHub: [apache/echarts](https://github.com/apache/echarts)
+- Official Website: [echarts.apache.org](https://echarts.apache.org)
+- Examples: [echarts.apache.org/examples](https://echarts.apache.org/examples)
+
+<Note>
+  ECharts was originally created by Baidu and donated to the Apache Software Foundation in 2018.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Install ECharts" icon="download" href="/installation">
+    Get started by installing ECharts in your project
+  </Card>
+  <Card title="Build Your First Chart" icon="code" href="/quickstart">
+    Follow our quick start guide to create your first chart
+  </Card>
+</CardGroup>

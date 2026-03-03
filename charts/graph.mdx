@@ -1,0 +1,341 @@
+---
+title: "Graph/Network Chart"
+description: "Visualize relationships and connections between entities using graph/network charts"
+icon: "diagram-project"
+---
+
+Graph charts display nodes and the relationships (edges/links) between them. They are ideal for visualizing network structures, relationships, and connectivity patterns.
+
+## When to Use
+
+Use graph charts when you need to:
+
+- Visualize social networks and relationships between people
+- Display organizational structures and dependencies
+- Show network topology and system architectures
+- Illustrate knowledge graphs and entity relationships
+- Represent flow and connectivity in complex systems
+
+## Basic Configuration
+
+A graph chart requires nodes and edges (or links) data. The chart supports multiple layout algorithms including force-directed, circular, and custom positioning.
+
+```javascript
+option = {
+  series: [{
+    type: 'graph',
+    layout: 'force',
+    data: [
+      { name: 'Node 1', value: 10 },
+      { name: 'Node 2', value: 20 },
+      { name: 'Node 3', value: 30 },
+      { name: 'Node 4', value: 40 }
+    ],
+    links: [
+      { source: 'Node 1', target: 'Node 2' },
+      { source: 'Node 2', target: 'Node 3' },
+      { source: 'Node 3', target: 'Node 4' },
+      { source: 'Node 4', target: 'Node 1' }
+    ]
+  }]
+};
+```
+
+## Complete Example
+
+Here's a full example demonstrating a social network graph with force-directed layout:
+
+```javascript
+option = {
+  title: {
+    text: 'Social Network'
+  },
+  tooltip: {},
+  series: [{
+    type: 'graph',
+    layout: 'force',
+    
+    // Node data
+    data: [
+      { 
+        name: 'Alice', 
+        value: 10,
+        symbolSize: 30,
+        category: 0
+      },
+      { 
+        name: 'Bob', 
+        value: 20,
+        symbolSize: 40,
+        category: 0
+      },
+      { 
+        name: 'Charlie', 
+        value: 30,
+        symbolSize: 50,
+        category: 1
+      },
+      { 
+        name: 'David', 
+        value: 25,
+        symbolSize: 45,
+        category: 1
+      },
+      { 
+        name: 'Eve', 
+        value: 15,
+        symbolSize: 35,
+        category: 2
+      }
+    ],
+    
+    // Edge data
+    links: [
+      { source: 'Alice', target: 'Bob', value: 5 },
+      { source: 'Bob', target: 'Charlie', value: 8 },
+      { source: 'Charlie', target: 'David', value: 6 },
+      { source: 'David', target: 'Eve', value: 4 },
+      { source: 'Eve', target: 'Alice', value: 3 }
+    ],
+    
+    // Categories for node grouping
+    categories: [
+      { name: 'Group A' },
+      { name: 'Group B' },
+      { name: 'Group C' }
+    ],
+    
+    // Force layout configuration
+    force: {
+      repulsion: 100,
+      gravity: 0.1,
+      edgeLength: 50,
+      layoutAnimation: true
+    },
+    
+    // Enable dragging
+    draggable: true,
+    
+    // Roam (zoom and pan)
+    roam: true,
+    
+    // Node style
+    itemStyle: {
+      borderWidth: 2,
+      borderColor: '#fff'
+    },
+    
+    // Node label
+    label: {
+      show: true,
+      position: 'bottom',
+      formatter: '{b}'
+    },
+    
+    // Edge style
+    lineStyle: {
+      width: 2,
+      curveness: 0.3,
+      opacity: 0.5
+    },
+    
+    // Edge label
+    edgeLabel: {
+      show: false,
+      formatter: '{c}'
+    },
+    
+    // Edge symbols (arrows)
+    edgeSymbol: ['none', 'arrow'],
+    edgeSymbolSize: 8,
+    
+    // Emphasis (hover) effect
+    emphasis: {
+      focus: 'adjacency',
+      label: {
+        show: true
+      },
+      lineStyle: {
+        width: 4
+      }
+    }
+  }]
+};
+```
+
+## Key Options
+
+### Layout
+
+<ParamField path="series.layout" type="'none' | 'force' | 'circular'">
+  The layout algorithm for positioning nodes. From GraphSeries.ts:158
+  
+  - `'none'`: No automatic layout, use fixed positions
+  - `'force'`: Force-directed layout with physics simulation
+  - `'circular'`: Circular layout arranging nodes in a circle
+</ParamField>
+
+### Force Layout Configuration
+
+<ParamField path="series.force" type="object">
+  Configuration for force-directed layout. From GraphSeries.ts:218-230
+  
+  <Expandable title="properties">
+    <ParamField path="repulsion" type="number | number[]" default="[0, 50]">
+      Node repulsion force. Can be a range array.
+    </ParamField>
+    
+    <ParamField path="gravity" type="number" default="0.1">
+      Gravity towards the center of the layout.
+    </ParamField>
+    
+    <ParamField path="edgeLength" type="number | number[]" default="30">
+      The distance between connected nodes. Can be a range array.
+    </ParamField>
+    
+    <ParamField path="friction" type="number" default="0.6">
+      Friction coefficient for the simulation.
+    </ParamField>
+    
+    <ParamField path="layoutAnimation" type="boolean" default="true">
+      Whether to animate the layout process.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Node Configuration
+
+<ParamField path="series.data" type="GraphNodeItemOption[]">
+  Array of node data items. From GraphSeries.ts:84-112
+  
+  <Expandable title="node properties">
+    <ParamField path="name" type="string">
+      Node name, used as identifier and label.
+    </ParamField>
+    
+    <ParamField path="value" type="number | number[]">
+      Node value for sizing or other visual mappings.
+    </ParamField>
+    
+    <ParamField path="x" type="number">
+      Fixed x position (for 'none' layout).
+    </ParamField>
+    
+    <ParamField path="y" type="number">
+      Fixed y position (for 'none' layout).
+    </ParamField>
+    
+    <ParamField path="fixed" type="boolean">
+      Whether this node is fixed during force layout.
+    </ParamField>
+    
+    <ParamField path="category" type="number | string">
+      Index or name of category for this node.
+    </ParamField>
+    
+    <ParamField path="symbolSize" type="number" default="10">
+      Size of the node symbol.
+    </ParamField>
+    
+    <ParamField path="draggable" type="boolean">
+      Whether this node can be dragged.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Edge Configuration
+
+<ParamField path="series.links" type="GraphEdgeItemOption[]">
+  Array of edge/link data items. From GraphSeries.ts:118-133
+  
+  <Expandable title="edge properties">
+    <ParamField path="source" type="string | number">
+      Source node name or index.
+    </ParamField>
+    
+    <ParamField path="target" type="string | number">
+      Target node name or index.
+    </ParamField>
+    
+    <ParamField path="value" type="number">
+      Edge value for width or other visual mappings.
+    </ParamField>
+    
+    <ParamField path="lineStyle.curveness" type="number">
+      Curvature of the edge line (0-1).
+    </ParamField>
+    
+    <ParamField path="symbol" type="string | string[]">
+      Symbol at both ends of the edge (e.g., ['none', 'arrow']).
+    </ParamField>
+    
+    <ParamField path="ignoreForceLayout" type="boolean">
+      Whether to ignore this edge in force layout calculation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Interaction
+
+<ParamField path="series.draggable" type="boolean" default="false">
+  Whether nodes can be dragged. From GraphSeries.ts:178
+</ParamField>
+
+<ParamField path="series.roam" type="boolean | 'scale' | 'move'" default="false">
+  Whether to enable zoom and pan. From GraphSeries.ts:472
+</ParamField>
+
+<ParamField path="series.nodeScaleRatio" type="number" default="0.6">
+  Symbol size scale ratio during zoom. From GraphSeries.ts:176, 479
+</ParamField>
+
+### Categories
+
+<ParamField path="series.categories" type="GraphCategoryItemOption[]">
+  Node categories for grouping and styling. From GraphSeries.ts:135-140, 166
+  
+  Each category can have its own style settings that apply to all nodes in that category.
+</ParamField>
+
+### Auto Curveness
+
+<ParamField path="series.autoCurveness" type="boolean | number | number[]">
+  Automatic curveness for multiple edges between same nodes. From GraphSeries.ts:235
+  
+  When there are multiple edges connecting the same pair of nodes, this automatically adjusts their curveness to prevent overlap.
+</ParamField>
+
+## Coordinate Systems
+
+Graph charts can be placed on various coordinate systems:
+
+- **Cartesian** (`xAxisIndex`, `yAxisIndex`): Position on x/y axes
+- **Polar** (`polarIndex`): Circular coordinate system
+- **Geo** (`geoIndex`): Geographic map
+- **Single Axis** (`singleAxisIndex`): Single axis coordinate
+- **View** (default): Standalone view with box layout
+
+From GraphSeries.ts:142-149
+
+## Layout Types
+
+### Force-Directed Layout
+
+Physics-based layout where nodes repel each other and edges act as springs. Best for organic, natural-looking networks.
+
+### Circular Layout
+
+Arranges all nodes in a circle. Good for showing cyclical relationships or when all nodes have equal importance.
+
+### Fixed Layout
+
+Uses predefined x, y positions for each node. Useful when you have specific positioning requirements.
+
+## Best Practices
+
+- Use categories to group related nodes with consistent styling
+- Enable `roam` for large graphs to allow exploration
+- Set appropriate `repulsion` and `edgeLength` values to prevent node overlap
+- Use `emphasis.focus: 'adjacency'` to highlight connected nodes on hover
+- Consider using `autoCurveness` for graphs with multiple edges between nodes
+- For better performance with large graphs, disable `layoutAnimation`

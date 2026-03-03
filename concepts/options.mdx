@@ -1,0 +1,251 @@
+---
+title: Options Configuration System
+description: Learn how to configure Apache ECharts using the setOption API and option objects
+---
+
+The options configuration system is the core way to configure and update Apache ECharts charts. Every chart configuration, from data to styling, is defined through option objects.
+
+## The setOption API
+
+The `setOption` method is the primary way to configure a chart instance. It accepts an option object and optional configuration parameters.
+
+### Basic Usage
+
+```javascript
+const chart = echarts.init(document.getElementById('main'));
+
+// Set basic option
+chart.setOption({
+  title: {
+    text: 'Sales Data'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [{
+    type: 'line',
+    data: [120, 200, 150, 80, 70]
+  }]
+});
+```
+
+### Method Signature
+
+Based on the implementation in `~/workspace/source/src/core/echarts.ts:643-725`, `setOption` has two signatures:
+
+```typescript
+setOption(option: ECBasicOption, notMerge?: boolean, lazyUpdate?: boolean): void;
+setOption(option: ECBasicOption, opts?: SetOptionOpts): void;
+```
+
+## Configuration Options
+
+### notMerge
+
+By default, `setOption` merges new options with existing ones. Set `notMerge: true` to replace the entire configuration:
+
+```javascript
+// Merge with existing option (default)
+chart.setOption(newOption);
+
+// Replace entire option
+chart.setOption(newOption, true);
+// or
+chart.setOption(newOption, { notMerge: true });
+```
+
+### lazyUpdate
+
+When calling `setOption` frequently, use `lazyUpdate` to defer the update until the next animation frame:
+
+```javascript
+chart.setOption(option, {
+  lazyUpdate: true
+});
+```
+
+<Note>
+Lazy updates are useful when calling `setOption` multiple times in quick succession. The chart will only render once instead of multiple times.
+</Note>
+
+### silent
+
+Prevent triggering events when updating options:
+
+```javascript
+chart.setOption(option, {
+  silent: true
+});
+```
+
+### replaceMerge
+
+Control how specific component types are merged. Only components with matching IDs will be merged; others are removed:
+
+```javascript
+chart.setOption({
+  series: [
+    { id: 'sales', type: 'line', data: [1, 2, 3] },
+    { id: 'profit', type: 'bar', data: [4, 5, 6] }
+  ]
+}, {
+  replaceMerge: ['series']
+});
+```
+
+### transition
+
+Configure transition animations when updating:
+
+```javascript
+chart.setOption(newOption, {
+  transition: {
+    duration: 1000,
+    easing: 'cubicOut'
+  }
+});
+```
+
+## Option Object Structure
+
+Option objects follow a hierarchical structure. From `~/workspace/source/src/core/echarts.ts:682`, options are processed through the OptionManager:
+
+```javascript
+const option = {
+  // Global settings
+  backgroundColor: '#fff',
+  animation: true,
+  
+  // Component configurations
+  title: {
+    text: 'Chart Title',
+    left: 'center'
+  },
+  
+  tooltip: {
+    trigger: 'axis'
+  },
+  
+  legend: {
+    data: ['Series 1', 'Series 2']
+  },
+  
+  // Coordinate system
+  xAxis: {
+    type: 'category',
+    data: ['A', 'B', 'C']
+  },
+  
+  yAxis: {
+    type: 'value'
+  },
+  
+  // Data series
+  series: [
+    {
+      name: 'Series 1',
+      type: 'bar',
+      data: [10, 20, 30]
+    },
+    {
+      name: 'Series 2',
+      type: 'line',
+      data: [15, 25, 35]
+    }
+  ]
+};
+```
+
+## Multiple Series Example
+
+```javascript
+chart.setOption({
+  title: {
+    text: 'Multi-Series Chart'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: ['Email', 'Video Ads', 'Direct']
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'Email',
+      type: 'line',
+      data: [120, 132, 101, 134, 90, 230, 210]
+    },
+    {
+      name: 'Video Ads',
+      type: 'line',
+      data: [220, 182, 191, 234, 290, 330, 310]
+    },
+    {
+      name: 'Direct',
+      type: 'line',
+      data: [150, 232, 201, 154, 190, 330, 410]
+    }
+  ]
+});
+```
+
+## Dynamic Updates
+
+You can update specific parts of the option without affecting others:
+
+```javascript
+// Initial option
+chart.setOption({
+  series: [{
+    type: 'line',
+    data: [1, 2, 3, 4, 5]
+  }]
+});
+
+// Later, update only the data
+chart.setOption({
+  series: [{
+    data: [5, 4, 3, 2, 1]
+  }]
+});
+```
+
+<Warning>
+Be cautious with `notMerge: true` as it replaces the entire configuration. You'll lose all previous settings including event listeners and component states.
+</Warning>
+
+## Getting Current Option
+
+Retrieve the current option configuration using `getOption()`:
+
+```javascript
+const currentOption = chart.getOption();
+console.log(currentOption);
+```
+
+From `~/workspace/source/src/core/echarts.ts:799-801`, this returns the complete merged option object.
+
+## Best Practices
+
+1. **Use lazy update for frequent updates**: When updating data rapidly (like streaming data), use `lazyUpdate: true`
+2. **Specify component IDs**: When using `replaceMerge`, always set `id` on components you want to track
+3. **Partial updates**: Only include the options you want to change instead of the entire configuration
+4. **Theme first**: Set themes during initialization rather than in every `setOption` call
+
+## Related APIs
+
+- `getOption()` - Get current option configuration
+- `setTheme()` - Update chart theme
+- `clear()` - Clear all options and reset chart
+- `dispose()` - Destroy chart instance

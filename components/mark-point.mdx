@@ -1,0 +1,401 @@
+---
+title: 'Mark Point Component'
+description: 'Highlight specific data points with symbols and labels'
+icon: 'location-dot'
+---
+
+The Mark Point component marks specific data points in a series with customizable symbols, labels, and positioning. It's useful for highlighting maximum values, minimum values, averages, or custom data points.
+
+## Purpose
+
+Mark Point enables visual emphasis of important data points within a chart. From `~/workspace/source/src/component/marker/MarkPointModel.ts`, it supports both statistical markers (min, max, average) and custom positioned markers with rich styling options.
+
+## Basic Usage
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markPoint: {
+      data: [
+        {type: 'max', name: 'Maximum'},
+        {type: 'min', name: 'Minimum'}
+      ]
+    }
+  }]
+}
+```
+
+## Configuration Options
+
+<ParamField path="data" type="array" required>
+  Array of mark point data items. Each item can specify a position, value, or statistical type.
+  
+  ```javascript
+  markPoint: {
+    data: [
+      {type: 'max'},
+      {type: 'min'},
+      {coord: [2, 35], name: 'Custom Point'},
+      {x: '50%', y: '50%', value: 'Center'}
+    ]
+  }
+  ```
+</ParamField>
+
+<ParamField path="symbol" type="string" default="'pin'">
+  Symbol type for mark points. Can be built-in symbols like 'circle', 'rect', 'pin', 'arrow', or custom SVG paths.
+  
+  ```javascript
+  markPoint: {
+    symbol: 'pin',
+    data: [{type: 'max'}]
+  }
+  ```
+</ParamField>
+
+<ParamField path="symbolSize" type="number | number[]" default="50">
+  Size of the symbol. Can be a single number or `[width, height]`.
+  
+  ```javascript
+  symbolSize: 40  // Circle with radius 40
+  symbolSize: [30, 50]  // Width 30, height 50
+  ```
+</ParamField>
+
+<ParamField path="symbolRotate" type="number">
+  Rotation angle of the symbol in degrees.
+</ParamField>
+
+<ParamField path="symbolOffset" type="number[] | string[]">
+  Offset of the symbol position as `[x, y]`. Can be absolute values or percentages.
+  
+  ```javascript
+  symbolOffset: [10, -20]  // 10px right, 20px up
+  symbolOffset: ['50%', '0%']  // 50% right
+  ```
+</ParamField>
+
+<ParamField path="precision" type="number">
+  Decimal precision for automatically calculated values.
+</ParamField>
+
+<ParamField path="itemStyle" type="object">
+  Style of the mark point symbols.
+  
+  ```javascript
+  itemStyle: {
+    color: '#c23531',
+    borderColor: '#fff',
+    borderWidth: 2
+  }
+  ```
+</ParamField>
+
+<ParamField path="label" type="object">
+  Label configuration for mark points.
+  
+  <Expandable title="Label Properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show labels.
+    </ParamField>
+    
+    <ParamField path="position" type="string" default="'inside'">
+      Label position. Can be 'inside', 'top', 'left', 'right', 'bottom', etc.
+    </ParamField>
+    
+    <ParamField path="formatter" type="string | function">
+      Formatter for label text.
+      
+      ```javascript
+      formatter: '{b}: {c}'  // name: value
+      formatter: function(params) {
+        return params.name + ': ' + params.value;
+      }
+      ```
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="emphasis" type="object">
+  Emphasis (hover) state configuration.
+  
+  ```javascript
+  emphasis: {
+    label: {
+      show: true
+    },
+    itemStyle: {
+      shadowBlur: 10,
+      shadowColor: 'rgba(0, 0, 0, 0.5)'
+    }
+  }
+  ```
+</ParamField>
+
+## Data Item Configuration
+
+Each item in the `data` array can have the following properties:
+
+<ParamField path="name" type="string" required>
+  Name of the mark point, displayed in labels and tooltips.
+</ParamField>
+
+<ParamField path="type" type="'min' | 'max' | 'average' | 'median'">
+  Statistical type for automatic positioning:
+  - `'min'`: Marks the minimum value point
+  - `'max'`: Marks the maximum value point
+  - `'average'`: Marks the average value point
+  - `'median'`: Marks the median value point
+</ParamField>
+
+<ParamField path="valueIndex" type="number">
+  When using `type`, specifies which dimension to calculate statistics on.
+</ParamField>
+
+<ParamField path="valueDim" type="string">
+  Dimension name for statistical calculation.
+</ParamField>
+
+<ParamField path="coord" type="array">
+  Coordinates for the mark point in the data coordinate system.
+  
+  ```javascript
+  {coord: [2, 35], name: 'Point A'}  // x=2, y=35
+  ```
+</ParamField>
+
+<ParamField path="x" type="number | string">
+  Absolute x position in pixels or percentage.
+  
+  ```javascript
+  {x: 100, y: 200, name: 'Fixed Position'}
+  {x: '50%', y: '50%', name: 'Center'}
+  ```
+</ParamField>
+
+<ParamField path="y" type="number | string">
+  Absolute y position in pixels or percentage.
+</ParamField>
+
+<ParamField path="xAxis" type="number | string">
+  X coordinate on the x-axis (for Cartesian coordinates).
+</ParamField>
+
+<ParamField path="yAxis" type="number | string">
+  Y coordinate on the y-axis (for Cartesian coordinates).
+</ParamField>
+
+<ParamField path="value" type="number | string">
+  Value to be displayed as the label.
+</ParamField>
+
+<ParamField path="symbol" type="string">
+  Symbol type for this specific mark point (overrides global symbol).
+</ParamField>
+
+<ParamField path="symbolSize" type="number | number[]">
+  Symbol size for this specific mark point.
+</ParamField>
+
+<ParamField path="itemStyle" type="object">
+  Item style for this specific mark point.
+</ParamField>
+
+<ParamField path="label" type="object">
+  Label configuration for this specific mark point.
+</ParamField>
+
+## Examples
+
+### Statistical Mark Points
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35, 20, 40],
+    markPoint: {
+      data: [
+        {
+          type: 'max',
+          name: 'Max Value',
+          label: {
+            formatter: 'Max: {c}'
+          }
+        },
+        {
+          type: 'min',
+          name: 'Min Value',
+          label: {
+            formatter: 'Min: {c}'
+          }
+        },
+        {
+          type: 'average',
+          name: 'Average',
+          label: {
+            formatter: 'Avg: {c}'
+          }
+        }
+      ],
+      symbol: 'pin',
+      symbolSize: 50
+    }
+  }]
+}
+```
+
+### Custom Positioned Mark Points
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [[0, 10], [1, 30], [2, 25], [3, 45], [4, 35]],
+    markPoint: {
+      data: [
+        {
+          coord: [2, 25],
+          name: 'Important Point',
+          value: 'Key Data',
+          symbol: 'circle',
+          symbolSize: 60,
+          itemStyle: {
+            color: '#c23531'
+          },
+          label: {
+            show: true,
+            formatter: '{c}'
+          }
+        },
+        {
+          xAxis: 3,
+          yAxis: 45,
+          name: 'Peak',
+          symbol: 'pin',
+          symbolSize: 50
+        }
+      ]
+    }
+  }]
+}
+```
+
+### Styled Mark Points
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [120, 132, 101, 134, 90, 230, 210],
+    markPoint: {
+      symbol: 'circle',
+      symbolSize: 50,
+      itemStyle: {
+        color: 'rgba(194, 53, 49, 0.8)',
+        borderColor: '#fff',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: 'rgba(0, 0, 0, 0.3)',
+        shadowOffsetY: 5
+      },
+      label: {
+        show: true,
+        position: 'inside',
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 12
+      },
+      emphasis: {
+        label: {
+          show: true
+        },
+        itemStyle: {
+          shadowBlur: 20,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      },
+      data: [
+        {type: 'max', name: 'Maximum'},
+        {type: 'min', name: 'Minimum'}
+      ]
+    }
+  }]
+}
+```
+
+### Multiple Series with Different Mark Points
+
+```javascript
+option = {
+  series: [
+    {
+      name: 'Sales',
+      type: 'line',
+      data: [100, 200, 150, 300, 250],
+      markPoint: {
+        symbol: 'pin',
+        symbolSize: 50,
+        data: [
+          {type: 'max', name: 'Highest Sales', itemStyle: {color: '#5470c6'}}
+        ]
+      }
+    },
+    {
+      name: 'Profit',
+      type: 'line',
+      data: [50, 100, 80, 150, 120],
+      markPoint: {
+        symbol: 'circle',
+        symbolSize: 40,
+        data: [
+          {type: 'max', name: 'Highest Profit', itemStyle: {color: '#91cc75'}}
+        ]
+      }
+    }
+  ]
+}
+```
+
+### Custom Symbol Mark Point
+
+```javascript
+option = {
+  series: [{
+    type: 'line',
+    data: [10, 30, 25, 45, 35],
+    markPoint: {
+      data: [
+        {
+          type: 'max',
+          name: 'Peak',
+          symbol: 'path://M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z',
+          symbolSize: 40,
+          itemStyle: {
+            color: '#ffd700'
+          },
+          label: {
+            position: 'top',
+            distance: 10
+          }
+        }
+      ]
+    }
+  }]
+}
+```
+
+## Implementation Details
+
+From `~/workspace/source/src/component/marker/MarkPointModel.ts:59-97`, the Mark Point component:
+
+- **Z-index**: Defaults to 5, ensuring mark points appear above series data
+- **Default Symbol**: Uses 'pin' symbol by default
+- **Tooltip**: Supports item-based tooltips
+- **Labels**: Shows labels inside symbols by default
+- **Border**: Default border width of 2 pixels
+- **Parent Component**: Extends MarkerModel base class from `~/workspace/source/src/component/marker/MarkerModel.ts`
+- **Series Integration**: Automatically attaches to parent series
+- **Statistical Calculation**: Supports min, max, average, and median calculations on any dimension

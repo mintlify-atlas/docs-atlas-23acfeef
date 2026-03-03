@@ -1,0 +1,475 @@
+---
+title: "Sunburst Chart"
+description: "Visualize hierarchical data in a radial, multi-level ring layout"
+icon: "circle-radiation"
+---
+
+Sunburst charts display hierarchical data in a radial layout where each ring represents a level in the hierarchy. The angular size of each segment represents its value, making it ideal for showing part-to-whole relationships across multiple levels.
+
+## When to Use
+
+Use sunburst charts when you need to:
+
+- Visualize hierarchical data with proportional values
+- Show multi-level categorical breakdowns
+- Display nested percentage distributions
+- Analyze hierarchical compositions (e.g., budget breakdowns)
+- Represent file system or disk usage hierarchies
+- Show organizational structures with quantitative data
+
+## Basic Configuration
+
+A sunburst chart requires hierarchical data where each node's value determines its angular size.
+
+```javascript
+option = {
+  series: [{
+    type: 'sunburst',
+    data: [
+      {
+        name: 'Category A',
+        value: 10,
+        children: [
+          { name: 'A-1', value: 4 },
+          { name: 'A-2', value: 6 }
+        ]
+      },
+      {
+        name: 'Category B',
+        value: 15,
+        children: [
+          { name: 'B-1', value: 8 },
+          { name: 'B-2', value: 7 }
+        ]
+      }
+    ]
+  }]
+};
+```
+
+## Complete Example
+
+Here's a comprehensive example showing company revenue breakdown:
+
+```javascript
+option = {
+  title: {
+    text: 'Revenue Breakdown by Region and Product'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: function(params) {
+      const pathInfo = params.treePathInfo;
+      const path = pathInfo.map(item => item.name).join(' > ');
+      return `${path}<br/>Revenue: $${params.value}M`;
+    }
+  },
+  series: [{
+    type: 'sunburst',
+    
+    // Hierarchical data
+    data: [
+      {
+        name: 'North America',
+        value: 450,
+        children: [
+          {
+            name: 'Software',
+            value: 250,
+            children: [
+              { name: 'SaaS', value: 150 },
+              { name: 'Enterprise', value: 100 }
+            ]
+          },
+          {
+            name: 'Hardware',
+            value: 200,
+            children: [
+              { name: 'Laptops', value: 120 },
+              { name: 'Accessories', value: 80 }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Europe',
+        value: 350,
+        children: [
+          {
+            name: 'Software',
+            value: 180,
+            children: [
+              { name: 'SaaS', value: 100 },
+              { name: 'Enterprise', value: 80 }
+            ]
+          },
+          {
+            name: 'Hardware',
+            value: 170,
+            children: [
+              { name: 'Laptops', value: 100 },
+              { name: 'Accessories', value: 70 }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Asia',
+        value: 300,
+        children: [
+          {
+            name: 'Software',
+            value: 120,
+            children: [
+              { name: 'SaaS', value: 70 },
+              { name: 'Enterprise', value: 50 }
+            ]
+          },
+          {
+            name: 'Hardware',
+            value: 180,
+            children: [
+              { name: 'Laptops', value: 110 },
+              { name: 'Accessories', value: 70 }
+            ]
+          }
+        ]
+      }
+    ],
+    
+    // Center and radius
+    center: ['50%', '50%'],
+    radius: [0, '90%'],
+    
+    // Rotation
+    clockwise: true,
+    startAngle: 90,
+    
+    // Minimum angle to display
+    minAngle: 2,
+    
+    // Still show when sum is zero
+    stillShowZeroSum: false,
+    
+    // Node click behavior
+    nodeClick: 'rootToNode',
+    
+    // Label configuration
+    label: {
+      rotate: 'radial',
+      show: true,
+      fontSize: 12,
+      minAngle: 10
+    },
+    
+    // Item style
+    itemStyle: {
+      borderWidth: 2,
+      borderColor: '#fff',
+      borderRadius: 4
+    },
+    
+    // Emphasis state
+    emphasis: {
+      focus: 'descendant',
+      label: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    
+    // Blur state for non-focused items
+    blur: {
+      itemStyle: {
+        opacity: 0.2
+      },
+      label: {
+        opacity: 0.1
+      }
+    },
+    
+    // Level-specific configurations
+    levels: [
+      {},
+      {
+        r0: '20%',
+        r: '45%',
+        label: {
+          rotate: 'tangential'
+        }
+      },
+      {
+        r0: '45%',
+        r: '70%',
+        label: {
+          position: 'outside',
+          padding: 3,
+          silent: false
+        }
+      },
+      {
+        r0: '70%',
+        r: '72%',
+        label: {
+          position: 'outside',
+          padding: 3,
+          silent: false
+        },
+        itemStyle: {
+          borderWidth: 3
+        }
+      }
+    ],
+    
+    // Animation
+    animationType: 'expansion',
+    animationDuration: 1000
+  }]
+};
+```
+
+## Key Options
+
+### Data Structure
+
+<ParamField path="series.data" type="SunburstSeriesNodeItemOption[]">
+  Hierarchical data nodes. From SunburstSeries.ts:81-96, 151
+  
+  <Expandable title="node properties">
+    <ParamField path="name" type="string">
+      Node name displayed in label.
+    </ParamField>
+    
+    <ParamField path="value" type="number">
+      Node value determining angular size.
+    </ParamField>
+    
+    <ParamField path="children" type="SunburstSeriesNodeItemOption[]">
+      Child nodes array.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="SunburstItemStyleOption">
+      Visual style for this node.
+    </ParamField>
+    
+    <ParamField path="label" type="SunburstLabelOption">
+      Label configuration.
+    </ParamField>
+    
+    <ParamField path="collapsed" type="boolean">
+      Whether this node's children are initially collapsed.
+    </ParamField>
+    
+    <ParamField path="link" type="string">
+      Hyperlink URL when node is clicked (if nodeClick is 'link').
+    </ParamField>
+    
+    <ParamField path="target" type="string">
+      Link target (e.g., '_blank').
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Layout Configuration
+
+<ParamField path="series.center" type="[string | number, string | number]" default="['50%', '50%']">
+  Center position of the sunburst. From SunburstSeries.ts:228
+  
+  Can be absolute pixel values or percentages.
+</ParamField>
+
+<ParamField path="series.radius" type="[string | number, string | number]" default="[0, '75%']">
+  Inner and outer radius of the sunburst. From SunburstSeries.ts:229
+  
+  - First value: inner radius (0 for full circle)
+  - Second value: outer radius
+</ParamField>
+
+### Rotation
+
+<ParamField path="series.clockwise" type="boolean" default="true">
+  Whether sectors are laid out clockwise. From SunburstSeries.ts:133, 231
+</ParamField>
+
+<ParamField path="series.startAngle" type="number" default="90">
+  Start angle in degrees (0 is right, 90 is top). From SunburstSeries.ts:134, 232
+</ParamField>
+
+### Display Control
+
+<ParamField path="series.minAngle" type="number" default="0">
+  Minimum angle in degrees for a sector to be displayed. From SunburstSeries.ts:135, 234
+  
+  Sectors smaller than this angle won't be rendered.
+</ParamField>
+
+<ParamField path="series.stillShowZeroSum" type="boolean" default="true">
+  Whether to show nodes when all child values sum to zero. From SunburstSeries.ts:138, 237
+</ParamField>
+
+<ParamField path="series.renderLabelForZeroData" type="boolean" default="false">
+  Whether to render labels for nodes with zero value. From SunburstSeries.ts:149, 242
+</ParamField>
+
+### Node Click Behavior
+
+<ParamField path="series.nodeClick" type="'rootToNode' | 'link' | false" default="'rootToNode'">
+  Behavior when clicking a node. From SunburstSeries.ts:86, 147, 240
+  
+  - `'rootToNode'`: Set clicked node as new root
+  - `'link'`: Navigate to URL specified in node data
+  - `false`: No action
+</ParamField>
+
+### Labels
+
+<ParamField path="series.label" type="SunburstLabelOption">
+  Label configuration. From SunburstSeries.ts:55-60, 78, 244-255
+  
+  <Expandable title="properties">
+    <ParamField path="show" type="boolean" default="true">
+      Whether to show labels.
+    </ParamField>
+    
+    <ParamField path="rotate" type="'radial' | 'tangential' | number" default="'radial'">
+      Label rotation mode or specific angle.
+    </ParamField>
+    
+    <ParamField path="position" type="'inside' | 'outside'" default="'inside'">
+      Label position relative to sector.
+    </ParamField>
+    
+    <ParamField path="minAngle" type="number">
+      Minimum sector angle to show label.
+    </ParamField>
+    
+    <ParamField path="silent" type="boolean" default="true">
+      Whether label blocks mouse events.
+    </ParamField>
+    
+    <ParamField path="distance" type="number" default="5">
+      Distance from sector edge.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Item Style
+
+<ParamField path="series.itemStyle" type="SunburstItemStyleOption">
+  Sector visual styling. From SunburstSeries.ts:43-53, 256-265
+  
+  <Expandable title="properties">
+    <ParamField path="borderWidth" type="number" default="1">
+      Border width.
+    </ParamField>
+    
+    <ParamField path="borderColor" type="string" default="'white'">
+      Border color.
+    </ParamField>
+    
+    <ParamField path="borderRadius" type="number | string | (number | string)[]">
+      Corner radius. Can be single value or array for [inner, outer] corners.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Emphasis
+
+<ParamField path="series.emphasis.focus" type="'self' | 'descendant' | 'ancestor' | 'relative'" default="'descendant'">
+  What to highlight on hover. From SunburstSeries.ts:72, 268
+  
+  - `'self'`: Only the hovered sector
+  - `'descendant'`: The sector and all descendants
+  - `'ancestor'`: The sector and all ancestors
+  - `'relative'`: The sector, ancestors, and descendants
+</ParamField>
+
+### Levels
+
+<ParamField path="series.levels" type="SunburstSeriesLevelOption[]">
+  Level-specific configurations. From SunburstSeries.ts:97-115, 153
+  
+  Each array element configures a specific hierarchy level.
+  
+  <Expandable title="level properties">
+    <ParamField path="radius" type="[number | string, number | string]">
+      Inner and outer radius for this level.
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="SunburstItemStyleOption">
+      Item style for this level.
+    </ParamField>
+    
+    <ParamField path="label" type="SunburstLabelOption">
+      Label style for this level.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Sorting
+
+<ParamField path="series.sort" type="'desc' | 'asc' | function" default="'desc'">
+  Sort order for sectors at each level. From SunburstSeries.ts:157, 298
+  
+  - `'desc'`: Descending by value (largest first)
+  - `'asc'`: Ascending by value (smallest first)
+  - Custom function: `(a, b) => number`
+</ParamField>
+
+### Animation
+
+<ParamField path="series.animationType" type="'expansion' | 'scale'" default="'expansion'">
+  Animation type. From SunburstSeries.ts:155, 281
+  
+  - `'expansion'`: Sectors expand from center
+  - `'scale'`: Sectors scale up
+</ParamField>
+
+<ParamField path="series.animationDuration" type="number" default="1000">
+  Animation duration in milliseconds. From SunburstSeries.ts:282
+</ParamField>
+
+<ParamField path="series.animationDurationUpdate" type="number" default="500">
+  Update animation duration in milliseconds. From SunburstSeries.ts:283
+</ParamField>
+
+## Multi-Level Styling
+
+Use the `levels` array to configure different visual styles for each hierarchy level:
+
+```javascript
+levels: [
+  {},  // Level 0 (root) - inherits series defaults
+  {
+    // Level 1
+    r0: '20%',
+    r: '40%',
+    label: {
+      rotate: 'tangential'
+    },
+    itemStyle: {
+      borderWidth: 2
+    }
+  },
+  {
+    // Level 2
+    r0: '40%',
+    r: '60%',
+    label: {
+      position: 'outside'
+    }
+  }
+]
+```
+
+## Best Practices
+
+- Use appropriate `minAngle` to hide very small sectors that would be hard to read
+- Configure `levels` to give each hierarchy level distinct visual styling
+- Set `label.rotate: 'radial'` for inner levels and `'tangential'` for outer levels
+- Use `emphasis.focus: 'descendant'` to highlight the selected branch
+- Enable `nodeClick: 'rootToNode'` for interactive drill-down
+- Set `radius` to leave space in the center for a title or back button
+- Use `borderRadius` for a modern, polished appearance
+- Consider `stillShowZeroSum: false` to hide branches with no data
+- Sort data with `sort: 'desc'` to place larger sectors first

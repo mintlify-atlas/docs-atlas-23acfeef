@@ -1,0 +1,306 @@
+---
+title: 'echarts.init()'
+description: 'Initialize an ECharts instance on a DOM element'
+---
+
+The `echarts.init()` method creates and initializes an ECharts instance on a specified DOM element.
+
+## Signature
+
+```typescript
+function init(
+  dom?: HTMLElement | null,
+  theme?: string | object | null,
+  opts?: EChartsInitOpts
+): EChartsType
+```
+
+## Parameters
+
+<ParamField path="dom" type="HTMLElement | null" default="null">
+  The DOM element to mount the chart. Must have width and height (except for canvas elements or when width/height specified in opts).
+  
+  ```javascript
+  const dom = document.getElementById('main');
+  const chart = echarts.init(dom);
+  ```
+  
+  <Note>
+    In SSR mode (`opts.ssr = true`), the `dom` parameter can be null.
+  </Note>
+</ParamField>
+
+<ParamField path="theme" type="string | ThemeOption | null" default="null">
+  Theme to apply. Can be:
+  - A registered theme name (string)
+  - A theme object
+  - `null` for default theme
+  
+  ```javascript
+  // Using registered theme
+  echarts.registerTheme('vintage', { /* theme options */ });
+  const chart = echarts.init(dom, 'vintage');
+  
+  // Using theme object directly
+  const chart = echarts.init(dom, {
+    color: ['#c23531', '#2f4554', '#61a0a8'],
+    backgroundColor: '#f4f4f4'
+  });
+  ```
+</ParamField>
+
+<ParamField path="opts" type="EChartsInitOpts">
+  Initialization options.
+</ParamField>
+
+### EChartsInitOpts Properties
+
+<ParamField path="opts.renderer" type="'canvas' | 'svg'" default="'canvas'">
+  Renderer type. Canvas is more performant, SVG provides better scalability and smaller file size for simple charts.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { renderer: 'svg' });
+  ```
+</ParamField>
+
+<ParamField path="opts.devicePixelRatio" type="number" default="window.devicePixelRatio">
+  Device pixel ratio for high-DPI displays. Defaults to `window.devicePixelRatio`.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { devicePixelRatio: 2 });
+  ```
+</ParamField>
+
+<ParamField path="opts.width" type="number | string" default="dom.clientWidth">
+  Explicit width in pixels. Can be a number or 'auto'. By default uses the DOM element's `clientWidth`.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { width: 800 });
+  ```
+</ParamField>
+
+<ParamField path="opts.height" type="number | string" default="dom.clientHeight">
+  Explicit height in pixels. Can be a number or 'auto'. By default uses the DOM element's `clientHeight`.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { height: 600 });
+  ```
+</ParamField>
+
+<ParamField path="opts.locale" type="string | LocaleOption" default="'ZH'">
+  Locale for internationalization. Can be a locale name string or a complete locale object.
+  
+  ```javascript
+  // Use built-in locale
+  const chart = echarts.init(dom, null, { locale: 'EN' });
+  
+  // Custom locale object
+  const chart = echarts.init(dom, null, {
+    locale: {
+      time: {
+        month: ['Jan', 'Feb', 'Mar', ...],
+        monthAbbr: ['Jan', 'Feb', 'Mar', ...]
+      }
+    }
+  });
+  ```
+</ParamField>
+
+<ParamField path="opts.useDirtyRect" type="boolean" default="false">
+  Enable dirty rectangle optimization for better rendering performance. Only redraws changed areas.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { useDirtyRect: true });
+  ```
+  
+  <Warning>
+    This is an experimental feature. Use with caution in production.
+  </Warning>
+</ParamField>
+
+<ParamField path="opts.useCoarsePointer" type="boolean | 'auto'" default="'auto'">
+  Whether to use coarse pointer (larger hit test areas for touch devices).
+  - `true`: Always use coarse pointer
+  - `false`: Never use coarse pointer
+  - `'auto'`: Auto-detect based on device
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { useCoarsePointer: true });
+  ```
+</ParamField>
+
+<ParamField path="opts.pointerSize" type="number" default="auto">
+  Pointer size for hit testing when using coarse pointer mode.
+  
+  ```javascript
+  const chart = echarts.init(dom, null, { 
+    useCoarsePointer: true,
+    pointerSize: 20 
+  });
+  ```
+</ParamField>
+
+<ParamField path="opts.ssr" type="boolean" default="false">
+  Enable server-side rendering mode. When true, the chart can be rendered without a DOM element.
+  
+  ```javascript
+  const chart = echarts.init(null, null, { ssr: true });
+  ```
+</ParamField>
+
+## Returns
+
+<ResponseField name="EChartsType" type="EChartsType">
+  An ECharts instance with methods for configuration, interaction, and lifecycle management.
+  
+  See [ECharts Instance](/api/echarts-instance) for available methods.
+</ResponseField>
+
+## Examples
+
+### Basic Initialization
+
+```javascript
+import * as echarts from 'echarts';
+
+const dom = document.getElementById('main');
+const chart = echarts.init(dom);
+
+chart.setOption({
+  title: { text: 'Sales Data' },
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150] }]
+});
+```
+
+### Using SVG Renderer
+
+```javascript
+const chart = echarts.init(dom, null, { 
+  renderer: 'svg',
+  width: 800,
+  height: 600
+});
+
+chart.setOption({
+  // ... chart options
+});
+
+// Export as SVG string
+const svgStr = chart.renderToSVGString();
+```
+
+### With Theme and High DPI
+
+```javascript
+// Register custom theme
+echarts.registerTheme('my-theme', {
+  color: ['#3398DB', '#EE6666', '#73C0DE'],
+  backgroundColor: '#f4f4f4',
+  textStyle: {
+    color: '#333'
+  }
+});
+
+// Initialize with theme and retina display support
+const chart = echarts.init(dom, 'my-theme', {
+  devicePixelRatio: window.devicePixelRatio || 2
+});
+```
+
+### Server-Side Rendering
+
+```javascript
+import * as echarts from 'echarts';
+import { createCanvas } from 'canvas'; // Node.js canvas library
+
+// Initialize without DOM in SSR mode
+const chart = echarts.init(null, null, {
+  renderer: 'svg',
+  ssr: true,
+  width: 800,
+  height: 600
+});
+
+chart.setOption({
+  // ... chart options
+});
+
+// Get SVG string for server-side rendering
+const svgString = chart.renderToSVGString();
+```
+
+### Responsive Chart with Dirty Rect Optimization
+
+```javascript
+const chart = echarts.init(dom, null, {
+  useDirtyRect: true,
+  useCoarsePointer: 'auto'
+});
+
+chart.setOption({ /* ... */ });
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  chart.resize();
+});
+```
+
+## Important Behaviors
+
+<Warning>
+  **Existing Instance Detection**: If an ECharts instance already exists on the provided DOM element, `init()` will return the existing instance instead of creating a new one. Always dispose of old instances before creating new ones if needed.
+  
+  ```javascript
+  // Dispose existing instance first
+  const existing = echarts.getInstanceByDom(dom);
+  if (existing) {
+    existing.dispose();
+  }
+  const chart = echarts.init(dom);
+  ```
+</Warning>
+
+<Note>
+  **DOM Requirements**: The DOM element should have explicit width and height set via CSS or inline styles. Zero-width or zero-height elements will trigger a warning.
+  
+  ```css
+  #main {
+    width: 800px;
+    height: 600px;
+  }
+  ```
+</Note>
+
+<Info>
+  **Canvas Elements**: When using a `<canvas>` element as the DOM, width and height requirements are more flexible as they can be specified in the `opts` parameter.
+</Info>
+
+## Performance Considerations
+
+### Canvas vs SVG
+
+- **Canvas**: Better for charts with large amounts of data points or frequent updates
+- **SVG**: Better for charts with fewer elements, or when you need to manipulate individual elements via DOM
+
+### Dirty Rectangle Rendering
+
+Enable `useDirtyRect` for better performance with frequent updates:
+
+```javascript
+const chart = echarts.init(dom, null, { useDirtyRect: true });
+
+// Only changed areas will be redrawn
+setInterval(() => {
+  chart.setOption({
+    series: [{ data: generateNewData() }]
+  });
+}, 1000);
+```
+
+## See Also
+
+- [ECharts Instance](/api/echarts-instance) - Instance methods and properties
+- [echarts.dispose()](/api/dispose) - Dispose an instance
+- [echarts.getInstanceByDom()](/api/echarts-instance) - Get instance by DOM element

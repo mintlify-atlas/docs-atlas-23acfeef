@@ -1,0 +1,246 @@
+---
+title: 'Boxplot Chart'
+description: 'Statistical visualization for displaying data distribution with quartiles'
+icon: 'chart-box'
+---
+
+## Overview
+
+The boxplot (also known as box-and-whisker plot) is a statistical chart used to display the distribution of data through quartiles. It provides a visual summary of data spread, central tendency, and outliers.
+
+## When to Use
+
+Use boxplot charts when you need to:
+
+- **Compare distributions** across different categories or groups
+- **Identify outliers** in your datasets
+- **Show statistical summaries** including quartiles, median, and range
+- **Visualize data spread** and skewness
+- **Analyze multiple datasets** side by side for comparison
+
+## Basic Configuration
+
+### Series Type
+
+Boxplot charts use the `'boxplot'` series type and require a Cartesian coordinate system.
+
+```typescript
+import { BoxplotSeriesOption } from 'echarts/types/src/chart/boxplot/BoxplotSeries';
+
+const option: BoxplotSeriesOption = {
+  type: 'boxplot',
+  coordinateSystem: 'cartesian2d'
+};
+```
+
+### Data Format
+
+Boxplot data follows a specific format: `[min, Q1, median, Q3, max]`
+
+```typescript
+type BoxplotDataValue = OptionDataValueNumeric[];
+
+// Data structure from BoxplotSeries.ts:40
+const data = [
+  [850, 870, 900, 950, 1000],  // [min, Q1, median, Q3, max]
+  [750, 800, 850, 900, 950]
+];
+```
+
+## Complete Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  title: {
+    text: 'Product Quality Distribution'
+  },
+  tooltip: {
+    trigger: 'item',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  grid: {
+    left: '10%',
+    right: '10%',
+    bottom: '15%'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Product A', 'Product B', 'Product C', 'Product D'],
+    boundaryGap: true,
+    splitArea: {
+      show: false
+    },
+    splitLine: {
+      show: false
+    }
+  },
+  yAxis: {
+    type: 'value',
+    name: 'Quality Score',
+    splitArea: {
+      show: true
+    }
+  },
+  series: [
+    {
+      name: 'boxplot',
+      type: 'boxplot',
+      data: [
+        [850, 870, 900, 950, 1000],  // Product A: min, Q1, median, Q3, max
+        [750, 800, 850, 900, 950],   // Product B
+        [700, 750, 800, 850, 900],   // Product C
+        [800, 850, 900, 950, 1050]   // Product D
+      ],
+      itemStyle: {
+        color: '#fff',
+        borderWidth: 2
+      },
+      emphasis: {
+        scale: true,
+        itemStyle: {
+          borderWidth: 3,
+          shadowBlur: 5,
+          shadowOffsetX: 1,
+          shadowOffsetY: 1
+        }
+      }
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Key Options
+
+### layout
+
+Controls the orientation of the boxplot.
+
+```typescript
+layout?: LayoutOrient;  // 'horizontal' | 'vertical'
+```
+
+**Default**: Auto-determined based on axis configuration
+
+### boxWidth
+
+Controls the width range of the box. Accepts an array `[min, max]` where values can be absolute numbers or percentages.
+
+```typescript
+boxWidth?: (string | number)[];
+```
+
+**Default**: `[7, 50]` (from BoxplotSeries.ts:112)
+
+```javascript
+series: [{
+  type: 'boxplot',
+  boxWidth: [10, 60]  // Minimum 10px, maximum 60px
+}]
+```
+
+### itemStyle
+
+Defines the visual style of boxplot items.
+
+```typescript
+itemStyle?: ItemStyleOption;
+```
+
+**Default configuration** (BoxplotSeries.ts:114-117):
+```javascript
+itemStyle: {
+  color: '#fff',       // Box fill color
+  borderWidth: 1       // Box border width
+}
+```
+
+### emphasis
+
+Defines the hover/emphasis state appearance.
+
+**Default configuration** (BoxplotSeries.ts:119-129):
+```javascript
+emphasis: {
+  scale: true,          // Scale up on hover
+  itemStyle: {
+    borderWidth: 2,
+    shadowBlur: 5,
+    shadowOffsetX: 1,
+    shadowOffsetY: 1
+  }
+}
+```
+
+## Data Item Options
+
+### BoxplotDataItemOption
+
+Each data item can have individual styling:
+
+```typescript
+// From BoxplotSeries.ts:47-50
+interface BoxplotDataItemOption {
+  value: BoxplotDataValue;  // [min, Q1, median, Q3, max]
+  itemStyle?: ItemStyleOption;
+  label?: SeriesLabelOption;
+}
+```
+
+```javascript
+series: [{
+  type: 'boxplot',
+  data: [
+    {
+      value: [850, 870, 900, 950, 1000],
+      itemStyle: {
+        borderColor: '#c23531'
+      }
+    },
+    [750, 800, 850, 900, 950]  // Simple array format also works
+  ]
+}]
+```
+
+## Statistical Dimensions
+
+Boxplot defines five value dimensions (BoxplotSeries.ts:93-99):
+
+```typescript
+defaultValueDimensions = [
+  {name: 'min', defaultTooltip: true},
+  {name: 'Q1', defaultTooltip: true},      // First quartile (25th percentile)
+  {name: 'median', defaultTooltip: true},  // Second quartile (50th percentile)
+  {name: 'Q3', defaultTooltip: true},      // Third quartile (75th percentile)
+  {name: 'max', defaultTooltip: true}
+];
+```
+
+## Coordinate System
+
+Boxplot charts work with Cartesian 2D coordinate systems and depend on grid, xAxis, and yAxis components.
+
+```typescript
+// From BoxplotSeries.ts:81
+static readonly dependencies = ['xAxis', 'yAxis', 'grid'];
+
+coordinateSystem: 'cartesian2d';  // BoxplotSeries.ts:108
+```
+
+## Performance Considerations
+
+- **Animation duration**: Default is 800ms (BoxplotSeries.ts:131)
+- Use `progressive` rendering for large datasets
+- Consider disabling shadows in `itemStyle` for better performance with many data points
+
+## Related Charts
+
+- **Candlestick Chart** - Similar visual structure for financial data
+- **Scatter Chart** - Can be combined to show outliers
+- **Bar Chart** - Alternative for category comparison

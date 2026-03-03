@@ -1,0 +1,261 @@
+---
+title: "Funnel Chart"
+description: "Display data in a funnel or pyramid visualization to show progressive reduction or stages in a process"
+---
+
+## When to Use Funnel Charts
+
+Funnel charts are ideal for visualizing data that represents stages in a process, particularly when values progressively decrease at each stage. Common use cases include:
+
+- **Sales funnels**: Tracking prospects through the sales pipeline from leads to closed deals
+- **Conversion funnels**: Monitoring user progression through website flows or checkout processes
+- **Filtering processes**: Showing how data is refined through multiple filtering stages
+- **Hierarchical data**: Displaying proportional relationships in ranked or ordered data
+
+The funnel chart displays each stage as a trapezoid, with the width representing the value. By default, stages are sorted in descending order.
+
+## Basic Configuration
+
+A funnel chart uses the `type: 'funnel'` series option. Here's the basic structure:
+
+```typescript
+type FunnelSeriesOption = {
+  type: 'funnel'
+  data: (number | FunnelDataItemOption)[]
+  sort?: 'ascending' | 'descending' | 'none'
+  orient?: 'vertical' | 'horizontal'
+  min?: number
+  max?: number
+  minSize?: number | string
+  maxSize?: number | string
+  gap?: number
+  funnelAlign?: 'left' | 'center' | 'right' | 'top' | 'bottom'
+  label?: FunnelLabelOption
+  labelLine?: LabelLineOption
+  itemStyle?: ItemStyleOption
+}
+```
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:77-102
+
+## Complete Working Example
+
+```javascript
+import * as echarts from 'echarts';
+
+const option = {
+  title: {
+    text: 'Sales Funnel',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b}: {c} ({d}%)'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  series: [
+    {
+      type: 'funnel',
+      left: '10%',
+      top: 60,
+      bottom: 60,
+      width: '80%',
+      min: 0,
+      max: 100,
+      minSize: '0%',
+      maxSize: '100%',
+      sort: 'descending',
+      gap: 2,
+      label: {
+        show: true,
+        position: 'inside'
+      },
+      labelLine: {
+        length: 10,
+        lineStyle: {
+          width: 1,
+          type: 'solid'
+        }
+      },
+      itemStyle: {
+        borderColor: '#fff',
+        borderWidth: 1
+      },
+      emphasis: {
+        label: {
+          fontSize: 20
+        }
+      },
+      data: [
+        { value: 100, name: 'Website Visits' },
+        { value: 80, name: 'Downloads' },
+        { value: 60, name: 'Registered' },
+        { value: 40, name: 'Active Users' },
+        { value: 20, name: 'Purchased' }
+      ]
+    }
+  ]
+};
+
+const chart = echarts.init(document.getElementById('main'));
+chart.setOption(option);
+```
+
+## Key Options and Properties
+
+### Series Options
+
+#### `sort`
+Type: `'ascending' | 'descending' | 'none'`  
+Default: `'descending'`
+
+Controls how data items are ordered in the funnel. Use `'ascending'` for pyramid charts.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:93
+
+#### `orient`
+Type: `'vertical' | 'horizontal'`  
+Default: `'vertical'`
+
+Orientation of the funnel chart.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:95
+
+#### `gap`
+Type: `number`  
+Default: `0`
+
+Gap between each trapezoid in pixels.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:97
+
+#### `funnelAlign`
+Type: `'left' | 'center' | 'right'` (vertical) or `'top' | 'center' | 'bottom'` (horizontal)  
+Default: `'center'`
+
+Horizontal alignment of the funnel when oriented vertically, or vertical alignment when oriented horizontally.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:99
+
+#### `minSize` / `maxSize`
+Type: `number | string`  
+Default: `'0%'` / `'100%'`
+
+Minimum and maximum width (for vertical) or height (for horizontal) of the funnel, as a percentage or absolute value.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:90-91
+
+### Label Options
+
+#### `label.position`
+Type: `'inner' | 'inside' | 'center' | 'outer' | 'left' | 'right' | 'top' | 'bottom' | 'leftTop' | 'leftBottom' | 'rightTop' | 'rightBottom'`  
+Default: `'outer'`
+
+Position of the label. The funnel chart extends the standard label positions with special corner positions.
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:49-52
+
+```javascript
+label: {
+  show: true,
+  position: 'inside',
+  formatter: '{b}: {c}'
+}
+```
+
+### Data Item Options
+
+Each data item can be a number or an object with detailed configuration:
+
+```typescript
+interface FunnelDataItemOption {
+  name?: string
+  value: number
+  itemStyle?: {
+    color?: string
+    borderColor?: string
+    borderWidth?: number
+    width?: number | string  // Custom width for this item
+    height?: number | string // Custom height for this item
+  }
+  label?: FunnelLabelOption
+  labelLine?: LabelLineOption
+  emphasis?: {...}
+}
+```
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:67-75
+
+### Callback Data Parameters
+
+In formatters and event handlers, funnel charts provide a special `percent` parameter:
+
+```typescript
+interface FunnelCallbackDataParams {
+  seriesName: string
+  name: string
+  value: number
+  percent: number  // Percentage of the total sum
+  dataIndex: number
+  color: string
+}
+```
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:58-60
+
+Example usage:
+
+```javascript
+tooltip: {
+  trigger: 'item',
+  formatter: '{b}: {c} ({d}%)'
+}
+```
+
+## Layout Algorithm
+
+The funnel chart uses a specialized layout algorithm that:
+
+1. Sorts data according to the `sort` option
+2. Maps values to sizes using linear interpolation between `min`/`max` and `minSize`/`maxSize`
+3. Calculates trapezoid points based on `funnelAlign`
+4. Positions labels and label lines according to `label.position`
+
+Source: ~/workspace/source/src/chart/funnel/funnelLayout.ts:241-386
+
+## Default Options
+
+```javascript
+{
+  left: 80,
+  top: 60,
+  right: 80,
+  bottom: 65,
+  minSize: '0%',
+  maxSize: '100%',
+  sort: 'descending',
+  orient: 'vertical',
+  gap: 0,
+  funnelAlign: 'center',
+  label: {
+    show: true,
+    position: 'outer'
+  },
+  labelLine: {
+    show: true,
+    length: 20,
+    lineStyle: {
+      width: 1
+    }
+  },
+  itemStyle: {
+    borderColor: '#fff',
+    borderWidth: 1
+  }
+}
+```
+
+Source: ~/workspace/source/src/chart/funnel/FunnelSeries.ts:153-203

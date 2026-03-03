@@ -1,0 +1,325 @@
+---
+title: Built-in Themes
+description: Explore all the built-in themes available in Apache ECharts
+---
+
+# Built-in Themes
+
+ECharts comes with a variety of pre-built themes that you can use in your charts. These themes are located in the `/theme` directory of the ECharts distribution.
+
+## Available Themes
+
+Based on the source code at `/workspace/source/theme/`, the following themes are available:
+
+### Core Themes
+
+- **dark** - Dark theme optimized for dark backgrounds
+- **vintage** - Retro color palette with a warm vintage feel
+
+### Color-based Themes
+
+- **blue** - Blue-toned color scheme
+- **green** - Green-toned color scheme  
+- **red** - Red-toned color scheme
+- **gray** - Grayscale color scheme
+- **azul** - Azure blue theme
+
+### Named Style Themes
+
+- **macarons** - Soft pastel colors inspired by French macarons
+- **macarons2** - Alternative macaron color scheme
+- **infographic** - Bold colors suitable for infographics
+- **roma** - Elegant color palette
+- **sakura** - Pink cherry blossom theme
+- **helianthus** - Vibrant sunflower-inspired colors
+- **mint** - Fresh mint green theme
+- **shine** - Bright, shiny colors
+- **vintage** - Classic vintage styling
+
+### Dark Variants
+
+- **dark-blue** - Dark blue theme
+- **dark-bold** - Bold dark theme
+- **dark-digerati** - Dark theme for tech audiences
+- **dark-fresh-cut** - Fresh dark color scheme
+- **dark-mushroom** - Earthy dark tones
+
+### Designer Themes
+
+- **eduardo** - Designer color palette
+- **walden** - Nature-inspired theme  
+- **caravan** - Warm travel-inspired colors
+- **jazz** - Musical, vibrant theme
+- **london** - Urban, sophisticated palette
+- **royal** - Regal color scheme
+- **tech-blue** - Technology-focused blue theme
+- **cool** - Cool color tones
+- **carp** - Fish-inspired colors
+- **forest** - Forest green theme
+- **fresh-cut** - Clean, fresh colors
+- **fruit** - Fruity, bright colors
+- **inspired** - Creative color palette
+- **bee-inspired** - Bee and honey colors
+- **red-velvet** - Rich red theme
+- **rainbow** - Multi-color rainbow theme
+
+### Special Themes
+
+- **v5** - Default theme for ECharts v5
+
+## Theme Examples
+
+### Dark Theme
+
+The dark theme features a dark background with bright, contrasting colors:
+
+```javascript
+import * as echarts from 'echarts';
+import 'echarts/theme/dark';
+
+const chart = echarts.init(document.getElementById('chart'), 'dark');
+```
+
+Key characteristics from `/workspace/source/theme/dark.js`:
+
+- **Background**: `#100C2A` (deep purple-black)
+- **Color Palette**: 
+  - `#4992ff` (blue)
+  - `#7cffb2` (green)
+  - `#fddd60` (yellow)
+  - `#ff6e76` (red)
+  - `#58d9f9` (cyan)
+  - `#05c091` (teal)
+  - `#ff8a45` (orange)
+  - `#8d48e3` (purple)
+  - `#dd79ff` (pink)
+- **Contrast Color**: `#B9B8CE`
+- **darkMode**: `true`
+
+### Vintage Theme
+
+A simple, retro theme with muted earth tones:
+
+```javascript
+import 'echarts/theme/vintage';
+
+const chart = echarts.init(document.getElementById('chart'), 'vintage');
+```
+
+Key characteristics from `/workspace/source/theme/vintage.js`:
+
+- **Background**: `#fef8ef` (warm off-white)
+- **Color Palette**:
+  - `#d87c7c` (dusty rose)
+  - `#919e8b` (sage green)
+  - `#d7ab82` (tan)
+  - `#6e7074` (gray)
+  - `#61a0a8` (teal)
+  - `#efa18d` (peach)
+  - `#787464` (olive)
+  - `#cc7e63` (terracotta)
+  - `#724e58` (mauve)
+  - `#4b565b` (charcoal)
+
+### Macarons Theme
+
+Soft, pastel colors perfect for data visualization:
+
+```javascript
+import 'echarts/theme/macarons';
+
+const chart = echarts.init(document.getElementById('chart'), 'macarons');
+```
+
+Key characteristics from `/workspace/source/theme/macarons.js`:
+
+- **Color Palette**:
+  - `#2ec7c9` (turquoise)
+  - `#b6a2de` (lavender)
+  - `#5ab1ef` (sky blue)
+  - `#ffb980` (peach)
+  - `#d87a80` (coral)
+  - `#8d98b3` (slate blue)
+  - `#e5cf0d` (yellow)
+  - `#97b552` (olive green)
+  - `#95706d` (brown)
+  - `#dc69aa` (pink)
+- **Title Color**: `#008acd`
+- **Smooth Lines**: Enabled by default
+- **Symbol**: Empty circles for line charts
+
+### Infographic Theme
+
+Bold, vibrant colors ideal for infographics:
+
+```javascript
+import 'echarts/theme/infographic';
+
+const chart = echarts.init(document.getElementById('chart'), 'infographic');
+```
+
+Key characteristics from `/workspace/source/theme/infographic.js`:
+
+- **Color Palette**:
+  - `#C1232B` (red)
+  - `#27727B` (teal)
+  - `#FCCE10` (yellow)
+  - `#E87C25` (orange)
+  - `#B5C334` (lime)
+  - `#FE8463` (coral)
+  - `#9BCA63` (green)
+  - `#FAD860` (gold)
+  - Plus 7 more vibrant colors
+- **Title Color**: `#27727B`
+- **Emphasis**: Strong line styles with border
+
+### Roma Theme
+
+Elegant, sophisticated color scheme:
+
+```javascript
+import 'echarts/theme/roma';
+
+const chart = echarts.init(document.getElementById('chart'), 'roma');
+```
+
+Key characteristics from `/workspace/source/theme/roma.js`:
+
+- **Color Palette**:
+  - `#E01F54` (crimson)
+  - `#001852` (midnight blue)
+  - `#f5e8c8` (cream)
+  - `#b8d2c7` (seafoam)
+  - `#c6b38e` (tan)
+  - Plus 15 more complementary colors
+- **Visual Map**: Red to cream gradient
+
+### Sakura Theme
+
+Delicate pink theme inspired by cherry blossoms:
+
+```javascript
+import 'echarts/theme/sakura';
+
+const chart = echarts.init(document.getElementById('chart'), 'sakura');
+```
+
+Key characteristics from `/workspace/source/theme/sakura.js`:
+
+- **Color Palette**:
+  - `#e52c3c` (bright pink)
+  - `#f7b1ab` (light pink)
+  - `#fa506c` (rose)
+  - `#f59288` (coral pink)
+  - `#f8c4d8` (blush)
+  - Plus 5 more pink variations
+- **Title Color**: `#e52c3c`
+- **Theme**: Romantic, feminine palette
+
+### Helianthus Theme
+
+Bright, cheerful sunflower-inspired colors:
+
+```javascript
+import 'echarts/theme/helianthus';
+
+const chart = echarts.init(document.getElementById('chart'), 'helianthus');
+```
+
+Key characteristics from `/workspace/source/theme/helianthus.js`:
+
+- **Color Palette**:
+  - `#44B7D3` (sky blue)
+  - `#E42B6D` (magenta)
+  - `#F4E24E` (yellow)
+  - `#FE9616` (orange)
+  - `#8AED35` (lime)
+  - `#ff69b4` (hot pink)
+  - Plus 14 more vibrant colors
+- **Title Color**: `#8A826D` (khaki)
+- **Smooth Lines**: Enabled
+- **Symbol**: Empty circles
+
+## Using Built-in Themes
+
+### In Browser (via CDN)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <!-- Include the theme file -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/theme/macarons.js"></script>
+</head>
+<body>
+  <div id="chart" style="width: 600px; height: 400px;"></div>
+  <script>
+    // Theme is automatically registered when the script loads
+    const chart = echarts.init(document.getElementById('chart'), 'macarons');
+    
+    chart.setOption({
+      xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+      yAxis: { type: 'value' },
+      series: [{ data: [120, 200, 150, 80, 70], type: 'bar' }]
+    });
+  </script>
+</body>
+</html>
+```
+
+### In Node.js / Module Bundler
+
+```javascript
+import * as echarts from 'echarts';
+// Import theme (this automatically registers it)
+import 'echarts/theme/dark';
+
+const chart = echarts.init(dom, 'dark');
+```
+
+### Using Multiple Themes
+
+```javascript
+import * as echarts from 'echarts';
+import 'echarts/theme/dark';
+import 'echarts/theme/vintage';
+import 'echarts/theme/macarons';
+
+// Use different themes for different charts
+const darkChart = echarts.init(dom1, 'dark');
+const vintageChart = echarts.init(dom2, 'vintage');
+const macaronsChart = echarts.init(dom3, 'macarons');
+```
+
+## Theme Files Structure
+
+All theme files follow a similar UMD pattern from the source:
+
+```javascript
+(function(root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD
+        define(['exports', 'echarts'], factory);
+    } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+        // CommonJS
+        factory(exports, require('echarts/lib/echarts'));
+    } else {
+        // Browser globals
+        factory({}, root.echarts);
+    }
+})(this, function(exports, echarts) {
+    // Theme definition
+    var theme = { /* theme options */ };
+    
+    // Register the theme
+    echarts.registerTheme('theme-name', theme);
+});
+```
+
+Source reference: `/workspace/source/theme/dark.js:20-34`
+
+## Next Steps
+
+- [Custom Themes](/themes/custom-themes) - Learn how to create your own themes
+- [Theming Overview](/themes/overview) - Understand the theming system

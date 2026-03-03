@@ -1,0 +1,378 @@
+---
+title: "Tree Chart"
+description: "Display hierarchical data structures with expandable/collapsible tree visualizations"
+icon: "sitemap"
+---
+
+Tree charts visualize hierarchical data in a tree structure, showing parent-child relationships with branches and nodes. They support both orthogonal (top-down, left-right) and radial layouts.
+
+## When to Use
+
+Use tree charts when you need to:
+
+- Display organizational hierarchies and reporting structures
+- Visualize file system structures and directory trees
+- Show decision trees and classification hierarchies
+- Represent family trees and genealogical data
+- Illustrate nested categories and taxonomies
+
+## Basic Configuration
+
+A tree chart requires hierarchical data with a parent-child structure. Each node can have children, and the tree supports expand/collapse interactions.
+
+```javascript
+option = {
+  series: [{
+    type: 'tree',
+    data: [{
+      name: 'Root',
+      children: [
+        {
+          name: 'Child 1',
+          children: [
+            { name: 'Grandchild 1.1' },
+            { name: 'Grandchild 1.2' }
+          ]
+        },
+        {
+          name: 'Child 2',
+          children: [
+            { name: 'Grandchild 2.1' }
+          ]
+        }
+      ]
+    }]
+  }]
+};
+```
+
+## Complete Example
+
+Here's a comprehensive example showing an organizational hierarchy:
+
+```javascript
+option = {
+  title: {
+    text: 'Organization Structure'
+  },
+  tooltip: {
+    trigger: 'item',
+    triggerOn: 'mousemove'
+  },
+  series: [{
+    type: 'tree',
+    
+    // Hierarchical data
+    data: [{
+      name: 'CEO',
+      value: 100,
+      children: [
+        {
+          name: 'CTO',
+          value: 80,
+          children: [
+            {
+              name: 'Engineering Manager',
+              value: 60,
+              children: [
+                { name: 'Frontend Team', value: 40 },
+                { name: 'Backend Team', value: 45 },
+                { name: 'DevOps Team', value: 35 }
+              ]
+            },
+            {
+              name: 'QA Manager',
+              value: 50,
+              children: [
+                { name: 'QA Team', value: 30 }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'CFO',
+          value: 75,
+          children: [
+            { name: 'Accounting', value: 40 },
+            { name: 'Finance', value: 45 }
+          ]
+        },
+        {
+          name: 'CMO',
+          value: 70,
+          children: [
+            { name: 'Marketing', value: 50 },
+            { name: 'Sales', value: 55 }
+          ]
+        }
+      ]
+    }],
+    
+    // Layout orientation: 'LR', 'RL', 'TB', 'BT'
+    orient: 'LR',
+    
+    // Layout type: 'orthogonal' or 'radial'
+    layout: 'orthogonal',
+    
+    // Edge shape: 'curve' or 'polyline'
+    edgeShape: 'curve',
+    
+    // Fork position for polyline edges
+    edgeForkPosition: '50%',
+    
+    // Enable expand/collapse
+    expandAndCollapse: true,
+    
+    // Initial expanded depth
+    initialTreeDepth: 2,
+    
+    // Symbol
+    symbol: 'emptyCircle',
+    symbolSize: 7,
+    
+    // Node label
+    label: {
+      show: true,
+      position: 'right',
+      verticalAlign: 'middle',
+      fontSize: 12
+    },
+    
+    // Leaf nodes special styling
+    leaves: {
+      label: {
+        position: 'right',
+        verticalAlign: 'middle',
+        align: 'left'
+      }
+    },
+    
+    // Edge line style
+    lineStyle: {
+      color: '#ccc',
+      width: 1.5,
+      curveness: 0.5
+    },
+    
+    // Node item style
+    itemStyle: {
+      color: 'lightsteelblue',
+      borderWidth: 1.5
+    },
+    
+    // Emphasis (hover) state
+    emphasis: {
+      focus: 'descendant',
+      label: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      },
+      itemStyle: {
+        borderWidth: 2
+      }
+    },
+    
+    // Enable roam (zoom and pan)
+    roam: true,
+    
+    // Layout box
+    left: '12%',
+    right: '12%',
+    top: '12%',
+    bottom: '12%'
+  }]
+};
+```
+
+## Key Options
+
+### Layout Configuration
+
+<ParamField path="series.layout" type="'orthogonal' | 'radial'" default="'orthogonal'">
+  The layout type of the tree. From TreeSeries.ts:92, 268
+  
+  - `'orthogonal'`: Traditional tree layout with straight branches
+  - `'radial'`: Circular layout radiating from center
+</ParamField>
+
+<ParamField path="series.orient" type="'LR' | 'RL' | 'TB' | 'BT' | 'horizontal' | 'vertical'" default="'LR'">
+  Orientation for orthogonal layout. From TreeSeries.ts:107, 287
+  
+  - `'LR'`: Left to right
+  - `'RL'`: Right to left  
+  - `'TB'`: Top to bottom
+  - `'BT'`: Bottom to top
+  - `'horizontal'`: Same as 'LR' (deprecated)
+  - `'vertical'`: Same as 'TB' (deprecated)
+</ParamField>
+
+### Edge Configuration
+
+<ParamField path="series.edgeShape" type="'curve' | 'polyline'" default="'curve'">
+  Shape of the edge connecting nodes. From TreeSeries.ts:94, 271
+  
+  - `'curve'`: Smooth curved lines
+  - `'polyline'`: Straight line segments
+</ParamField>
+
+<ParamField path="series.edgeForkPosition" type="string | number" default="'50%'">
+  Position where polyline edges fork. From TreeSeries.ts:99, 273
+  
+  Only effective when `edgeShape` is 'polyline'. Can be a percentage string or pixel value.
+</ParamField>
+
+### Expand/Collapse
+
+<ParamField path="series.expandAndCollapse" type="boolean" default="true">
+  Whether to enable expand/collapse functionality. From TreeSeries.ts:109, 293
+  
+  When enabled, clicking on a node toggles its children's visibility.
+</ParamField>
+
+<ParamField path="series.initialTreeDepth" type="number" default="2">
+  Initial expanded depth from root. From TreeSeries.ts:114, 295
+  
+  Nodes beyond this depth will be collapsed by default. Set to -1 to expand all.
+</ParamField>
+
+### Node Data
+
+<ParamField path="series.data" type="TreeSeriesNodeItemOption[]">
+  Hierarchical tree data. From TreeSeries.ts:66-77, 118
+  
+  <Expandable title="node properties">
+    <ParamField path="name" type="string">
+      Node name displayed in label.
+    </ParamField>
+    
+    <ParamField path="value" type="number | number[]">
+      Node value for sizing or other mappings.
+    </ParamField>
+    
+    <ParamField path="children" type="TreeSeriesNodeItemOption[]">
+      Child nodes array.
+    </ParamField>
+    
+    <ParamField path="collapsed" type="boolean">
+      Whether this node is initially collapsed.
+    </ParamField>
+    
+    <ParamField path="link" type="string">
+      Hyperlink URL when node is clicked.
+    </ParamField>
+    
+    <ParamField path="target" type="string">
+      Link target (e.g., '_blank').
+    </ParamField>
+    
+    <ParamField path="itemStyle" type="ItemStyleOption">
+      Style for this node.
+    </ParamField>
+    
+    <ParamField path="lineStyle" type="LineStyleOption">
+      Style for the edge connecting to parent.
+    </ParamField>
+    
+    <ParamField path="label" type="SeriesLabelOption">
+      Label configuration for this node.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Leaves Styling
+
+<ParamField path="series.leaves" type="TreeSeriesLeavesOption">
+  Special styling for leaf nodes (nodes without children). From TreeSeries.ts:82-84, 116
+  
+  Can contain `itemStyle`, `lineStyle`, and `label` properties that override the default styles for leaf nodes.
+</ParamField>
+
+### Line Style
+
+<ParamField path="series.lineStyle" type="object">
+  Style of the edges connecting nodes. From TreeSeries.ts:55, 297-301
+  
+  <Expandable title="properties">
+    <ParamField path="color" type="string" default="tokens.color.borderTint">
+      Edge line color.
+    </ParamField>
+    
+    <ParamField path="width" type="number" default="1.5">
+      Edge line width.
+    </ParamField>
+    
+    <ParamField path="curveness" type="number" default="0.5">
+      Curvature of curved edges (0-1).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Interaction
+
+<ParamField path="series.roam" type="boolean | 'scale' | 'move'" default="false">
+  Whether to enable zoom and pan. From TreeSeries.ts:276
+</ParamField>
+
+<ParamField path="series.nodeScaleRatio" type="number" default="0.4">
+  Symbol size scale ratio during zoom. From TreeSeries.ts:101, 280
+</ParamField>
+
+### Emphasis
+
+<ParamField path="series.emphasis.focus" type="'self' | 'ancestor' | 'descendant' | 'relative'">
+  What to highlight on hover. From TreeSeries.ts:61
+  
+  - `'self'`: Only the hovered node
+  - `'ancestor'`: The node and all its ancestors
+  - `'descendant'`: The node and all its descendants
+  - `'relative'`: The node, ancestors, and descendants
+</ParamField>
+
+## Layout Box
+
+Tree charts use box layout for positioning:
+
+<ParamField path="series.left" type="string | number" default="'12%'">
+  Distance from the left edge.
+</ParamField>
+
+<ParamField path="series.top" type="string | number" default="'12%'">
+  Distance from the top edge.
+</ParamField>
+
+<ParamField path="series.right" type="string | number" default="'12%'">
+  Distance from the right edge.
+</ParamField>
+
+<ParamField path="series.bottom" type="string | number" default="'12%'">
+  Distance from the bottom edge.
+</ParamField>
+
+From TreeSeries.ts:262-265
+
+## Radial Layout
+
+For radial layout, use these additional options:
+
+```javascript
+option = {
+  series: [{
+    type: 'tree',
+    layout: 'radial',
+    data: [/* hierarchical data */],
+    // Radial-specific options inherited from box layout
+    left: 'center',
+    top: 'middle'
+  }]
+};
+```
+
+## Best Practices
+
+- Use `orient: 'LR'` or `'TB'` based on your data width/depth ratio
+- Set `initialTreeDepth` appropriately for large trees to avoid overwhelming users
+- Use `leaves` styling to differentiate leaf nodes from parent nodes
+- Enable `expandAndCollapse` for interactive exploration of large hierarchies
+- Use `edgeShape: 'polyline'` for technical diagrams, `'curve'` for organic feel
+- Consider radial layout for balanced, symmetric trees
+- Use `emphasis.focus: 'ancestor'` or `'descendant'` to show hierarchical relationships on hover
